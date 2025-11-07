@@ -7,7 +7,7 @@ name = "com-pac"
 dynamic = ["version"]
 description = 'Center Of Mass - Principal Axes Calculator'
 readme = "README.md"
-requires-python = "==3.7"
+requires-python = ">=3.10"
 license = "MIT"
 keywords = [
   "center of mass",
@@ -23,14 +23,14 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "medeleev==0.6.1",
-  "numpy==1.19.5",
-  "pandas==1.2.1",
+  "mendeleev",
+  "numpy",
+  "pandas",
 ]
 
 [project.scripts]
@@ -63,7 +63,7 @@ path = "src/com_pac/__about__.py"
 installer = "uv"
 
 [tool.hatch.envs.dev]
-python = "3.7"
+python = "3.10"
 dependencies = ["com-pac[dev]"]
 
 [tool.hatch.envs.docs]
@@ -120,5 +120,5 @@ extra-dependencies = [
 ]
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.7"]
+python = ["3.10"]
 
