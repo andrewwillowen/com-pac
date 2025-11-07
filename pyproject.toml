@@ -67,6 +67,7 @@ python = "3.10"
 dependencies = ["com-pac[dev]"]
 
 [tool.hatch.envs.docs]
+python = "3.11"
 dependencies = ["com-pac[docs]"]
 
 [tool.hatch.envs.docs.scripts]

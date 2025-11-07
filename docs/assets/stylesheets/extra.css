@@ -1,0 +1,13 @@
+.katex .vlist-t2 {
+  margin-right: 0;
+}
+
+.katex-display {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  font-size: 15px;
+}
