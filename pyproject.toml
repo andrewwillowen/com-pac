@@ -52,7 +52,7 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/andrew.will.owen/com-pac#readme"
+Homepage = "https://andrewwillowen.github.io/com-pac/"
 Issues = "https://github.com/andrew.will.owen/com-pac/issues"
 Source = "https://github.com/andrew.will.owen/com-pac"
 
@@ -123,3 +123,12 @@ extra-dependencies = [
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/.github",
+  "/docs",
+  "/zensical.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/com_pac"]
