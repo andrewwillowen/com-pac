@@ -1,0 +1,124 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "com-pac"
+dynamic = ["version"]
+description = 'Center Of Mass - Principal Axes Calculator'
+readme = "README.md"
+requires-python = "==3.7"
+license = "MIT"
+keywords = [
+  "center of mass",
+  "principal ax[ei]s",
+  "molecule",
+  "cartesian coordinates",
+  "rotation",
+  "rotational spectoscopy",
+]
+authors = [
+  { name = "andrew.will.owen"},
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "medeleev==0.6.1",
+  "numpy==1.19.5",
+  "pandas==1.2.1",
+]
+
+[project.scripts]
+principal_axes_calculator = "com_pac.core:main"
+com-pac = "com_pac.core:main"
+com_pac = "com_pac.core:main"
+compac = "com_pac.core:main"
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "hypothesis",
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+]
+docs = [
+  "zensical",
+]
+
+[project.urls]
+Documentation = "https://github.com/andrew.will.owen/com-pac#readme"
+Issues = "https://github.com/andrew.will.owen/com-pac/issues"
+Source = "https://github.com/andrew.will.owen/com-pac"
+
+[tool.hatch.version]
+path = "src/com_pac/__about__.py"
+
+[tool.hatch.envs.default]
+installer = "uv"
+
+[tool.hatch.envs.dev]
+python = "3.7"
+dependencies = ["com-pac[dev]"]
+
+[tool.hatch.envs.docs]
+dependencies = ["com-pac[docs]"]
+
+[tool.hatch.envs.docs.scripts]
+build = "zensical build --clean"
+serve = "zensical serve"
+
+[tool.hatch.envs.hatch-static-analysis]
+dependencies = ["black", "ruff"]
+
+[tool.hatch.envs.hatch-static-analysis.scripts]
+format-check = [
+    "black --check --diff {args:.}",
+]
+format-fix = [
+    "black {args:.}",
+]
+lint-check = "ruff check {args:.}"
+lint-fix = "ruff check --fix {args:.}"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/com_pac tests}"
+
+[tool.coverage.run]
+source_pkgs = ["com_pac", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/com_pac/__about__.py",
+]
+
+[tool.coverage.paths]
+com_pac = ["src/com_pac", "*/com-pac/src/com_pac"]
+tests = ["tests", "*/com-pac/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+  "hypothesis",
+  "pytest",
+  "pytest-cov",
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.7"]
+
