@@ -1,0 +1,30 @@
+# Example input file for principal_axes_calculator tool
+# Data taken from https://doi.org/10.1063/5.0101064
+
+# Cartesian form of CCSD(T)/cc-pCV6Z optimization
+Coordinates
+H              -1.589833      0.831364      0.000000
+N              -1.160760     -0.089015      0.000000
+N               0.073466      0.038347      0.000000
+N               1.201717     -0.009166      0.000000
+
+# From experimental value (in Debye)
+Dipole
+0.837 1.48 0.0
+
+# Adapted from page S2 of the Supporting Information
+Isotopologues
+1 14 14 14 iso001    # normal
+1 15 14 14 iso002    # [1-15N]
+1 14 15 14 iso003    # [2-15N]
+1 14 14 15 iso004    # [3-15N]
+2 14 14 14 iso005    # [2H]
+2 15 14 14 iso006    # [2H, 1-15N]
+2 14 15 14 iso007    # [2H, 2-15N]
+2 14 14 15 iso008    # [2H, 3-15N]
+1 15 15 14 iso009    # [1,2-15N]
+1 15 14 15 iso010    # [1,3-15N]
+1 14 15 15 iso011    # [2,3-15N]
+2 15 15 14 iso012    # [2H, 1,2-15N]
+2 15 14 15 iso013    # [2H, 1,3-15N]
+2 14 15 15 iso014    # [2H, 2,3-15N]
