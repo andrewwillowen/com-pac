@@ -113,44 +113,64 @@ def inertiaToRot(inertia):
     return rot_constant
 
 
-def main():
-    input_file_path, num_of_decimals = read_args(6)
-
-    # ================================ #
-    #  reading contents of input file  #
-    # ================================ #
-
-    if input_file_path is not None:
-        input_file_dir = input_file_path.parent
-        input_file_name = input_file_path.name
+def coordinates_error_message(*args):
+    message = """
+    There was an error reading in the atomic coordinates.
+    
+    Proper format of the coordinate section is:
+        Coordinates     # comments
+        Atom1   x_coor1 y_coor1 z_coor1     # more comments
+        Atom2   x_coor2 y_coor2 z_coor2
+        ...
+        AtomZ   x_coorZ y_coorZ z_coorZ
+        (blank line)
+    where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.
+    
+    """
+    if len(args) == 0:
+        return message
     else:
-        raise ValueError("Failure to import file path.")
-
-    with open(input_file_path, "r") as infile:
-        input_file = infile.read()
+        return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
 
 
+def dipole_error_message(*args):
+    message = """
+    There was an error reading in the dipole.
+
+    Proper format of the dipole section is:
+        Dipole      # comments
+        muX muY muZ # more comments
+        (blank line)
+    where muX, muY, and muZ are numeric values.
+    
+    """
+    if len(args) == 0:
+        return message
+    else:
+        return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
+
+
+def isotopologue_error_message(*args):
+    message = """
+    There was an error reading in the isotopologue masses.
+    
+    Proper format of the isotopologue section is:
+        Isotopologues   # comment
+        mass1 mass2 mass3 ... massZ iso000  # more comments
+        mass1 mass2 mass3 ... massZ iso001  
+        ...
+        mass1 mass2 mass3 ... massZ isoZZZ
+        (blank line)
+    
+    """
+    if len(args) == 0:
+        return message
+    else:
+        return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
+
+
+def parse_input_file(input_file):
     # reading in atoms, coordinates
-    def coordinates_error_message(*args):
-        message = """
-        There was an error reading in the atomic coordinates.
-        
-        Proper format of the coordinate section is:
-            Coordinates     # comments
-            Atom1   x_coor1 y_coor1 z_coor1     # more comments
-            Atom2   x_coor2 y_coor2 z_coor2
-            ...
-            AtomZ   x_coorZ y_coorZ z_coorZ
-            (blank line)
-        where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.
-        
-        """
-        if len(args) == 0:
-            return message
-        else:
-            return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
-
-
     try:
         coordinate_matches = re.split("(?m)^coordinates", input_file, flags=re.IGNORECASE)[
             1
@@ -191,23 +211,6 @@ def main():
 
 
     # reading in dipole
-    def dipole_error_message(*args):
-        message = """
-        There was an error reading in the dipole.
-
-        Proper format of the dipole section is:
-            Dipole      # comments
-            muX muY muZ # more comments
-            (blank line)
-        where muX, muY, and muZ are numeric values.
-        
-        """
-        if len(args) == 0:
-            return message
-        else:
-            return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
-
-
     try:
         dipole_matches = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)[1]
     except (Exception,):
@@ -237,25 +240,6 @@ def main():
 
 
     # reading in isotopologues and masses
-    def isotopologue_error_message(*args):
-        message = """
-        There was an error reading in the isotopologue masses.
-        
-        Proper format of the isotopologue section is:
-            Isotopologues   # comment
-            mass1 mass2 mass3 ... massZ iso000  # more comments
-            mass1 mass2 mass3 ... massZ iso001  
-            ...
-            mass1 mass2 mass3 ... massZ isoZZZ
-            (blank line)
-        
-        """
-        if len(args) == 0:
-            return message
-        else:
-            return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
-
-
     try:
         isotopologue_matches = re.split("isotopologues", input_file, flags=re.IGNORECASE)[1]
     except (Exception,):
@@ -288,6 +272,33 @@ def main():
     except (Exception,) as exc:
         raise ValueError(isotopologue_error_message()) from exc
 
+    return (
+        isotopologue_names, isotopologue_dict, n_atoms,
+        atom_symbols, mol_coordinates, mol_dipole,
+        atom_numbering
+    )
+
+def main():
+    input_file_path, num_of_decimals = read_args(6)
+
+    # ================================ #
+    #  reading contents of input file  #
+    # ================================ #
+
+    if input_file_path is not None:
+        input_file_dir = input_file_path.parent
+        input_file_name = input_file_path.name
+    else:
+        raise ValueError("Failure to import file path.")
+
+    with open(input_file_path, "r") as infile:
+        input_file = infile.read()
+
+    (
+        isotopologue_names, isotopologue_dict, n_atoms,
+        atom_symbols, mol_coordinates, mol_dipole,
+        atom_numbering
+    ) = parse_input_file(input_file)
 
     # ========================================================= #
     #  Calculating principal axes system for each isotopologue  #
