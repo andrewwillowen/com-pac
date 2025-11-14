@@ -11,9 +11,11 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-def main():
-    input_file_path = None
-    num_of_decimals = 6
+def read_args(num_of_decimals):
+    """
+    Manually parsing arguments...
+    """
+    #TODO: replace with argparse
 
     # reading arguments from shell
     if len(argv) < 2:
@@ -72,6 +74,12 @@ def main():
                 print("Make sure that num_of_decimals is a positive integer.")
             if len(argv) > 3:
                 print("The following arguments will be ignored: {}".format(argv[3:]))
+
+        return input_file_path, num_of_decimals
+
+
+def main():
+    input_file_path, num_of_decimals = read_args(6)
 
 
     # ====================== #
