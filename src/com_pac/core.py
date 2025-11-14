@@ -300,6 +300,8 @@ def main():
         atom_numbering
     ) = parse_input_file(input_file)
 
+    # next to excise >>>>>>>>
+
     # ========================================================= #
     #  Calculating principal axes system for each isotopologue  #
     # ========================================================= #
@@ -362,6 +364,8 @@ def main():
             bad_diagonal_warnings[iso] = bad_diagonal_pas
         pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
         rotational_constants[iso] = list(map(inertiaToRot, evals))
+
+    # <<<<<<<< next to excise
 
     # ================= #
     # Pandas DataFrames #
