@@ -78,49 +78,43 @@ def read_args(num_of_decimals):
         return input_file_path, num_of_decimals
 
 
+def inertia_matrix(coordinates_array, masses_array):
+    matrix = np.zeros((3, 3))
+    for axis1 in [0, 1, 2]:
+        [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
+        diagonal = sum(
+            [
+                (
+                    masses_array[i]
+                    * (
+                        (coordinates_array[i][axis2]) ** 2
+                        + (coordinates_array[i][axis3]) ** 2
+                    )
+                )
+                for i in range(len(masses_array))
+            ]
+        )
+        off_diagonal = (-1) * sum(
+            [
+                masses_array[i]
+                * coordinates_array[i][axis2]
+                * coordinates_array[i][axis3]
+                for i in range(len(masses_array))
+            ]
+        )
+        matrix[axis1, axis1] = diagonal
+        matrix[axis2, axis3] = off_diagonal
+        matrix[axis3, axis2] = off_diagonal
+    return matrix
+
+
+def inertiaToRot(inertia):
+    rot_constant = 505379.0046 / inertia
+    return rot_constant
+
+
 def main():
     input_file_path, num_of_decimals = read_args(6)
-
-
-    # ====================== #
-    #  Function definitions  #
-    # ====================== #
-
-
-    def inertia_matrix(coordinates_array, masses_array):
-        matrix = np.zeros((3, 3))
-        for axis1 in [0, 1, 2]:
-            [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
-            diagonal = sum(
-                [
-                    (
-                        masses_array[i]
-                        * (
-                            (coordinates_array[i][axis2]) ** 2
-                            + (coordinates_array[i][axis3]) ** 2
-                        )
-                    )
-                    for i in range(len(masses_array))
-                ]
-            )
-            off_diagonal = (-1) * sum(
-                [
-                    masses_array[i]
-                    * coordinates_array[i][axis2]
-                    * coordinates_array[i][axis3]
-                    for i in range(len(masses_array))
-                ]
-            )
-            matrix[axis1, axis1] = diagonal
-            matrix[axis2, axis3] = off_diagonal
-            matrix[axis3, axis2] = off_diagonal
-        return matrix
-
-
-    def inertiaToRot(inertia):
-        rot_constant = 505379.0046 / inertia
-        return rot_constant
-
 
     # ================================ #
     #  reading contents of input file  #
