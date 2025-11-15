@@ -11,11 +11,12 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+
 def read_args(num_of_decimals):
     """
     Manually parsing arguments...
     """
-    #TODO: replace with argparse
+    # TODO: replace with argparse
 
     # reading arguments from shell
     if len(argv) < 2:
@@ -172,9 +173,9 @@ def isotopologue_error_message(*args):
 def parse_input_file(input_file):
     # reading in atoms, coordinates
     try:
-        coordinate_matches = re.split("(?m)^coordinates", input_file, flags=re.IGNORECASE)[
-            1
-        ]
+        coordinate_matches = re.split(
+            "(?m)^coordinates", input_file, flags=re.IGNORECASE
+        )[1]
     except (Exception,):
         raise ValueError(
             coordinates_error_message(
@@ -209,7 +210,6 @@ def parse_input_file(input_file):
     except (Exception,) as exc:
         raise ValueError(coordinates_error_message()) from exc
 
-
     # reading in dipole
     try:
         dipole_matches = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)[1]
@@ -238,10 +238,11 @@ def parse_input_file(input_file):
     except (Exception,) as exc:
         raise ValueError(dipole_error_message()) from exc
 
-
     # reading in isotopologues and masses
     try:
-        isotopologue_matches = re.split("isotopologues", input_file, flags=re.IGNORECASE)[1]
+        isotopologue_matches = re.split(
+            "isotopologues", input_file, flags=re.IGNORECASE
+        )[1]
     except (Exception,):
         raise ValueError(
             isotopologue_error_message(
@@ -273,12 +274,24 @@ def parse_input_file(input_file):
         raise ValueError(isotopologue_error_message()) from exc
 
     return (
-        isotopologue_names, isotopologue_dict, n_atoms,
-        atom_symbols, mol_coordinates, mol_dipole,
-        atom_numbering
+        isotopologue_names,
+        isotopologue_dict,
+        n_atoms,
+        atom_symbols,
+        mol_coordinates,
+        mol_dipole,
+        atom_numbering,
     )
 
-def get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole):
+
+def get_principal_axes(
+    isotopologue_names,
+    isotopologue_dict,
+    n_atoms,
+    atom_symbols,
+    mol_coordinates,
+    mol_dipole,
+):
     rotational_constants = {}
     atom_masses = {}
     com_coordinates = {}
@@ -339,18 +352,38 @@ def get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symb
         rotational_constants[iso] = list(map(inertiaToRot, evals))
 
     return (
-        atom_masses, rotational_constants,
-        pa_dipoles, pa_coordinates, pa_inertias,
-        com_coordinates, com_inertias, eigenvectors, eigenvalues,
+        atom_masses,
+        rotational_constants,
+        pa_dipoles,
+        pa_coordinates,
+        pa_inertias,
+        com_coordinates,
+        com_inertias,
+        eigenvectors,
+        eigenvalues,
     )
 
-def get_dataframes(atom_masses, atom_symbols, rotational_constants, pa_dipoles, isotopologue_names, com_coordinates, atom_numbering,
-                   com_inertias, eigenvectors, pa_inertias, pa_coordinates):
+
+def get_dataframes(
+    atom_masses,
+    atom_symbols,
+    rotational_constants,
+    pa_dipoles,
+    isotopologue_names,
+    com_coordinates,
+    atom_numbering,
+    com_inertias,
+    eigenvectors,
+    pa_inertias,
+    pa_coordinates,
+):
     # Atomic masses
     atom_masses_df = pd.DataFrame.from_dict(atom_masses)
     atom_masses_df["Atom"] = atom_symbols
     atom_masses_df = atom_masses_df.set_index("Atom")
-    atom_masses_df.loc["Total"] = [atom_masses_df[i].sum() for i in atom_masses_df.columns]
+    atom_masses_df.loc["Total"] = [
+        atom_masses_df[i].sum() for i in atom_masses_df.columns
+    ]
 
     # Rotational constants
     rotational_constants_df = pd.DataFrame.from_dict(rotational_constants)
@@ -389,14 +422,22 @@ def get_dataframes(atom_masses, atom_symbols, rotational_constants, pa_dipoles, 
         pa_inertias_df = pa_inertias_df.set_index("Axis")
         pa_inertias_df_dict[iso] = pa_inertias_df
 
-        pa_coordinates_df = pd.DataFrame(columns=["a", "b", "c"], data=pa_coordinates[iso])
+        pa_coordinates_df = pd.DataFrame(
+            columns=["a", "b", "c"], data=pa_coordinates[iso]
+        )
         pa_coordinates_df["Atom"] = atom_numbering
         pa_coordinates_df = pa_coordinates_df.set_index("Atom")
         pa_coordinates_df_dict[iso] = pa_coordinates_df
-    
+
     return (
-        atom_masses_df, rotational_constants_df, dipole_components_df, com_coordinates_df_dict,
-        com_inertias_df_dict, eigenvectors_df_dict, pa_inertias_df_dict, pa_coordinates_df_dict,
+        atom_masses_df,
+        rotational_constants_df,
+        dipole_components_df,
+        com_coordinates_df_dict,
+        com_inertias_df_dict,
+        eigenvectors_df_dict,
+        pa_inertias_df_dict,
+        pa_coordinates_df_dict,
     )
 
 
@@ -422,15 +463,27 @@ def df_text_export(dataframe: pd.DataFrame, n_decimals=6):
     return dataframe.applymap(do_format).to_string()
 
 
-def generate_output_file(num_of_decimals, csv_output_name, input_file, atom_masses_df, rotational_constants_df,
-                         dipole_components_df, isotopologue_names, com_coordinates_df_dict, atom_symbols,
-                         com_inertias_df_dict, eigenvectors_df_dict, eigenvalues, pa_inertias_df_dict,
-                         pa_coordinates_df_dict, text_output_path):
+def generate_output_file(
+    num_of_decimals,
+    csv_output_name,
+    input_file,
+    atom_masses_df,
+    rotational_constants_df,
+    dipole_components_df,
+    isotopologue_names,
+    com_coordinates_df_dict,
+    atom_symbols,
+    com_inertias_df_dict,
+    eigenvectors_df_dict,
+    eigenvalues,
+    pa_inertias_df_dict,
+    pa_coordinates_df_dict,
+    text_output_path,
+):
     # TEXT OUTPUT
     #
     # All numbers are "friendly", that is, not in scientific notation.
     # Full numbers are provided in the .csv output.
-
 
     preamble = """The numbers in this output have been limited to {} decimal places.
     The numbers in the corresponding {} file have not.
@@ -467,14 +520,19 @@ def generate_output_file(num_of_decimals, csv_output_name, input_file, atom_mass
         iso_com_df = com_coordinates_df_dict[iso].copy(deep=True)
         iso_com_df.index = atom_symbols
         iso_com_coordinate = "{}\n{}".format(
-            iso, df_text_export(com_coordinates_df_dict[iso], n_decimals=num_of_decimals)
+            iso,
+            df_text_export(com_coordinates_df_dict[iso], n_decimals=num_of_decimals),
         )
         iso_com_coordinates_entries.append(iso_com_coordinate)
 
-        iso_com_inertia = "{}\n{}".format(iso, df_text_export(com_inertias_df_dict[iso], n_decimals=num_of_decimals))
+        iso_com_inertia = "{}\n{}".format(
+            iso, df_text_export(com_inertias_df_dict[iso], n_decimals=num_of_decimals)
+        )
         iso_com_inertias_entries.append(iso_com_inertia)
 
-        iso_eigen_vec = df_text_export(eigenvectors_df_dict[iso], n_decimals=num_of_decimals)
+        iso_eigen_vec = df_text_export(
+            eigenvectors_df_dict[iso], n_decimals=num_of_decimals
+        )
         formatted_eigen_val = []
         for eigen_val in eigenvalues[iso]:
             formatted_eigen_val.append("{:.{n}}".format(eigen_val, n=num_of_decimals))
@@ -484,14 +542,18 @@ def generate_output_file(num_of_decimals, csv_output_name, input_file, atom_mass
         )
         iso_eigens_entries.append(iso_eigen)
 
-        iso_pa_inertia = "{}\n{}".format(iso, df_text_export(pa_inertias_df_dict[iso], n_decimals=num_of_decimals))
+        iso_pa_inertia = "{}\n{}".format(
+            iso, df_text_export(pa_inertias_df_dict[iso], n_decimals=num_of_decimals)
+        )
         iso_pa_inertias_entries.append(iso_pa_inertia)
 
         iso_pa_df = pa_coordinates_df_dict[iso].copy(deep=True)
         iso_pa_df.index = atom_symbols
         iso_pa_df.loc["Dipole"] = list(dipole_components_df[iso])
         iso_pa_df.loc["Rot. Con."] = list(rotational_constants_df[iso])
-        iso_result = "{}\n{}".format(iso, df_text_export(iso_pa_df, n_decimals=num_of_decimals))
+        iso_result = "{}\n{}".format(
+            iso, df_text_export(iso_pa_df, n_decimals=num_of_decimals)
+        )
         width = max([len(i) for i in iso_result.split("\n")])
         iso_result = iso_result.replace("\nDip", "\n{}\nDip".format("-" * width))
         iso_results_entries.append(iso_result)
@@ -545,7 +607,14 @@ def generate_output_file(num_of_decimals, csv_output_name, input_file, atom_mass
     with open(text_output_path, "w") as outfile:
         outfile.write(file_string)
 
-def generate_csv_output(pa_coordinates_df_dict, rotational_constants_df, dipole_components_df, atom_masses_df, csv_output_path):
+
+def generate_csv_output(
+    pa_coordinates_df_dict,
+    rotational_constants_df,
+    dipole_components_df,
+    atom_masses_df,
+    csv_output_path,
+):
     # .csv file
     # Outputs all data without formatting; scientific notation may be used in the values.
 
@@ -567,6 +636,7 @@ def generate_csv_output(pa_coordinates_df_dict, rotational_constants_df, dipole_
     with open(csv_output_path, "w") as outfile:
         outfile.write(csv_file_string)
 
+
 def main():
     input_file_path, num_of_decimals = read_args(6)
 
@@ -584,28 +654,60 @@ def main():
         input_file = infile.read()
 
     (
-        isotopologue_names, isotopologue_dict, n_atoms,
-        atom_symbols, mol_coordinates, mol_dipole,
-        atom_numbering
+        isotopologue_names,
+        isotopologue_dict,
+        n_atoms,
+        atom_symbols,
+        mol_coordinates,
+        mol_dipole,
+        atom_numbering,
     ) = parse_input_file(input_file)
 
+    (
+        atom_masses,
+        rotational_constants,
+        pa_dipoles,
+        pa_coordinates,
+        pa_inertias,
+        com_coordinates,
+        com_inertias,
+        eigenvectors,
+        eigenvalues,
+    ) = get_principal_axes(
+        isotopologue_names,
+        isotopologue_dict,
+        n_atoms,
+        atom_symbols,
+        mol_coordinates,
+        mol_dipole,
+    )
 
     (
-        atom_masses, rotational_constants,
-        pa_dipoles, pa_coordinates, pa_inertias,
-        com_coordinates, com_inertias, eigenvectors, eigenvalues,
-    ) = get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole)
-
-    (
-        atom_masses_df, rotational_constants_df, dipole_components_df, com_coordinates_df_dict,
-        com_inertias_df_dict, eigenvectors_df_dict, pa_inertias_df_dict, pa_coordinates_df_dict,
-    ) = get_dataframes(atom_masses, atom_symbols, rotational_constants, pa_dipoles, isotopologue_names, com_coordinates, atom_numbering,
-                   com_inertias, eigenvectors, pa_inertias, pa_coordinates)
+        atom_masses_df,
+        rotational_constants_df,
+        dipole_components_df,
+        com_coordinates_df_dict,
+        com_inertias_df_dict,
+        eigenvectors_df_dict,
+        pa_inertias_df_dict,
+        pa_coordinates_df_dict,
+    ) = get_dataframes(
+        atom_masses,
+        atom_symbols,
+        rotational_constants,
+        pa_dipoles,
+        isotopologue_names,
+        com_coordinates,
+        atom_numbering,
+        com_inertias,
+        eigenvectors,
+        pa_inertias,
+        pa_coordinates,
+    )
 
     # ==================== #
     #  Outputting results  #
     # ==================== #
-
 
     if input_file_name.count(".") != 1:
         input_file_base_name = str(input_file_name)
@@ -618,13 +720,32 @@ def main():
     text_output_path = input_file_dir.joinpath(text_output_name)
     csv_output_path = input_file_dir.joinpath(csv_output_name)
 
+    generate_output_file(
+        num_of_decimals,
+        csv_output_name,
+        input_file,
+        atom_masses_df,
+        rotational_constants_df,
+        dipole_components_df,
+        isotopologue_names,
+        com_coordinates_df_dict,
+        atom_symbols,
+        com_inertias_df_dict,
+        eigenvectors_df_dict,
+        eigenvalues,
+        pa_inertias_df_dict,
+        pa_coordinates_df_dict,
+        text_output_path,
+    )
 
-    generate_output_file(num_of_decimals, csv_output_name, input_file, atom_masses_df, rotational_constants_df,
-                         dipole_components_df, isotopologue_names, com_coordinates_df_dict, atom_symbols,
-                         com_inertias_df_dict, eigenvectors_df_dict, eigenvalues, pa_inertias_df_dict,
-                         pa_coordinates_df_dict, text_output_path)
+    generate_csv_output(
+        pa_coordinates_df_dict,
+        rotational_constants_df,
+        dipole_components_df,
+        atom_masses_df,
+        csv_output_path,
+    )
 
-    generate_csv_output(pa_coordinates_df_dict, rotational_constants_df, dipole_components_df, atom_masses_df, csv_output_path)
 
 if __name__ == "__main__":
     main()
