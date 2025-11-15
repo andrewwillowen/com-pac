@@ -344,40 +344,8 @@ def get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symb
         com_coordinates, com_inertias, eigenvectors, eigenvalues,
     )
 
-
-def main():
-    input_file_path, num_of_decimals = read_args(6)
-
-    # ================================ #
-    #  reading contents of input file  #
-    # ================================ #
-
-    if input_file_path is not None:
-        input_file_dir = input_file_path.parent
-        input_file_name = input_file_path.name
-    else:
-        raise ValueError("Failure to import file path.")
-
-    with open(input_file_path, "r") as infile:
-        input_file = infile.read()
-
-    (
-        isotopologue_names, isotopologue_dict, n_atoms,
-        atom_symbols, mol_coordinates, mol_dipole,
-        atom_numbering
-    ) = parse_input_file(input_file)
-
-
-    (
-        atom_masses, atom_mass_numbers, rotational_constants,
-        pa_dipoles, pa_coordinates, pa_inertias,
-        com_coordinates, com_inertias, eigenvectors, eigenvalues,
-    ) = get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole)
-
-    # ================= #
-    # Pandas DataFrames #
-    # ================= #
-
+def get_dataframes(atom_masses, atom_symbols, rotational_constants, pa_dipoles, isotopologue_names, com_coordinates, atom_numbering,
+                   com_inertias, eigenvectors, pa_inertias, pa_coordinates):
     # Atomic masses
     atom_masses_df = pd.DataFrame.from_dict(atom_masses)
     atom_masses_df["Atom"] = atom_symbols
@@ -425,6 +393,47 @@ def main():
         pa_coordinates_df["Atom"] = atom_numbering
         pa_coordinates_df = pa_coordinates_df.set_index("Atom")
         pa_coordinates_df_dict[iso] = pa_coordinates_df
+    
+    return (
+        atom_masses_df, rotational_constants_df, dipole_components_df, com_coordinates_df_dict,
+        com_inertias_df_dict, eigenvectors_df_dict, pa_inertias_df_dict, pa_coordinates_df_dict,
+    )
+
+
+def main():
+    input_file_path, num_of_decimals = read_args(6)
+
+    # ================================ #
+    #  reading contents of input file  #
+    # ================================ #
+
+    if input_file_path is not None:
+        input_file_dir = input_file_path.parent
+        input_file_name = input_file_path.name
+    else:
+        raise ValueError("Failure to import file path.")
+
+    with open(input_file_path, "r") as infile:
+        input_file = infile.read()
+
+    (
+        isotopologue_names, isotopologue_dict, n_atoms,
+        atom_symbols, mol_coordinates, mol_dipole,
+        atom_numbering
+    ) = parse_input_file(input_file)
+
+
+    (
+        atom_masses, atom_mass_numbers, rotational_constants,
+        pa_dipoles, pa_coordinates, pa_inertias,
+        com_coordinates, com_inertias, eigenvectors, eigenvalues,
+    ) = get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole)
+
+    (
+        atom_masses_df, rotational_constants_df, dipole_components_df, com_coordinates_df_dict,
+        com_inertias_df_dict, eigenvectors_df_dict, pa_inertias_df_dict, pa_coordinates_df_dict,
+    ) = get_dataframes(atom_masses, atom_symbols, rotational_constants, pa_dipoles, isotopologue_names, com_coordinates, atom_numbering,
+                   com_inertias, eigenvectors, pa_inertias, pa_coordinates)
 
     # ==================== #
     #  Outputting results  #
