@@ -278,34 +278,7 @@ def parse_input_file(input_file):
         atom_numbering
     )
 
-def main():
-    input_file_path, num_of_decimals = read_args(6)
-
-    # ================================ #
-    #  reading contents of input file  #
-    # ================================ #
-
-    if input_file_path is not None:
-        input_file_dir = input_file_path.parent
-        input_file_name = input_file_path.name
-    else:
-        raise ValueError("Failure to import file path.")
-
-    with open(input_file_path, "r") as infile:
-        input_file = infile.read()
-
-    (
-        isotopologue_names, isotopologue_dict, n_atoms,
-        atom_symbols, mol_coordinates, mol_dipole,
-        atom_numbering
-    ) = parse_input_file(input_file)
-
-    # next to excise >>>>>>>>
-
-    # ========================================================= #
-    #  Calculating principal axes system for each isotopologue  #
-    # ========================================================= #
-
+def get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole):
     rotational_constants = {}
     atom_masses = {}
     com_coordinates = {}
@@ -365,7 +338,41 @@ def main():
         pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
         rotational_constants[iso] = list(map(inertiaToRot, evals))
 
-    # <<<<<<<< next to excise
+    return (
+        atom_masses, atom_mass_numbers, rotational_constants,
+        pa_dipoles, pa_coordinates, pa_inertias,
+        com_coordinates, com_inertias, eigenvectors, eigenvalues,
+    )
+
+
+def main():
+    input_file_path, num_of_decimals = read_args(6)
+
+    # ================================ #
+    #  reading contents of input file  #
+    # ================================ #
+
+    if input_file_path is not None:
+        input_file_dir = input_file_path.parent
+        input_file_name = input_file_path.name
+    else:
+        raise ValueError("Failure to import file path.")
+
+    with open(input_file_path, "r") as infile:
+        input_file = infile.read()
+
+    (
+        isotopologue_names, isotopologue_dict, n_atoms,
+        atom_symbols, mol_coordinates, mol_dipole,
+        atom_numbering
+    ) = parse_input_file(input_file)
+
+
+    (
+        atom_masses, atom_mass_numbers, rotational_constants,
+        pa_dipoles, pa_coordinates, pa_inertias,
+        com_coordinates, com_inertias, eigenvectors, eigenvalues,
+    ) = get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole)
 
     # ================= #
     # Pandas DataFrames #
