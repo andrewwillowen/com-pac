@@ -460,7 +460,7 @@ def df_text_export(dataframe: pd.DataFrame, n_decimals=6):
         nice_number = "{:.{n}f}".format(some_number, n=n_decimals)
         return nice_number
 
-    return dataframe.applymap(do_format).to_string()
+    return dataframe.map(do_format).to_string()
 
 
 def generate_output_file(
