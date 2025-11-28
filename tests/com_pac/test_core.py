@@ -4,7 +4,7 @@ Unit tests for functions in core.py
 
 import pytest
 import numpy as np
-from com_pac.core import inertia_matrix
+from com_pac.core import inertia_matrix, inertiaToRot
 
 
 class Test_read_args:
@@ -340,7 +340,23 @@ class Test_inertia_matrix:
         np.testing.assert_allclose(value, expected)
 
 
-# class test_inertiaToRot:
+class Test_inertiaToRot:
+    @pytest.mark.parametrize(
+        "inertia, expected",
+        [
+            (np.float64(884870.6315160872), np.float64(0.5711332104379058)),
+            (np.float64(559120.6814956776), np.float64(0.903881793905538)),
+            (np.float64(50143.26041790018), np.float64(10.078702509332429)),
+            (np.float64(877851.8579169718), np.float64(0.5756996468620555)),
+            (np.float64(356444.735124563), np.float64(1.417832709531789)),
+            (np.float64(598210.5345886707), np.float64(0.8448179618693916)),
+        ],
+    )
+    def test_inertiaToRot_rand(self, inertia, expected):
+        value = inertiaToRot(inertia)
+        np.testing.assert_allclose(value, expected)
+
+
 # class test_coordinates_error_message:
 # class test_dipole_error_message:
 # class test_isotopologue_error_message:
