@@ -104,7 +104,7 @@ omit = [
 
 [tool.coverage.paths]
 com_pac = ["src/com_pac", "*/com-pac/src/com_pac"]
-tests = ["tests", "*/com-pac/tests"]
+tests = ["tests", "tests/com_pac"]
 
 [tool.coverage.report]
 exclude_lines = [
