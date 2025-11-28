@@ -4,7 +4,7 @@ Unit tests for functions in core.py
 
 import pytest
 import numpy as np
-from com_pac.core import inertia_matrix, inertiaToRot
+from com_pac.core import inertia_matrix, inertia_to_rot_const
 
 
 class Test_read_args:
@@ -340,7 +340,7 @@ class Test_inertia_matrix:
         np.testing.assert_allclose(value, expected)
 
 
-class Test_inertiaToRot:
+class Test_inertia_to_rot_const:
     @pytest.mark.parametrize(
         "inertia, expected",
         [
@@ -352,8 +352,8 @@ class Test_inertiaToRot:
             (np.float64(598210.5345886707), np.float64(0.8448179618693916)),
         ],
     )
-    def test_inertiaToRot_rand(self, inertia, expected):
-        value = inertiaToRot(inertia)
+    def test_inertia_to_rot_const_rand(self, inertia, expected):
+        value = inertia_to_rot_const(inertia)
         np.testing.assert_allclose(value, expected)
 
 

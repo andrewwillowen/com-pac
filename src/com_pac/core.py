@@ -109,7 +109,7 @@ def inertia_matrix(coordinates_array, masses_array):
     return matrix
 
 
-def inertiaToRot(inertia):
+def inertia_to_rot_const(inertia):
     rot_constant = 505379.0046 / inertia
     return rot_constant
 
@@ -349,7 +349,7 @@ def get_principal_axes(
             print(bad_diagonal_pas)
             bad_diagonal_warnings[iso] = bad_diagonal_pas
         pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
-        rotational_constants[iso] = list(map(inertiaToRot, evals))
+        rotational_constants[iso] = list(map(inertia_to_rot_const, evals))
 
     return (
         atom_masses,
