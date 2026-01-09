@@ -4,7 +4,7 @@ Unit tests for functions in core.py
 
 import pytest
 import numpy as np
-from com_pac.core import inertia_matrix, inertia_to_rot_const
+from com_pac.core import inertia_matrix, inertia_to_rot_const, coordinates_error_message
 
 
 class Test_read_args:
@@ -357,7 +357,25 @@ class Test_inertia_to_rot_const:
         np.testing.assert_allclose(value, expected)
 
 
-# class test_coordinates_error_message:
+class Test_coordinates_error_message:
+    def test_exact_message(self):
+        expected_message: str = (
+            "\n    There was an error reading in the atomic coordinates.\n    \n    Proper format of the coordinate section is:\n        Coordinates     # comments\n        Atom1   x_coor1 y_coor1 z_coor1     # more comments\n        Atom2   x_coor2 y_coor2 z_coor2\n        ...\n        AtomZ   x_coorZ y_coorZ z_coorZ\n        (blank line)\n    where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.\n    \n    "
+        )
+        actual_message = coordinates_error_message()
+        assert expected_message == actual_message
+
+    def test_exact_message_with_args(self):
+        arg1: str = "This is the first line appended to the message"
+        arg2: str = "This is the second line appended to the message"
+        arg3: str = "This is the last line appended to the message"
+        expected_message: str = (
+            "\n    There was an error reading in the atomic coordinates.\n    \n    Proper format of the coordinate section is:\n        Coordinates     # comments\n        Atom1   x_coor1 y_coor1 z_coor1     # more comments\n        Atom2   x_coor2 y_coor2 z_coor2\n        ...\n        AtomZ   x_coorZ y_coorZ z_coorZ\n        (blank line)\n    where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.\n    \n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
+        )
+        actual_message = coordinates_error_message(arg1, arg2, arg3)
+        assert expected_message == actual_message
+
+
 # class test_dipole_error_message:
 # class test_isotopologue_error_message:
 # class test_parse_input_file:
