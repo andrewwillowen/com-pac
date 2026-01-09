@@ -4,7 +4,13 @@ Unit tests for functions in core.py
 
 import pytest
 import numpy as np
-from com_pac.core import inertia_matrix, inertia_to_rot_const, coordinates_error_message
+from com_pac.core import (
+    inertia_matrix,
+    inertia_to_rot_const,
+    coordinates_error_message,
+    dipole_error_message,
+    isotopologue_error_message,
+)
 
 
 class Test_read_args:
@@ -376,8 +382,44 @@ class Test_coordinates_error_message:
         assert expected_message == actual_message
 
 
-# class Test_dipole_error_message:
-# class Test_isotopologue_error_message:
+class Test_dipole_error_message:
+    def test_exact_message(self):
+        expected_message: str = (
+            "\n    There was an error reading in the dipole.\n\n    Proper format of the dipole section is:\n        Dipole      # comments\n        muX muY muZ # more comments\n        (blank line)\n    where muX, muY, and muZ are numeric values.\n    \n    "
+        )
+        actual_message = dipole_error_message()
+        assert expected_message == actual_message
+
+    def test_exact_message_with_args(self):
+        arg1: str = "This is the first line appended to the message"
+        arg2: str = "This is the second line appended to the message"
+        arg3: str = "This is the last line appended to the message"
+        expected_message: str = (
+            "\n    There was an error reading in the dipole.\n\n    Proper format of the dipole section is:\n        Dipole      # comments\n        muX muY muZ # more comments\n        (blank line)\n    where muX, muY, and muZ are numeric values.\n    \n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
+        )
+        actual_message = dipole_error_message(arg1, arg2, arg3)
+        assert expected_message == actual_message
+
+
+class Test_isotopologue_error_message:
+    def test_exact_message(self):
+        expected_message: str = (
+            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    \n    "
+        )
+        actual_message = isotopologue_error_message()
+        assert expected_message == actual_message
+
+    def test_exact_message_with_args(self):
+        arg1: str = "This is the first line appended to the message"
+        arg2: str = "This is the second line appended to the message"
+        arg3: str = "This is the last line appended to the message"
+        expected_message: str = (
+            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    \n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
+        )
+        actual_message = isotopologue_error_message(arg1, arg2, arg3)
+        assert expected_message == actual_message
+
+
 # class Test_parse_input_file:
 # class Test_get_principal_axes:
 # class Test_get_dataframes:
