@@ -170,8 +170,7 @@ def isotopologue_error_message(*args):
         return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
 
 
-def parse_input_file(input_file):
-    # reading in atoms, coordinates
+def get_coordinate_matches(input_file):
     try:
         coordinate_matches = re.split(
             "(?m)^coordinates", input_file, flags=re.IGNORECASE
@@ -183,6 +182,10 @@ def parse_input_file(input_file):
             )
         )
 
+    return coordinate_matches
+
+
+def get_coordinate_section(coordinate_matches):
     try:
         coordinate_section = coordinate_matches.split("\n\n")[0]
     except (Exception,):
@@ -192,6 +195,10 @@ def parse_input_file(input_file):
             )
         )
 
+    return coordinate_section
+
+
+def get_coordinate_info(coordinate_section):
     try:
         coordinate_lines = [
             i
@@ -210,7 +217,19 @@ def parse_input_file(input_file):
     except (Exception,) as exc:
         raise ValueError(coordinates_error_message()) from exc
 
-    # reading in dipole
+    return n_atoms, atom_symbols, mol_coordinates, atom_numbering
+
+
+def parse_input_coordinate_section(input_file):
+    # reading in atoms, coordinates
+
+    coordinate_matches = get_coordinate_matches(input_file)
+    coordinate_section = get_coordinate_section(coordinate_matches)
+
+    return get_coordinate_info(coordinate_section)
+
+
+def get_dipole_matches(input_file):
     try:
         dipole_matches = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)[1]
     except (Exception,):
@@ -220,6 +239,10 @@ def parse_input_file(input_file):
             )
         )
 
+    return dipole_matches
+
+
+def get_dipole_section(dipole_matches):
     try:
         dipole_section = dipole_matches.split("\n\n")[0]
     except (Exception,):
@@ -229,6 +252,10 @@ def parse_input_file(input_file):
             )
         )
 
+    return dipole_section
+
+
+def get_dipole_info(dipole_section):
     try:
         dipole_line = dipole_section.split("\n")[1]
         dipole_list = dipole_line.split()
@@ -238,7 +265,18 @@ def parse_input_file(input_file):
     except (Exception,) as exc:
         raise ValueError(dipole_error_message()) from exc
 
-    # reading in isotopologues and masses
+    return mol_dipole
+
+
+def parse_input_dipole_section(input_file):
+    # reading in dipole
+    dipole_matches = get_dipole_matches(input_file)
+    dipole_section = get_dipole_section(dipole_matches)
+
+    return get_dipole_info(dipole_section)
+
+
+def get_isotopologue_matches(input_file):
     try:
         isotopologue_matches = re.split(
             "isotopologues", input_file, flags=re.IGNORECASE
@@ -250,6 +288,10 @@ def parse_input_file(input_file):
             )
         )
 
+    return isotopologue_matches
+
+
+def get_isotopologue_section(isotopologue_matches):
     try:
         isotopologue_section = isotopologue_matches.split("\n\n")[0]
     except (Exception,):
@@ -259,6 +301,10 @@ def parse_input_file(input_file):
             )
         )
 
+    return isotopologue_section
+
+
+def get_isotopologue_info(isotopologue_section, n_atoms):
     try:
         isotopologue_lines = [
             i
@@ -272,6 +318,28 @@ def parse_input_file(input_file):
         isotopologue_names = [key for key in isotopologue_dict.keys()]
     except (Exception,) as exc:
         raise ValueError(isotopologue_error_message()) from exc
+
+    return isotopologue_names, isotopologue_dict
+
+
+def parse_input_isotopologue_section(input_file, n_atoms):
+    # reading in isotopologues and masses
+    isotopologue_matches = get_isotopologue_matches(input_file)
+    isotopologue_section = get_isotopologue_section(isotopologue_matches)
+
+    return get_isotopologue_info(isotopologue_section, n_atoms)
+
+
+def parse_input_file(input_file):
+    n_atoms, atom_symbols, mol_coordinates, atom_numbering = (
+        parse_input_coordinate_section(input_file)
+    )
+
+    mol_dipole = parse_input_dipole_section(input_file)
+
+    isotopologue_names, isotopologue_dict = parse_input_isotopologue_section(
+        input_file, n_atoms
+    )
 
     return (
         isotopologue_names,
