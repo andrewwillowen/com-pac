@@ -7,7 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000?style=logoColor=white&labelColor=1f1f1f)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=logoColor=white&labelColor=1f1f1f)](https://spdx.org/licenses/MIT.html)
 
-[![Hatch Testing](https://github.com/andrewwillowen/com-pac/actions/workflows/hatch-testing.yml/badge.svg)](https://github.com/andrewwillowen/com-pac/actions/workflows/hatch-testing.yml)
+[![Hatch Testing](https://github.com/andrewwillowen/com-pac/actions/workflows/hatch-testing.yaml/badge.svg)](https://github.com/andrewwillowen/com-pac/actions/workflows/hatch-testing.yaml)
 [![Tested with Hypothesis](https://img.shields.io/badge/hypothesis-tested-brightgreen?style=logoColor=white&labelColor=1f1f1f)](https://hypothesis.readthedocs.io/)
 
 -----
