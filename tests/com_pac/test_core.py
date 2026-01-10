@@ -488,22 +488,39 @@ class Test_simple_coordinates_section:
         )
 
 
+@pytest.fixture
+def multiple_atoms_input():
+    atom1 = atom_line("H", 0.0, 0.0, 0.0)
+    atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
+    input_text = f"Coordinates\n{atom1}\n{atom2}\n\nOther stuff"
+    return input_text
+
+
+@pytest.fixture
+def multiple_atoms_matched():
+    return "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom\n\nOther stuff"
+
+
+@pytest.fixture
+def multiple_coords(multiple_atoms_input):
+    input_text = f"{multiple_atoms_input}\n\n{multiple_atoms_input}"
+    return input_text
+
+
+@pytest.fixture
+def multiple_coords_matched():
+    return "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom\n\nOther stuff\n\n"
+
+
 @pytest.mark.dependency(name="coord_matches", depends=["simple_coord_match"])
 class Test_get_coordinate_matches:
-    def test_multiple_atoms(self):
-        atom1 = atom_line("H", 0.0, 0.0, 0.0)
-        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
-        input_text = f"Coordinates\n{atom1}\n{atom2}\n\nOther stuff"
-        result = get_coordinate_matches(input_text)
-        assert result == "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom\n\nOther stuff"
+    def test_multiple_atoms(self, multiple_atoms_input, multiple_atoms_matched):
+        result = get_coordinate_matches(multiple_atoms_input)
+        assert result == multiple_atoms_matched
 
-    def test_multiple_matches(self):
-        # In the future, multiple sections should raise an exception.
-        atom1 = atom_line("H", 0.0, 0.0, 0.0)
-        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
-        input_text = f"Coordinates\n{atom1}\n{atom2}\n\nCoordinates\n{atom2}\n{atom1}\n\nOther stuff"
-        result = get_coordinate_matches(input_text)
-        assert result == "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom\n\n"
+    def test_multiple_coords(self, multiple_coords, multiple_coords_matched):
+        result = get_coordinate_matches(multiple_coords)
+        assert result == multiple_coords_matched
 
     def test_no_coordinates(self):
         atom1 = atom_line("H", 0.0, 0.0, 0.0)
