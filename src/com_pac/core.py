@@ -188,17 +188,16 @@ def get_coordinate_matches(input_file):
 
 
 def get_coordinate_section(coordinate_matches):
-    try:
-        # TODO: Change this so that a line with white space counts as a "blank" line!
-        coordinate_section = coordinate_matches.split("\n\n")[0]
-    except (Exception,):
+    coordinate_sections: list = re.split(r"\n\s*\n", coordinate_matches)
+
+    if len(coordinate_sections) < 2:
         raise ValueError(
             coordinates_error_message(
                 "Could not find end of coordinates section; make sure there is a blank line at the end of the section."
             )
         )
 
-    return coordinate_section
+    return coordinate_sections[0]
 
 
 def get_coordinate_info(coordinate_section):
