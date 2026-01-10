@@ -2,6 +2,9 @@
 Unit tests for functions in core.py
 """
 
+from mendeleev.fetch import fetch_table
+from mendeleev.mendeleev import element
+
 import pytest
 import numpy as np
 from com_pac.core import (
@@ -10,6 +13,9 @@ from com_pac.core import (
     coordinates_error_message,
     dipole_error_message,
     isotopologue_error_message,
+    get_coordinate_matches,
+    get_coordinate_section,
+    get_coordinate_info,
 )
 
 
@@ -418,6 +424,70 @@ class Test_isotopologue_error_message:
         )
         actual_message = isotopologue_error_message(arg1, arg2, arg3)
         assert expected_message == actual_message
+
+
+# Tests for coordinate-section functions
+# --------------------------------------
+# Proper format of the coordinate section is:
+#     Coordinates     # comments
+#     Atom1   x_coor1 y_coor1 z_coor1     # more comments
+#     Atom2   x_coor2 y_coor2 z_coor2
+#     ...
+#     AtomZ   x_coorZ y_coorZ z_coorZ
+#     (blank line)
+# where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.
+
+# Want to utilize hypothesis to help with this.
+element_df = fetch_table("elements")
+atom_symbols = tuple(element_df.symbol.values)
+atom_names = tuple(element_df.name.values)
+
+
+# fixture? Actually, this should probably be it's own function in the core
+# to help with exporting data to a file! Then use Hypothesis strategies to
+# fill in the values.
+def atom_line(atom, x_coor, y_coor, z_coor, comment=None, delimiter: str = " "):
+    return delimiter.join(str(i) for i in (atom, x_coor, y_coor, z_coor, comment))
+
+
+simple_coordinate_section = """Simple coordinates
+Coordinates
+H 0.0 0.0 0.0
+
+Other stuff
+"""
+
+
+class Test_simple_coordinates_section:
+    def test_simple_get_coordinate_matches(self):
+        # NOTE: Currently, the "blank line" must be truly blank! No white space!!
+        result = get_coordinate_matches(simple_coordinate_section)
+        assert result == "\nH 0.0 0.0 0.0\n\nOther stuff\n"
+
+    def test_simple_get_coordinate_section(self):
+        result = get_coordinate_section("\nH 0.0 0.0 0.0\n\nOther stuff\n")
+        assert result == "\nH 0.0 0.0 0.0"
+
+    def test_simple_get_coordinate_info(self):
+        n_atoms, atom_symbols, mol_coordinates, atom_numbering = get_coordinate_info(
+            "\nH 0.0 0.0 0.0"
+        )
+        assert all(
+            (
+                n_atoms == 1,
+                atom_symbols == ["H"],
+                np.allclose(mol_coordinates, np.array([[0.0, 0.0, 0.0]], dtype=float)),
+                atom_numbering == ["H1"],
+            )
+        )
+
+
+class Test_get_coordinate_matches:
+    pass
+
+
+class Test_get_coordinate_section:
+    pass
 
 
 # class Test_parse_input_file:

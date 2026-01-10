@@ -171,6 +171,8 @@ def isotopologue_error_message(*args):
 
 
 def get_coordinate_matches(input_file):
+    # TODO: Check to make sure there aren't multiple coordinate sections
+    #       in the input file.
     try:
         coordinate_matches = re.split(
             "(?m)^coordinates", input_file, flags=re.IGNORECASE
@@ -187,6 +189,7 @@ def get_coordinate_matches(input_file):
 
 def get_coordinate_section(coordinate_matches):
     try:
+        # TODO: Change this so that a line with white space counts as a "blank" line!
         coordinate_section = coordinate_matches.split("\n\n")[0]
     except (Exception,):
         raise ValueError(
