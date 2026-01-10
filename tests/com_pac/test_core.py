@@ -447,6 +447,9 @@ atom_names = tuple(element_df.name.values)
 # to help with exporting data to a file! Then use Hypothesis strategies to
 # fill in the values.
 def atom_line(atom, x_coor, y_coor, z_coor, comment=None, delimiter: str = " "):
+    if comment is None:
+        return delimiter.join(str(i) for i in (atom, x_coor, y_coor, z_coor))
+
     return delimiter.join(str(i) for i in (atom, x_coor, y_coor, z_coor, comment))
 
 
@@ -459,15 +462,18 @@ Other stuff
 
 
 class Test_simple_coordinates_section:
+    @pytest.mark.dependency(name="simple_coord_match")
     def test_simple_get_coordinate_matches(self):
         # NOTE: Currently, the "blank line" must be truly blank! No white space!!
         result = get_coordinate_matches(simple_coordinate_section)
         assert result == "\nH 0.0 0.0 0.0\n\nOther stuff\n"
 
+    @pytest.mark.dependency(name="simple_coord_sect")
     def test_simple_get_coordinate_section(self):
         result = get_coordinate_section("\nH 0.0 0.0 0.0\n\nOther stuff\n")
         assert result == "\nH 0.0 0.0 0.0"
 
+    @pytest.mark.dependency(name="simple_coord_info")
     def test_simple_get_coordinate_info(self):
         n_atoms, atom_symbols, mol_coordinates, atom_numbering = get_coordinate_info(
             "\nH 0.0 0.0 0.0"
@@ -482,11 +488,82 @@ class Test_simple_coordinates_section:
         )
 
 
+@pytest.mark.dependency(name="coord_matches", depends=["simple_coord_match"])
 class Test_get_coordinate_matches:
+    def test_multiple_atoms(self):
+        atom1 = atom_line("H", 0.0, 0.0, 0.0)
+        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
+        input_text = f"Coordinates\n{atom1}\n{atom2}\n\nOther stuff"
+        result = get_coordinate_matches(input_text)
+        assert result == "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom\n\nOther stuff"
+
+    def test_multiple_matches(self):
+        # In the future, multiple sections should raise an exception.
+        atom1 = atom_line("H", 0.0, 0.0, 0.0)
+        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
+        input_text = f"Coordinates\n{atom1}\n{atom2}\n\nCoordinates\n{atom2}\n{atom1}\n\nOther stuff"
+        result = get_coordinate_matches(input_text)
+        assert result == "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom\n\n"
+
+    def test_no_coordinates(self):
+        atom1 = atom_line("H", 0.0, 0.0, 0.0)
+        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
+        input_text = f"BadCoordination\n{atom1}\n{atom2}\n\nOther stuff"
+        with pytest.raises(ValueError) as excinfo:
+            result = get_coordinate_matches(input_text)
+        assert (excinfo.type is ValueError) and (
+            'Could not find line starting with "coordinates" (case insensitive)'
+            in str(excinfo.value)
+        )
+
+    def test_case_sensitivity(self):
+        atom1 = atom_line("H", 0.0, 0.0, 0.0)
+        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
+        result1 = get_coordinate_matches(
+            f"COORDINATES\n{atom1}\n{atom2}\n\nOther stuff"
+        )
+        result2 = get_coordinate_matches(
+            f"coordinates\n{atom1}\n{atom2}\n\nOther stuff"
+        )
+        assert result1.lower() == result2.lower()
+
+    def test_leading_space(self):
+        # Perhaps the core behavior should change?
+        atom1 = atom_line("H", 0.0, 0.0, 0.0)
+        atom2 = atom_line("H", 1.0, -1.0, 0.0, comment="# Second atom")
+        input_text = f" Coordinates\n{atom1}\n{atom2}\n\nOther stuff"
+        with pytest.raises(ValueError) as excinfo:
+            result = get_coordinate_matches(input_text)
+        assert (excinfo.type is ValueError) and (
+            'Could not find line starting with "coordinates" (case insensitive)'
+            in str(excinfo.value)
+        )
+
+
+@pytest.mark.dependency(
+    name="coord_section", depends=["coord_matches", "simple_coord_match"]
+)
+class Test_get_coordinate_section:
     pass
 
 
-class Test_get_coordinate_section:
+@pytest.mark.dependency(
+    name="coord_info", depends=["coord_section", "simple_coord_sect"]
+)
+class Test_get_coordinate_info:
+    pass
+
+
+@pytest.mark.dependency(
+    name="parse_coord",
+    depends=[
+        "coord_info",
+        "simple_coord_match",
+        "simple_coord_sec",
+        "simple_coord_info",
+    ],
+)
+class Test_parse_input_coordinate_section:
     pass
 
 
