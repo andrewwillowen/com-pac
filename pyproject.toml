@@ -46,6 +46,7 @@ dev = [
   "pre-commit",
   "pytest",
   "pytest-cov",
+  "pytest-dependency",
 ]
 docs = [
   "zensical",
@@ -118,6 +119,7 @@ extra-dependencies = [
   "hypothesis",
   "pytest",
   "pytest-cov",
+  "pytest-dependency",
 ]
 
 [[tool.hatch.envs.hatch-test.matrix]]
