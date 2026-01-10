@@ -330,6 +330,14 @@ def parse_input_isotopologue_section(input_file, n_atoms):
     return get_isotopologue_info(isotopologue_section, n_atoms)
 
 
+def check_mass_numbers_are_valid(isotopologue_dict, atom_symbols):
+    # TODO: Add check that mass number provided in isotopologue section is
+    #       indeed a valid mass number for the corresponding atom in the
+    #       atom_symbols list. Raise an explanatory error if not.
+
+    pass
+
+
 def parse_input_file(input_file):
     n_atoms, atom_symbols, mol_coordinates, atom_numbering = (
         parse_input_coordinate_section(input_file)
@@ -340,6 +348,9 @@ def parse_input_file(input_file):
     isotopologue_names, isotopologue_dict = parse_input_isotopologue_section(
         input_file, n_atoms
     )
+
+    # Raises an explanatory exception if not, silently continues if yes.
+    check_mass_numbers_are_valid(isotopologue_dict, atom_symbols)
 
     return (
         isotopologue_names,
