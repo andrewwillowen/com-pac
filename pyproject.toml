@@ -54,8 +54,8 @@ docs = [
 
 [project.urls]
 Homepage = "https://andrewwillowen.github.io/com-pac/"
-Issues = "https://github.com/andrew.will.owen/com-pac/issues"
-Source = "https://github.com/andrew.will.owen/com-pac"
+Issues = "https://github.com/andrewwillowen/com-pac/issues"
+Source = "https://github.com/andrewwillowen/com-pac"
 
 [tool.hatch.version]
 path = "src/com_pac/__about__.py"
