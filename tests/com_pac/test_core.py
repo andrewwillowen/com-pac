@@ -557,11 +557,34 @@ class Test_get_coordinate_matches:
         )
 
 
+@pytest.fixture
+def multiple_coords_section():
+    return "\nH 0.0 0.0 0.0\nH 1.0 -1.0 0.0 # Second atom"
+
+
 @pytest.mark.dependency(
     name="coord_section", depends=["coord_matches", "simple_coord_match"]
 )
 class Test_get_coordinate_section:
-    pass
+    def test_multiple_atoms(self, multiple_atoms_matched, multiple_coords_section):
+        result = get_coordinate_section(multiple_atoms_matched)
+        assert result == multiple_coords_section
+
+    def test_multiple_coords(self, multiple_coords_matched, multiple_coords_section):
+        result = get_coordinate_section(multiple_coords_matched)
+        assert result == multiple_coords_section
+
+    def test_no_double_line_break(self, multiple_coords_section):
+        with pytest.raises(ValueError) as exc:
+            result = get_coordinate_section(multiple_coords_section)
+        assert (exc.type is ValueError) and (
+            "Could not find end of coordinates section" in str(exc.value)
+        )
+
+    def test_double_line_with_whitespace(self, multiple_coords_section):
+        input_text: str = f"{multiple_coords_section}\n \t  \nOther stuff"
+        result = get_coordinate_section(input_text)
+        assert result == multiple_coords_section
 
 
 @pytest.mark.dependency(
