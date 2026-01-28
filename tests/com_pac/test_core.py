@@ -411,7 +411,7 @@ class Test_dipole_error_message:
 class Test_isotopologue_error_message:
     def test_exact_message(self):
         expected_message: str = (
-            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    \n    "
+            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    where mass# is the atomic mass number of the isotope,\n    and iso### is the isotopologue label to use in the output.\n    \n    "
         )
         actual_message = isotopologue_error_message()
         assert expected_message == actual_message
@@ -421,7 +421,7 @@ class Test_isotopologue_error_message:
         arg2: str = "This is the second line appended to the message"
         arg3: str = "This is the last line appended to the message"
         expected_message: str = (
-            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    \n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
+            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    where mass# is the atomic mass number of the isotope,\n    and iso### is the isotopologue label to use in the output.\n    \n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
         )
         actual_message = isotopologue_error_message(arg1, arg2, arg3)
         assert expected_message == actual_message
@@ -680,7 +680,48 @@ class Test_parse_input_coordinate_section:
         )
 
 
-# class Test_parse_input_file:
+# Tests for dipole-section functions
+# ----------------------------------
+#
+# Proper format of the dipole section is:
+#     Dipole      # comments
+#     muX muY muZ # more comments
+#     (blank line)
+# where muX, muY, and muZ are numeric values.
+#
+
+
+class Test_parse_input_dipole_section:
+    pass
+
+
+# Tests for isotopologue-section functions
+# ----------------------------------------
+#
+# Proper format of the isotopologue section is:
+#     Isotopologues   # comment
+#     mass1 mass2 mass3 ... massZ iso000  # more comments
+#     mass1 mass2 mass3 ... massZ iso001
+#     ...
+#     mass1 mass2 mass3 ... massZ isoZZZ
+#     (blank line)
+# where mass# is the atomic mass number of the isotope,
+# and iso### is the isotopologue label to use in the output.
+
+
+class Test_parse_input_isotopologue_section:
+    pass
+
+
+# ---------------------------------
+# Tests for the whole input_parser!
+# ---------------------------------
+
+
+class Test_parse_input_file:
+    pass
+
+
 # class Test_get_principal_axes:
 # class Test_get_dataframes:
 # class Test_header_creator:

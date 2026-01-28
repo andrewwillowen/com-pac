@@ -162,6 +162,8 @@ def isotopologue_error_message(*args):
         ...
         mass1 mass2 mass3 ... massZ isoZZZ
         (blank line)
+    where mass# is the atomic mass number of the isotope,
+    and iso### is the isotopologue label to use in the output.
     
     """
     if len(args) == 0:
