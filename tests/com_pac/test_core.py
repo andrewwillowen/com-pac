@@ -16,6 +16,7 @@ from com_pac.core import (
     get_coordinate_matches,
     get_coordinate_section,
     get_coordinate_info,
+    parse_input_coordinate_section,
 )
 
 
@@ -638,12 +639,45 @@ class Test_get_coordinate_info:
     depends=[
         "coord_info",
         "simple_coord_match",
-        "simple_coord_sec",
+        "simple_coord_sect",
         "simple_coord_info",
     ],
 )
 class Test_parse_input_coordinate_section:
-    pass
+    def test_simple_coordinate_section(self):
+        n_atoms, atom_symbols, mol_coordinates, atom_numbering = (
+            parse_input_coordinate_section("Coordinates\nH 0.0 0.0 0.0\n\n")
+        )
+        assert all(
+            (
+                n_atoms == 1,
+                atom_symbols == ["H"],
+                np.allclose(mol_coordinates, np.array([[0.0, 0.0, 0.0]], dtype=float)),
+                atom_numbering == ["H1"],
+            )
+        )
+
+    def test_multiple_atoms_input(self, multiple_atoms_input):
+        result = parse_input_coordinate_section(multiple_atoms_input)
+        assert all(
+            (
+                result[0] == 2,
+                result[1] == ["H", "H"],
+                np.allclose(result[2], np.array([[0.0, 0.0, 0.0], [1.0, -1.0, 0.0]])),
+                result[3] == ["H1", "H2"],
+            )
+        )
+
+    def test_multiple_coords_input(self, multiple_coords):
+        result = parse_input_coordinate_section(multiple_coords)
+        assert all(
+            (
+                result[0] == 2,
+                result[1] == ["H", "H"],
+                np.allclose(result[2], np.array([[0.0, 0.0, 0.0], [1.0, -1.0, 0.0]])),
+                result[3] == ["H1", "H2"],
+            )
+        )
 
 
 # class Test_parse_input_file:
