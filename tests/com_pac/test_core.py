@@ -587,11 +587,50 @@ class Test_get_coordinate_section:
         assert result == multiple_coords_section
 
 
+@pytest.fixture
+def multiple_atoms_info():
+    return (
+        2,
+        ["H", "H"],
+        np.array([[0.0, 0.0, 0.0], [1.0, -1.0, 0.0]], dtype=float),
+        ["H1", "H2"],
+    )
+
+
 @pytest.mark.dependency(
     name="coord_info", depends=["coord_section", "simple_coord_sect"]
 )
 class Test_get_coordinate_info:
-    pass
+    def test_multiple_atoms(self, multiple_coords_section, multiple_atoms_info):
+        result = get_coordinate_info(multiple_coords_section)
+        assert all(
+            (
+                result[0] == multiple_atoms_info[0],
+                result[1] == multiple_atoms_info[1],
+                np.allclose(result[2], multiple_atoms_info[2]),
+                result[3] == multiple_atoms_info[3],
+            )
+        )
+
+    def test_bad_coordinate(self):
+        coord_section = "\nH a b c"
+        with pytest.raises(ValueError) as exc:
+            result = get_coordinate_info(coord_section)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the atomic coordinates" in str(exc.value)
+        )
+
+    def test_int_coordinate(self):
+        coord_section = "\nH 0 1 2"
+        result = get_coordinate_info(coord_section)
+        assert all(
+            (
+                result[0] == 1,
+                result[1] == ["H"],
+                np.allclose(result[2], np.array([[0.0, 1.0, 2.0]])),
+                result[3] == ["H1"],
+            )
+        )
 
 
 @pytest.mark.dependency(
