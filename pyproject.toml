@@ -46,6 +46,7 @@ dev = [
   "pre-commit",
   "pytest",
   "pytest-cov",
+  "pytest-dependency",
 ]
 docs = [
   "zensical",
@@ -53,8 +54,8 @@ docs = [
 
 [project.urls]
 Homepage = "https://andrewwillowen.github.io/com-pac/"
-Issues = "https://github.com/andrew.will.owen/com-pac/issues"
-Source = "https://github.com/andrew.will.owen/com-pac"
+Issues = "https://github.com/andrewwillowen/com-pac/issues"
+Source = "https://github.com/andrewwillowen/com-pac"
 
 [tool.hatch.version]
 path = "src/com_pac/__about__.py"
@@ -104,7 +105,7 @@ omit = [
 
 [tool.coverage.paths]
 com_pac = ["src/com_pac", "*/com-pac/src/com_pac"]
-tests = ["tests", "*/com-pac/tests"]
+tests = ["tests", "tests/com_pac"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -118,6 +119,7 @@ extra-dependencies = [
   "hypothesis",
   "pytest",
   "pytest-cov",
+  "pytest-dependency",
 ]
 
 [[tool.hatch.envs.hatch-test.matrix]]

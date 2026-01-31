@@ -7,9 +7,11 @@ import numpy as np
 import subprocess
 import os
 
+
 def delete_if_exists(file_to_delete):
     if os.path.exists(file_to_delete):
         os.remove(file_to_delete)
+
 
 def shell_exec(
     command_list: list[str],
@@ -60,73 +62,73 @@ def import_csv_output(file: str) -> dict:
     """
     Reads the csv pac output files into numpy arrays for numeric comparison
     """
-    with open(file, 'r') as f:
-        pac_csv = f.read().split('\n')
+    with open(file, "r") as f:
+        pac_csv = f.read().split("\n")
 
     out_dict = {}
 
     # Rotational Constants section
-    out_dict['rot_header'] = pac_csv[1]
+    out_dict["rot_header"] = pac_csv[1]
 
     rot_floats = [
-        [float(i) for i in pac_csv[2].split(',')[1:]],
-        [float(i) for i in pac_csv[3].split(',')[1:]],
-        [float(i) for i in pac_csv[4].split(',')[1:]],
+        [float(i) for i in pac_csv[2].split(",")[1:]],
+        [float(i) for i in pac_csv[3].split(",")[1:]],
+        [float(i) for i in pac_csv[4].split(",")[1:]],
     ]
 
-    out_dict['rot_floats'] = np.array(rot_floats, dtype=float)
+    out_dict["rot_floats"] = np.array(rot_floats, dtype=float)
 
     # Dipole Components section
-    out_dict['dipole_header'] = pac_csv[7]
+    out_dict["dipole_header"] = pac_csv[7]
 
     dipole_floats = [
-        [float(i) for i in pac_csv[8].split(',')[1:]],
-        [float(i) for i in pac_csv[9].split(',')[1:]],
-        [float(i) for i in pac_csv[10].split(',')[1:]],
+        [float(i) for i in pac_csv[8].split(",")[1:]],
+        [float(i) for i in pac_csv[9].split(",")[1:]],
+        [float(i) for i in pac_csv[10].split(",")[1:]],
     ]
 
-    out_dict['dipole_floats'] = np.array(dipole_floats, dtype=float)
+    out_dict["dipole_floats"] = np.array(dipole_floats, dtype=float)
 
     # Principal Axes Coordinates section
-    out_dict['pac_header'] = pac_csv[13]
+    out_dict["pac_header"] = pac_csv[13]
 
     pac_floats = [
-        [float(i) for i in pac_csv[16].split(',')[1:]],
-        [float(i) for i in pac_csv[17].split(',')[1:]],
-        [float(i) for i in pac_csv[18].split(',')[1:]],
-        [float(i) for i in pac_csv[19].split(',')[1:]],
+        [float(i) for i in pac_csv[16].split(",")[1:]],
+        [float(i) for i in pac_csv[17].split(",")[1:]],
+        [float(i) for i in pac_csv[18].split(",")[1:]],
+        [float(i) for i in pac_csv[19].split(",")[1:]],
     ]
 
-    out_dict['pac_floats'] = np.array(pac_floats, dtype=float)
+    out_dict["pac_floats"] = np.array(pac_floats, dtype=float)
 
     # Atomic Masses section
-    out_dict['mass_header'] = pac_csv[22]
+    out_dict["mass_header"] = pac_csv[22]
 
     mass_floats = [
-        [float(i) for i in pac_csv[23].split(',')[1:]],
-        [float(i) for i in pac_csv[24].split(',')[1:]],
-        [float(i) for i in pac_csv[25].split(',')[1:]],
-        [float(i) for i in pac_csv[26].split(',')[1:]],
+        [float(i) for i in pac_csv[23].split(",")[1:]],
+        [float(i) for i in pac_csv[24].split(",")[1:]],
+        [float(i) for i in pac_csv[25].split(",")[1:]],
+        [float(i) for i in pac_csv[26].split(",")[1:]],
     ]
 
-    out_dict['mass_floats'] = np.array(mass_floats, dtype=float)
+    out_dict["mass_floats"] = np.array(mass_floats, dtype=float)
 
     return out_dict
 
 
 @pytest.fixture(scope="module")
 def original_pac():
-    return import_csv_output('tests/original_pac.csv')
+    return import_csv_output("tests/original_pac.csv")
 
 
 @pytest.fixture(scope="module")
 def latest_pac():
     try:
-        exec_command = shell_exec(["com_pac", "tests/latest.txt"], timeout=60)
-    except subprocess.TimeoutExpired as s:
+        shell_exec(["com_pac", "tests/latest.txt"], timeout=60)
+    except subprocess.TimeoutExpired:
         pytest.skip("test execution timed out after 60 seconds")
 
-    yield import_csv_output('tests/latest_pac.csv')
+    yield import_csv_output("tests/latest_pac.csv")
 
     delete_if_exists("tests/latest_pac.csv")
     delete_if_exists("tests/latest_pac.out")
@@ -134,29 +136,35 @@ def latest_pac():
 
 class Test_rotational_section:
     def test_rotational_header(self, original_pac, latest_pac):
-        assert original_pac['rot_header'] == latest_pac['rot_header']
+        assert original_pac["rot_header"] == latest_pac["rot_header"]
 
     def test_rotational_constants(self, original_pac, latest_pac):
-        np.testing.assert_allclose(original_pac['rot_floats'], latest_pac['rot_floats'])
+        np.testing.assert_allclose(original_pac["rot_floats"], latest_pac["rot_floats"])
+
 
 class Test_dipole_section:
     def test_dipole_header(self, original_pac, latest_pac):
-        assert original_pac['dipole_header'] == latest_pac['dipole_header']
+        assert original_pac["dipole_header"] == latest_pac["dipole_header"]
 
     def test_dipole_components(self, original_pac, latest_pac):
-        np.testing.assert_allclose(original_pac['dipole_floats'], latest_pac['dipole_floats'])
+        np.testing.assert_allclose(
+            original_pac["dipole_floats"], latest_pac["dipole_floats"]
+        )
+
 
 class Test_pac_section:
     def test_pac_header(self, original_pac, latest_pac):
-        assert original_pac['pac_header'] == latest_pac['pac_header']
+        assert original_pac["pac_header"] == latest_pac["pac_header"]
 
     def test_pac_coordinates(self, original_pac, latest_pac):
-        np.testing.assert_allclose(original_pac['pac_floats'], latest_pac['pac_floats'])
+        np.testing.assert_allclose(original_pac["pac_floats"], latest_pac["pac_floats"])
+
 
 class Test_mass_section:
     def test_mass_header(self, original_pac, latest_pac):
-        assert original_pac['mass_header'] == latest_pac['mass_header']
+        assert original_pac["mass_header"] == latest_pac["mass_header"]
 
     def test_mass_values(self, original_pac, latest_pac):
-        np.testing.assert_allclose(original_pac['mass_floats'], latest_pac['mass_floats'])
-
+        np.testing.assert_allclose(
+            original_pac["mass_floats"], latest_pac["mass_floats"]
+        )

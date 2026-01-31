@@ -11,9 +11,12 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-def main():
-    input_file_path = None
-    num_of_decimals = 6
+
+def read_args(num_of_decimals):
+    """
+    Manually parsing arguments...
+    """
+    # TODO: replace with argparse
 
     # reading arguments from shell
     if len(argv) < 2:
@@ -73,86 +76,112 @@ def main():
             if len(argv) > 3:
                 print("The following arguments will be ignored: {}".format(argv[3:]))
 
-
-    # ====================== #
-    #  Function definitions  #
-    # ====================== #
+        return input_file_path, num_of_decimals
 
 
-    def inertia_matrix(coordinates_array, masses_array):
-        matrix = np.zeros((3, 3))
-        for axis1 in [0, 1, 2]:
-            [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
-            diagonal = sum(
-                [
-                    (
-                        masses_array[i]
-                        * (
-                            (coordinates_array[i][axis2]) ** 2
-                            + (coordinates_array[i][axis3]) ** 2
-                        )
-                    )
-                    for i in range(len(masses_array))
-                ]
-            )
-            off_diagonal = (-1) * sum(
-                [
+def inertia_matrix(coordinates_array, masses_array):
+    matrix = np.zeros((3, 3))
+    for axis1 in [0, 1, 2]:
+        [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
+        diagonal = sum(
+            [
+                (
                     masses_array[i]
-                    * coordinates_array[i][axis2]
-                    * coordinates_array[i][axis3]
-                    for i in range(len(masses_array))
-                ]
-            )
-            matrix[axis1, axis1] = diagonal
-            matrix[axis2, axis3] = off_diagonal
-            matrix[axis3, axis2] = off_diagonal
-        return matrix
+                    * (
+                        (coordinates_array[i][axis2]) ** 2
+                        + (coordinates_array[i][axis3]) ** 2
+                    )
+                )
+                for i in range(len(masses_array))
+            ]
+        )
+        off_diagonal = (-1) * sum(
+            [
+                masses_array[i]
+                * coordinates_array[i][axis2]
+                * coordinates_array[i][axis3]
+                for i in range(len(masses_array))
+            ]
+        )
+        matrix[axis1, axis1] = diagonal
+        matrix[axis2, axis3] = off_diagonal
+        matrix[axis3, axis2] = off_diagonal
+    return matrix
 
 
-    def inertiaToRot(inertia):
-        rot_constant = 505379.0046 / inertia
-        return rot_constant
+def inertia_to_rot_const(inertia):
+    rot_constant = 505379.0046 / inertia
+    return rot_constant
 
 
-    # ================================ #
-    #  reading contents of input file  #
-    # ================================ #
-
-    if input_file_path is not None:
-        input_file_dir = input_file_path.parent
-        input_file_name = input_file_path.name
+def coordinates_error_message(*args):
+    message = """
+    There was an error reading in the atomic coordinates.
+    
+    Proper format of the coordinate section is:
+        Coordinates     # comments
+        Atom1   x_coor1 y_coor1 z_coor1     # more comments
+        Atom2   x_coor2 y_coor2 z_coor2
+        ...
+        AtomZ   x_coorZ y_coorZ z_coorZ
+        (blank line)
+    where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.
+    
+    """
+    if len(args) == 0:
+        return message
     else:
-        raise ValueError("Failure to import file path.")
-
-    with open(input_file_path, "r") as infile:
-        input_file = infile.read()
+        return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
 
 
-    # reading in atoms, coordinates
-    def coordinates_error_message(*args):
-        message = """
-        There was an error reading in the atomic coordinates.
-        
-        Proper format of the coordinate section is:
-            Coordinates     # comments
-            Atom1   x_coor1 y_coor1 z_coor1     # more comments
-            Atom2   x_coor2 y_coor2 z_coor2
-            ...
-            AtomZ   x_coorZ y_coorZ z_coorZ
-            (blank line)
-        where Atom# is the atomic symbol, and x_coor#, y_coor#, and z_coor# are numeric values.
-        
-        """
-        if len(args) == 0:
-            return message
-        else:
-            return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
+def dipole_error_message(*args):
+    message = """
+    There was an error reading in the dipole.
+
+    Proper format of the dipole section is:
+        Dipole      # comments
+        muX muY muZ # more comments
+        (blank line)
+    where muX, muY, and muZ are numeric values.
+    
+    """
+    if len(args) == 0:
+        return message
+    else:
+        return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
 
 
+def isotopologue_error_message(*args):
+    message = """
+    There was an error reading in the isotopologue masses.
+    
+    Proper format of the isotopologue section is:
+        Isotopologues   # comment
+        mass1 mass2 mass3 ... massZ iso000  # more comments
+        mass1 mass2 mass3 ... massZ iso001  
+        ...
+        mass1 mass2 mass3 ... massZ isoZZZ
+        (blank line)
+    where mass# is the atomic mass number of the isotope,
+    and iso### is the isotopologue label to use in the output.
+    
+    The number of atoms (lines) in the Coordinates section 
+    MUST MATCH the number of mass numbers in each line of 
+    the Isotopologues section!!
+    """
+    if len(args) == 0:
+        return message
+    else:
+        return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
+
+
+def get_coordinate_matches(input_file):
+    # TODO: Check to make sure there aren't multiple coordinate sections
+    #       in the input file.
     try:
-        coordinate_matches = re.split("(?m)^coordinates", input_file, flags=re.IGNORECASE)[
-            1
-        ]
+        coordinate_matches = re.split(
+            "(?m)^coordinates", input_file, flags=re.IGNORECASE
+        )[1]
     except (Exception,):
         raise ValueError(
             coordinates_error_message(
@@ -160,15 +189,23 @@ def main():
             )
         )
 
-    try:
-        coordinate_section = coordinate_matches.split("\n\n")[0]
-    except (Exception,):
+    return coordinate_matches
+
+
+def get_coordinate_section(coordinate_matches):
+    coordinate_sections: list = re.split(r"\n\s*\n", coordinate_matches)
+
+    if len(coordinate_sections) < 2:
         raise ValueError(
             coordinates_error_message(
                 "Could not find end of coordinates section; make sure there is a blank line at the end of the section."
             )
         )
 
+    return coordinate_sections[0]
+
+
+def get_coordinate_info(coordinate_section):
     try:
         coordinate_lines = [
             i
@@ -187,25 +224,21 @@ def main():
     except (Exception,) as exc:
         raise ValueError(coordinates_error_message()) from exc
 
-
-    # reading in dipole
-    def dipole_error_message(*args):
-        message = """
-        There was an error reading in the dipole.
-
-        Proper format of the dipole section is:
-            Dipole      # comments
-            muX muY muZ # more comments
-            (blank line)
-        where muX, muY, and muZ are numeric values.
-        
-        """
-        if len(args) == 0:
-            return message
-        else:
-            return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
+    return n_atoms, atom_symbols, mol_coordinates, atom_numbering
 
 
+def parse_input_coordinate_section(input_file):
+    # reading in atoms, coordinates
+
+    coordinate_matches = get_coordinate_matches(input_file)
+    coordinate_section = get_coordinate_section(coordinate_matches)
+
+    return get_coordinate_info(coordinate_section)
+
+
+def get_dipole_matches(input_file):
+    # TODO: Check to make sure there aren't multiple dipole sections
+    #       in the input file.
     try:
         dipole_matches = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)[1]
     except (Exception,):
@@ -215,15 +248,23 @@ def main():
             )
         )
 
-    try:
-        dipole_section = dipole_matches.split("\n\n")[0]
-    except (Exception,):
+    return dipole_matches
+
+
+def get_dipole_section(dipole_matches):
+    dipole_sections: list = re.split(r"\n\s*\n", dipole_matches)
+
+    if len(dipole_sections) < 2:
         raise ValueError(
             dipole_error_message(
                 "Could not find end of dipole section; make sure there is a blank line at the end of the section."
             )
         )
 
+    return dipole_sections[0]
+
+
+def get_dipole_info(dipole_section):
     try:
         dipole_line = dipole_section.split("\n")[1]
         dipole_list = dipole_line.split()
@@ -233,45 +274,45 @@ def main():
     except (Exception,) as exc:
         raise ValueError(dipole_error_message()) from exc
 
-
-    # reading in isotopologues and masses
-    def isotopologue_error_message(*args):
-        message = """
-        There was an error reading in the isotopologue masses.
-        
-        Proper format of the isotopologue section is:
-            Isotopologues   # comment
-            mass1 mass2 mass3 ... massZ iso000  # more comments
-            mass1 mass2 mass3 ... massZ iso001  
-            ...
-            mass1 mass2 mass3 ... massZ isoZZZ
-            (blank line)
-        
-        """
-        if len(args) == 0:
-            return message
-        else:
-            return "{}\n\t{}".format(message, "\n\t".join([str(x) for x in args]))
+    return mol_dipole
 
 
+def parse_input_dipole_section(input_file):
+    # reading in dipole
+    dipole_matches = get_dipole_matches(input_file)
+    dipole_section = get_dipole_section(dipole_matches)
+
+    return get_dipole_info(dipole_section)
+
+
+def get_isotopologue_matches(input_file):
     try:
-        isotopologue_matches = re.split("isotopologues", input_file, flags=re.IGNORECASE)[1]
+        isotopologue_matches = re.split(
+            "isotopologues", input_file, flags=re.IGNORECASE
+        )[1]
     except (Exception,):
         raise ValueError(
             isotopologue_error_message(
-                'Could not find line starting with "isotopologue" (case insensitive)'
+                'Could not find line starting with "isotopologues" (case insensitive)'
             )
         )
 
-    try:
-        isotopologue_section = isotopologue_matches.split("\n\n")[0]
-    except (Exception,):
+    return isotopologue_matches
+
+
+def get_isotopologue_section(isotopologue_matches):
+    isotopologue_sections: list = re.split(r"\n\s*\n", isotopologue_matches)
+    if len(isotopologue_sections) < 2:
         raise ValueError(
             isotopologue_error_message(
-                "Could not find end of isotopologue section; make sure there is a blank line at the end of the section."
+                "Could not find end of isotopologues section; make sure there is a blank line at the end of the section."
             )
         )
 
+    return isotopologue_sections[0]
+
+
+def get_isotopologue_info(isotopologue_section, n_atoms):
     try:
         isotopologue_lines = [
             i
@@ -279,18 +320,76 @@ def main():
             if ((not i.isspace()) and (i != ""))
         ]
         isotopologue_list = [x.split() for x in isotopologue_lines]
+        isotopologue_names = [x[n_atoms] for x in isotopologue_list]
+
         isotopologue_dict = {
             x[n_atoms]: [int(y) for y in x[:n_atoms]] for x in isotopologue_list
         }
-        isotopologue_names = [key for key in isotopologue_dict.keys()]
+        # isotopologue_names = [key for key in isotopologue_dict.keys()]
     except (Exception,) as exc:
         raise ValueError(isotopologue_error_message()) from exc
 
+    duplicate_names = [
+        i for i in set(isotopologue_names) if isotopologue_names.count(i) > 1
+    ]
+    if duplicate_names:
+        raise ValueError(
+            isotopologue_error_message(
+                f"Isotopologue section contains duplicate labels: {duplicate_names}"
+            )
+        )
+    return isotopologue_names, isotopologue_dict
 
-    # ========================================================= #
-    #  Calculating principal axes system for each isotopologue  #
-    # ========================================================= #
 
+def parse_input_isotopologue_section(input_file, n_atoms):
+    # reading in isotopologues and masses
+    isotopologue_matches = get_isotopologue_matches(input_file)
+    isotopologue_section = get_isotopologue_section(isotopologue_matches)
+
+    return get_isotopologue_info(isotopologue_section, n_atoms)
+
+
+def check_mass_numbers_are_valid(isotopologue_dict, atom_symbols):
+    # TODO: Add check that mass number provided in isotopologue section is
+    #       indeed a valid mass number for the corresponding atom in the
+    #       atom_symbols list. Raise an explanatory error if not.
+
+    pass
+
+
+def parse_input_file(input_file):
+    n_atoms, atom_symbols, mol_coordinates, atom_numbering = (
+        parse_input_coordinate_section(input_file)
+    )
+
+    mol_dipole = parse_input_dipole_section(input_file)
+
+    isotopologue_names, isotopologue_dict = parse_input_isotopologue_section(
+        input_file, n_atoms
+    )
+
+    # Raises an explanatory exception if not, silently continues if yes.
+    check_mass_numbers_are_valid(isotopologue_dict, atom_symbols)
+
+    return (
+        isotopologue_names,
+        isotopologue_dict,
+        n_atoms,
+        atom_symbols,
+        mol_coordinates,
+        mol_dipole,
+        atom_numbering,
+    )
+
+
+def get_principal_axes(
+    isotopologue_names,
+    isotopologue_dict,
+    n_atoms,
+    atom_symbols,
+    mol_coordinates,
+    mol_dipole,
+):
     rotational_constants = {}
     atom_masses = {}
     com_coordinates = {}
@@ -348,17 +447,41 @@ def main():
             print(bad_diagonal_pas)
             bad_diagonal_warnings[iso] = bad_diagonal_pas
         pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
-        rotational_constants[iso] = list(map(inertiaToRot, evals))
+        rotational_constants[iso] = list(map(inertia_to_rot_const, evals))
 
-    # ================= #
-    # Pandas DataFrames #
-    # ================= #
+    return (
+        atom_masses,
+        rotational_constants,
+        pa_dipoles,
+        pa_coordinates,
+        pa_inertias,
+        com_coordinates,
+        com_inertias,
+        eigenvectors,
+        eigenvalues,
+    )
 
+
+def get_dataframes(
+    atom_masses,
+    atom_symbols,
+    rotational_constants,
+    pa_dipoles,
+    isotopologue_names,
+    com_coordinates,
+    atom_numbering,
+    com_inertias,
+    eigenvectors,
+    pa_inertias,
+    pa_coordinates,
+):
     # Atomic masses
     atom_masses_df = pd.DataFrame.from_dict(atom_masses)
     atom_masses_df["Atom"] = atom_symbols
     atom_masses_df = atom_masses_df.set_index("Atom")
-    atom_masses_df.loc["Total"] = [atom_masses_df[i].sum() for i in atom_masses_df.columns]
+    atom_masses_df.loc["Total"] = [
+        atom_masses_df[i].sum() for i in atom_masses_df.columns
+    ]
 
     # Rotational constants
     rotational_constants_df = pd.DataFrame.from_dict(rotational_constants)
@@ -397,55 +520,68 @@ def main():
         pa_inertias_df = pa_inertias_df.set_index("Axis")
         pa_inertias_df_dict[iso] = pa_inertias_df
 
-        pa_coordinates_df = pd.DataFrame(columns=["a", "b", "c"], data=pa_coordinates[iso])
+        pa_coordinates_df = pd.DataFrame(
+            columns=["a", "b", "c"], data=pa_coordinates[iso]
+        )
         pa_coordinates_df["Atom"] = atom_numbering
         pa_coordinates_df = pa_coordinates_df.set_index("Atom")
         pa_coordinates_df_dict[iso] = pa_coordinates_df
 
-    # ==================== #
-    #  Outputting results  #
-    # ==================== #
+    return (
+        atom_masses_df,
+        rotational_constants_df,
+        dipole_components_df,
+        com_coordinates_df_dict,
+        com_inertias_df_dict,
+        eigenvectors_df_dict,
+        pa_inertias_df_dict,
+        pa_coordinates_df_dict,
+    )
 
 
-    def header_creator(some_text: str):
-        if not isinstance(some_text, str):
-            try:
-                some_text = str(some_text)
-            except (Exception,):
-                raise TypeError("TypeError: Bad input passed to header_creator")
-        str_len = len(some_text)
-        border_len = str_len + 2
-        border_str = "# {} #".format("=" * border_len)
-        header_str = "#  {}  #".format(some_text)
-        out_str = "{}".format("\n".join([border_str, header_str, border_str]))
-        return out_str
+def header_creator(some_text: str):
+    if not isinstance(some_text, str):
+        try:
+            some_text = str(some_text)
+        except (Exception,):
+            raise TypeError("TypeError: Bad input passed to header_creator")
+    str_len = len(some_text)
+    border_len = str_len + 2
+    border_str = "# {} #".format("=" * border_len)
+    header_str = "#  {}  #".format(some_text)
+    out_str = "{}".format("\n".join([border_str, header_str, border_str]))
+    return out_str
 
 
-    if input_file_name.count(".") != 1:
-        input_file_base_name = str(input_file_name)
-    else:
-        input_file_base_name = str(input_file_name).split(".")[0]
+def df_text_export(dataframe: pd.DataFrame, n_decimals=6):
+    def do_format(some_number):
+        nice_number = "{:.{n}f}".format(some_number, n=n_decimals)
+        return nice_number
 
-    text_output_name = input_file_base_name + "_pac.out"
-    csv_output_name = input_file_base_name + "_pac.csv"
-
-    text_output_path = input_file_dir.joinpath(text_output_name)
-    csv_output_path = input_file_dir.joinpath(csv_output_name)
+    return dataframe.map(do_format).to_string()
 
 
+def generate_output_file(
+    num_of_decimals,
+    csv_output_name,
+    input_file,
+    atom_masses_df,
+    rotational_constants_df,
+    dipole_components_df,
+    isotopologue_names,
+    com_coordinates_df_dict,
+    atom_symbols,
+    com_inertias_df_dict,
+    eigenvectors_df_dict,
+    eigenvalues,
+    pa_inertias_df_dict,
+    pa_coordinates_df_dict,
+    text_output_path,
+):
     # TEXT OUTPUT
     #
     # All numbers are "friendly", that is, not in scientific notation.
     # Full numbers are provided in the .csv output.
-
-
-    def df_text_export(dataframe: pd.DataFrame, n_decimals=num_of_decimals):
-        def do_format(some_number):
-            nice_number = "{:.{n}f}".format(some_number, n=n_decimals)
-            return nice_number
-
-        return dataframe.applymap(do_format).to_string()
-
 
     preamble = """The numbers in this output have been limited to {} decimal places.
     The numbers in the corresponding {} file have not.
@@ -456,7 +592,7 @@ def main():
 
     input_section = [header_creator("Raw Input"), input_file.strip()]
 
-    nice_atomic_masses = df_text_export(atom_masses_df)
+    nice_atomic_masses = df_text_export(atom_masses_df, n_decimals=num_of_decimals)
     am_width = max([len(i) for i in nice_atomic_masses.split("\n")])
     nice_atomic_masses = nice_atomic_masses.replace(
         "\nTotal", "\n{}\nTotal".format("-" * am_width)
@@ -465,12 +601,12 @@ def main():
 
     rotational_constants_section = [
         header_creator("Rotational Constants"),
-        df_text_export(rotational_constants_df),
+        df_text_export(rotational_constants_df, n_decimals=num_of_decimals),
     ]
 
     dipole_components_section = [
         header_creator("Dipole Components"),
-        df_text_export(dipole_components_df),
+        df_text_export(dipole_components_df, n_decimals=num_of_decimals),
     ]
 
     iso_com_coordinates_entries = []
@@ -482,14 +618,19 @@ def main():
         iso_com_df = com_coordinates_df_dict[iso].copy(deep=True)
         iso_com_df.index = atom_symbols
         iso_com_coordinate = "{}\n{}".format(
-            iso, df_text_export(com_coordinates_df_dict[iso])
+            iso,
+            df_text_export(com_coordinates_df_dict[iso], n_decimals=num_of_decimals),
         )
         iso_com_coordinates_entries.append(iso_com_coordinate)
 
-        iso_com_inertia = "{}\n{}".format(iso, df_text_export(com_inertias_df_dict[iso]))
+        iso_com_inertia = "{}\n{}".format(
+            iso, df_text_export(com_inertias_df_dict[iso], n_decimals=num_of_decimals)
+        )
         iso_com_inertias_entries.append(iso_com_inertia)
 
-        iso_eigen_vec = df_text_export(eigenvectors_df_dict[iso])
+        iso_eigen_vec = df_text_export(
+            eigenvectors_df_dict[iso], n_decimals=num_of_decimals
+        )
         formatted_eigen_val = []
         for eigen_val in eigenvalues[iso]:
             formatted_eigen_val.append("{:.{n}}".format(eigen_val, n=num_of_decimals))
@@ -499,14 +640,18 @@ def main():
         )
         iso_eigens_entries.append(iso_eigen)
 
-        iso_pa_inertia = "{}\n{}".format(iso, df_text_export(pa_inertias_df_dict[iso]))
+        iso_pa_inertia = "{}\n{}".format(
+            iso, df_text_export(pa_inertias_df_dict[iso], n_decimals=num_of_decimals)
+        )
         iso_pa_inertias_entries.append(iso_pa_inertia)
 
         iso_pa_df = pa_coordinates_df_dict[iso].copy(deep=True)
         iso_pa_df.index = atom_symbols
         iso_pa_df.loc["Dipole"] = list(dipole_components_df[iso])
         iso_pa_df.loc["Rot. Con."] = list(rotational_constants_df[iso])
-        iso_result = "{}\n{}".format(iso, df_text_export(iso_pa_df))
+        iso_result = "{}\n{}".format(
+            iso, df_text_export(iso_pa_df, n_decimals=num_of_decimals)
+        )
         width = max([len(i) for i in iso_result.split("\n")])
         iso_result = iso_result.replace("\nDip", "\n{}\nDip".format("-" * width))
         iso_results_entries.append(iso_result)
@@ -561,6 +706,13 @@ def main():
         outfile.write(file_string)
 
 
+def generate_csv_output(
+    pa_coordinates_df_dict,
+    rotational_constants_df,
+    dipole_components_df,
+    atom_masses_df,
+    csv_output_path,
+):
     # .csv file
     # Outputs all data without formatting; scientific notation may be used in the values.
 
@@ -581,6 +733,117 @@ def main():
 
     with open(csv_output_path, "w") as outfile:
         outfile.write(csv_file_string)
+
+
+def main():
+    input_file_path, num_of_decimals = read_args(6)
+
+    # ================================ #
+    #  reading contents of input file  #
+    # ================================ #
+
+    if input_file_path is not None:
+        input_file_dir = input_file_path.parent
+        input_file_name = input_file_path.name
+    else:
+        raise ValueError("Failure to import file path.")
+
+    with open(input_file_path, "r") as infile:
+        input_file = infile.read()
+
+    (
+        isotopologue_names,
+        isotopologue_dict,
+        n_atoms,
+        atom_symbols,
+        mol_coordinates,
+        mol_dipole,
+        atom_numbering,
+    ) = parse_input_file(input_file)
+
+    (
+        atom_masses,
+        rotational_constants,
+        pa_dipoles,
+        pa_coordinates,
+        pa_inertias,
+        com_coordinates,
+        com_inertias,
+        eigenvectors,
+        eigenvalues,
+    ) = get_principal_axes(
+        isotopologue_names,
+        isotopologue_dict,
+        n_atoms,
+        atom_symbols,
+        mol_coordinates,
+        mol_dipole,
+    )
+
+    (
+        atom_masses_df,
+        rotational_constants_df,
+        dipole_components_df,
+        com_coordinates_df_dict,
+        com_inertias_df_dict,
+        eigenvectors_df_dict,
+        pa_inertias_df_dict,
+        pa_coordinates_df_dict,
+    ) = get_dataframes(
+        atom_masses,
+        atom_symbols,
+        rotational_constants,
+        pa_dipoles,
+        isotopologue_names,
+        com_coordinates,
+        atom_numbering,
+        com_inertias,
+        eigenvectors,
+        pa_inertias,
+        pa_coordinates,
+    )
+
+    # ==================== #
+    #  Outputting results  #
+    # ==================== #
+
+    if input_file_name.count(".") != 1:
+        input_file_base_name = str(input_file_name)
+    else:
+        input_file_base_name = str(input_file_name).split(".")[0]
+
+    text_output_name = input_file_base_name + "_pac.out"
+    csv_output_name = input_file_base_name + "_pac.csv"
+
+    text_output_path = input_file_dir.joinpath(text_output_name)
+    csv_output_path = input_file_dir.joinpath(csv_output_name)
+
+    generate_output_file(
+        num_of_decimals,
+        csv_output_name,
+        input_file,
+        atom_masses_df,
+        rotational_constants_df,
+        dipole_components_df,
+        isotopologue_names,
+        com_coordinates_df_dict,
+        atom_symbols,
+        com_inertias_df_dict,
+        eigenvectors_df_dict,
+        eigenvalues,
+        pa_inertias_df_dict,
+        pa_coordinates_df_dict,
+        text_output_path,
+    )
+
+    generate_csv_output(
+        pa_coordinates_df_dict,
+        rotational_constants_df,
+        dipole_components_df,
+        atom_masses_df,
+        csv_output_path,
+    )
+
 
 if __name__ == "__main__":
     main()
