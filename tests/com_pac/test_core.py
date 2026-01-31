@@ -694,7 +694,10 @@ class Test_parse_input_coordinate_section:
 # where muX, muY, and muZ are numeric values.
 #
 
-simple_dipole_section = """Simple dipole
+
+@pytest.fixture
+def simple_dipole_section():
+    return """Simple dipole
 Dipole
 0.1 0.2 0.3
 
@@ -703,7 +706,7 @@ Dipole
 
 class Test_simple_dipole_section:
     @pytest.mark.dependency(name="simple_dipole_match")
-    def test_simple_get_dipole_matches(self):
+    def test_simple_get_dipole_matches(self, simple_dipole_section):
         result = get_dipole_matches(simple_dipole_section)
         assert result == "\n0.1 0.2 0.3\n\n"
 
@@ -831,8 +834,23 @@ class Test_get_dipole_info:
         assert np.allclose(result, np.array([-0.1, -0.2, -0.3]))
 
 
+@pytest.mark.dependency(
+    name="parse_dipole",
+    depends=[
+        "dipole_info",
+        "simple_dipole_match",
+        "simple_dipole_sect",
+        "simple_dipole_info",
+    ],
+)
 class Test_parse_input_dipole_section:
-    pass
+    def test_simple_dipole_section(self, simple_dipole_section):
+        result = parse_input_dipole_section(simple_dipole_section)
+        assert np.allclose(result, np.array([0.1, 0.2, 0.3]))
+
+    def test_multiple_dipoles_input(self, multiple_dipoles):
+        result = parse_input_dipole_section(multiple_dipoles)
+        assert np.allclose(result, np.array([0.1, 0.2, 0.3]))
 
 
 # Tests for isotopologue-section functions
