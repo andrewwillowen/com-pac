@@ -794,8 +794,41 @@ class Test_get_dipole_section:
         assert result == dipole_section
 
 
+@pytest.fixture
+def dipole_info():
+    return np.array([0.1, 0.2, 0.3])
+
+
+@pytest.mark.dependency(
+    name="dipole_info", depends=["dipole_section", "simple_dipole_sect"]
+)
 class Test_get_dipole_info:
-    pass
+    def test_dipole_section(self, dipole_section, dipole_info):
+        result = get_dipole_info(dipole_section)
+        assert np.allclose(result, dipole_info)
+
+    def test_bad_dipole(self):
+        dipole_section = "\n x y z"
+        with pytest.raises(ValueError) as exc:
+            result = get_dipole_info(dipole_section)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the dipole." in str(exc.value)
+        )
+
+    def test_int_dipole(self):
+        dipole_section = "\n0 1 2"
+        result = get_dipole_info(dipole_section)
+        assert np.allclose(result, np.array([0.0, 1.0, 2.0]))
+
+    def test_leading_space(self, dipole_info):
+        dipole_section = "\n 0.1 0.2 0.3"
+        result = get_dipole_info(dipole_section)
+        assert np.allclose(result, dipole_info)
+
+    def test_negative_dipole(self):
+        dipole_section = "\n-0.1 -0.2 -0.3"
+        result = get_dipole_info(dipole_section)
+        assert np.allclose(result, np.array([-0.1, -0.2, -0.3]))
 
 
 class Test_parse_input_dipole_section:
