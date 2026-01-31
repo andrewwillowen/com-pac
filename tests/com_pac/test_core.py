@@ -21,6 +21,10 @@ from com_pac.core import (
     get_dipole_section,
     get_dipole_info,
     parse_input_dipole_section,
+    get_isotopologue_matches,
+    get_isotopologue_section,
+    get_isotopologue_info,
+    parse_input_isotopologue_section,
 )
 
 
@@ -867,8 +871,215 @@ class Test_parse_input_dipole_section:
 # and iso### is the isotopologue label to use in the output.
 
 
+@pytest.fixture
+def simple_iso_input():
+    return """Simple isotopologue
+Isotopologues  # comment
+1 2 3 iso000  # comment
+
+Other stuff
+"""
+
+
+@pytest.fixture
+def simple_iso_match():
+    return "  # comment\n1 2 3 iso000  # comment\n\nOther stuff\n"
+
+
+@pytest.fixture
+def simple_iso_section():
+    return "  # comment\n1 2 3 iso000  # comment"
+
+
+@pytest.fixture
+def simple_iso_info():
+    return (
+        ["iso000"],
+        {"iso000": [1, 2, 3]},
+    )
+
+
+class Test_simple_isotopologue_section:
+    @pytest.mark.dependency(name="simple_iso_match")
+    def test_simple_get_coordinate_matches(self, simple_iso_input, simple_iso_match):
+        result = get_isotopologue_matches(simple_iso_input)
+        assert result == simple_iso_match
+
+    @pytest.mark.dependency(name="simple_iso_sect")
+    def test_simple_get_isotopologue_section(
+        self, simple_iso_match, simple_iso_section
+    ):
+        result = get_isotopologue_section(simple_iso_match)
+        assert result == simple_iso_section
+
+    @pytest.mark.dependency(name="simple_iso_info")
+    def test_simple_get_isotopologue_info(self, simple_iso_section, simple_iso_info):
+        result = get_isotopologue_info(simple_iso_section, 3)
+        assert result == simple_iso_info
+
+
+@pytest.fixture
+def multiple_isos_input():
+    return """
+Isotopologues  # comment
+1 2 3 iso000  # comment2
+4 5 6 iso001  # comment3
+
+Other stuff
+"""
+
+
+@pytest.fixture
+def multiple_isos_matched():
+    return "  # comment\n1 2 3 iso000  # comment2\n4 5 6 iso001  # comment3\n\nOther stuff\n"
+
+
+@pytest.fixture
+def multiple_isos_section():
+    return "  # comment\n1 2 3 iso000  # comment2\n4 5 6 iso001  # comment3"
+
+
+@pytest.fixture
+def multiple_isos_info():
+    return (
+        ["iso000", "iso001"],
+        {
+            "iso000": [1, 2, 3],
+            "iso001": [4, 5, 6],
+        },
+    )
+
+
+@pytest.fixture
+def duplicate_isos_input(multiple_isos_input):
+    return f"{multiple_isos_input}\n\n{multiple_isos_input}"
+
+
+@pytest.fixture
+def duplicate_isos_matched():
+    return "  # comment\n1 2 3 iso000  # comment2\n4 5 6 iso001  # comment3\n\nOther stuff\n\n\n\n"
+
+
+@pytest.mark.dependency(name="iso_matches", depends=["simple_iso_match"])
+class Test_get_isotopologue_matches:
+    def test_multiple_isotopologues(self, multiple_isos_input, multiple_isos_matched):
+        result = get_isotopologue_matches(multiple_isos_input)
+        assert result == multiple_isos_matched
+
+    def test_duplicate_input(self, duplicate_isos_input, duplicate_isos_matched):
+        result = get_isotopologue_matches(duplicate_isos_input)
+        assert result == duplicate_isos_matched
+
+    def test_no_header(self):
+        input_text = """
+1 2 3 iso000  # comment2
+4 5 6 iso001  # comment3
+
+Other stuff
+"""
+        with pytest.raises(ValueError) as excinfo:
+            result = get_isotopologue_matches(input_text)
+        assert (excinfo.type is ValueError) and (
+            'Could not find line starting with "isotopologues" (case insensitive)'
+            in str(excinfo.value)
+        )
+
+    def test_case_sensitivity(self):
+        input1 = "ISOTOPOLOGUES  # comment\n1 2 3 iso000  # comment2\n4 5 6 iso001  # comment3\n\nOther stuff\n"
+        input2 = "isotopologues  # comment\n1 2 3 iso000  # comment2\n4 5 6 iso001  # comment3\n\nOther stuff\n"
+        result1 = get_isotopologue_matches(input1)
+        result2 = get_isotopologue_matches(input2)
+        assert result1.lower() == result2.lower()
+
+    def test_leading_space(self):
+        input_text = " Isotopologue  # comment\n1 2 3 iso000  # comment2\n4 5 6 iso001  # comment3\n\nOther stuff\n"
+        with pytest.raises(ValueError) as excinfo:
+            result = get_isotopologue_matches(input_text)
+        assert (excinfo.type is ValueError) and (
+            'Could not find line starting with "isotopologues" (case insensitive)'
+            in str(excinfo.value)
+        )
+
+
+@pytest.mark.dependency(name="iso_section", depends=["iso_matches", "simple_iso_match"])
+class Test_get_isotopologue_section:
+    def test_multiple_isotopologues(self, multiple_isos_matched, multiple_isos_section):
+        result = get_isotopologue_section(multiple_isos_matched)
+        assert result == multiple_isos_section
+
+    def test_duplicate_input(self, duplicate_isos_matched, multiple_isos_section):
+        result = get_isotopologue_section(duplicate_isos_matched)
+        assert result == multiple_isos_section
+
+    def test_no_double_line_break(self, multiple_isos_section):
+        with pytest.raises(ValueError) as excinfo:
+            result = get_isotopologue_section(multiple_isos_section)
+        assert (excinfo.type is ValueError) and (
+            "Could not find end of isotopologues section" in str(excinfo.value)
+        )
+
+    def test_double_line_with_whitespace(self, multiple_isos_section):
+        input_text = f"{multiple_isos_section}\n \t  \nOther stuff"
+        result = get_isotopologue_section(input_text)
+        assert result == multiple_isos_section
+
+
+@pytest.mark.dependency(name="iso_info", depends=["iso_section", "simple_iso_sect"])
+class Test_get_isotopologue_info:
+    def test_multiple_isotopologues(self, multiple_isos_section, multiple_isos_info):
+        result = get_isotopologue_info(multiple_isos_section, 3)
+        assert result == multiple_isos_info
+
+    def test_bad_isotopologue(self):
+        input_text = "\nA B C 1234"
+        with pytest.raises(ValueError) as exc:
+            result = get_isotopologue_info(input_text, 3)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the isotopologue masses" in str(exc.value)
+        )
+
+    def test_float_masses(self):
+        input_text = "\n1.2 3.4 5.6 badiso"
+        with pytest.raises(ValueError) as exc:
+            result = get_isotopologue_info(input_text, 3)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the isotopologue masses" in str(exc.value)
+        )
+
+    def test_wrong_number_of_atoms(self, multiple_isos_section):
+        with pytest.raises(ValueError) as exc:
+            result = get_isotopologue_info(multiple_isos_section, 4)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the isotopologue masses" in str(exc.value)
+        )
+
+    def test_leading_space(self):
+        input_text = "\n  1 2 3 iso000 #comment"
+        result = get_isotopologue_info(input_text, 3)
+        assert result == (["iso000"], {"iso000": [1, 2, 3]})
+
+
+@pytest.mark.dependency(
+    name="parse_iso",
+    depends=[
+        "iso_info",
+        "simple_iso_match",
+        "simple_iso_sect",
+        "simple_iso_info",
+    ],
+)
 class Test_parse_input_isotopologue_section:
-    pass
+    def test_simple_isotopologue_section(self, simple_iso_input, simple_iso_info):
+        result = parse_input_isotopologue_section(simple_iso_input, 3)
+        assert result == simple_iso_info
+
+    def test_multiple_isos_input(self, multiple_isos_input, multiple_isos_info):
+        result = parse_input_isotopologue_section(multiple_isos_input, 3)
+        assert result == multiple_isos_info
+
+    def test_duplicate_isos_input(self, duplicate_isos_input, multiple_isos_info):
+        result = parse_input_isotopologue_section(duplicate_isos_input, 3)
+        assert result == multiple_isos_info
 
 
 # ---------------------------------

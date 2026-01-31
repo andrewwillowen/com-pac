@@ -290,7 +290,7 @@ def get_isotopologue_matches(input_file):
     except (Exception,):
         raise ValueError(
             isotopologue_error_message(
-                'Could not find line starting with "isotopologue" (case insensitive)'
+                'Could not find line starting with "isotopologues" (case insensitive)'
             )
         )
 
@@ -298,16 +298,15 @@ def get_isotopologue_matches(input_file):
 
 
 def get_isotopologue_section(isotopologue_matches):
-    try:
-        isotopologue_section = isotopologue_matches.split("\n\n")[0]
-    except (Exception,):
+    isotopologue_sections: list = re.split(r"\n\s*\n", isotopologue_matches)
+    if len(isotopologue_sections) < 2:
         raise ValueError(
             isotopologue_error_message(
-                "Could not find end of isotopologue section; make sure there is a blank line at the end of the section."
+                "Could not find end of isotopologues section; make sure there is a blank line at the end of the section."
             )
         )
 
-    return isotopologue_section
+    return isotopologue_sections[0]
 
 
 def get_isotopologue_info(isotopologue_section, n_atoms):
