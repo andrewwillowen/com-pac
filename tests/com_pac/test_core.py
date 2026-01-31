@@ -17,6 +17,10 @@ from com_pac.core import (
     get_coordinate_section,
     get_coordinate_info,
     parse_input_coordinate_section,
+    get_dipole_matches,
+    get_dipole_section,
+    get_dipole_info,
+    parse_input_dipole_section,
 )
 
 
@@ -689,6 +693,91 @@ class Test_parse_input_coordinate_section:
 #     (blank line)
 # where muX, muY, and muZ are numeric values.
 #
+
+simple_dipole_section = """Simple dipole
+Dipole
+0.1 0.2 0.3
+
+"""
+
+
+class Test_simple_dipole_section:
+    @pytest.mark.dependency(name="simple_dipole_match")
+    def test_simple_get_dipole_matches(self):
+        result = get_dipole_matches(simple_dipole_section)
+        assert result == "\n0.1 0.2 0.3\n\n"
+
+    @pytest.mark.dependency(name="simple_dipole_sect")
+    def test_simple_get_dipole_section(self):
+        result = get_dipole_section("\n0.1 0.2 0.3\n\n")
+        assert result == "\n0.1 0.2 0.3"
+
+    @pytest.mark.dependency(name="simple_dipole_info")
+    def test_simple_get_dipole_info(self):
+        result = get_dipole_info("\n0.1 0.2 0.3")
+        assert np.allclose(result, np.array([0.1, 0.2, 0.3]))
+
+
+@pytest.fixture
+def multiple_dipoles():
+    input_text = """Multiple dipole
+Dipole
+0.1 0.2 0.3
+
+Other stuff
+Dipole
+0.4 0.5 0.6
+"""
+    return input_text
+
+
+@pytest.fixture
+def multiple_dipoles_matched():
+    return "\n0.1 0.2 0.3\n\nOther stuff\n"
+
+
+@pytest.mark.dependency(name="dipole_matches", depends=["simple_dipole_match"])
+class Test_get_dipole_matches:
+    def test_mutiple_dipoles(self, multiple_dipoles, multiple_dipoles_matched):
+        result = get_dipole_matches(multiple_dipoles)
+        assert result == multiple_dipoles_matched
+
+    def test_no_dipole(self):
+        input_text = f"BadDipole\n0.1 0.2 0.3\n\nOther stuff"
+        with pytest.raises(ValueError) as excinfo:
+            result = get_dipole_matches(input_text)
+        assert (excinfo.type is ValueError) and (
+            'Could not find line starting with "dipole" (case insensitive)'
+            in str(excinfo.value)
+        )
+
+    def test_case_sensitivity(self):
+        dipole1 = "Comment\nDIPOLE\n0.1 0.2 0.3\n\nOther stuff"
+        dipole2 = "Comment\ndipole\n0.1 0.2 0.3\n\nOther stuff"
+        result1 = get_dipole_matches(dipole1)
+        result2 = get_dipole_matches(dipole2)
+        assert result1.lower() == result2.lower()
+
+    def test_leading_space(self):
+        dipole = " Dipole\n0.1 0.2 0.3\n\nOther stuff"
+        with pytest.raises(ValueError) as excinfo:
+            result = get_dipole_matches(dipole)
+        assert (excinfo.type is ValueError) and (
+            'Could not find line starting with "dipole" (case insensitive)'
+            in str(excinfo.value)
+        )
+
+
+class Test_get_dipole_matches:
+    pass
+
+
+class Test_get_dipole_section:
+    pass
+
+
+class Test_get_dipole_info:
+    pass
 
 
 class Test_parse_input_dipole_section:

@@ -234,6 +234,8 @@ def parse_input_coordinate_section(input_file):
 
 
 def get_dipole_matches(input_file):
+    # TODO: Check to make sure there aren't multiple dipole sections
+    #       in the input file.
     try:
         dipole_matches = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)[1]
     except (Exception,):
