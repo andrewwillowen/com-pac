@@ -165,6 +165,9 @@ def isotopologue_error_message(*args):
     where mass# is the atomic mass number of the isotope,
     and iso### is the isotopologue label to use in the output.
     
+    The number of atoms (lines) in the Coordinates section 
+    MUST MATCH the number of mass numbers in each line of 
+    the Isotopologues section!!
     """
     if len(args) == 0:
         return message
@@ -317,13 +320,24 @@ def get_isotopologue_info(isotopologue_section, n_atoms):
             if ((not i.isspace()) and (i != ""))
         ]
         isotopologue_list = [x.split() for x in isotopologue_lines]
+        isotopologue_names = [x[n_atoms] for x in isotopologue_list]
+
         isotopologue_dict = {
             x[n_atoms]: [int(y) for y in x[:n_atoms]] for x in isotopologue_list
         }
-        isotopologue_names = [key for key in isotopologue_dict.keys()]
+        # isotopologue_names = [key for key in isotopologue_dict.keys()]
     except (Exception,) as exc:
         raise ValueError(isotopologue_error_message()) from exc
 
+    duplicate_names = [
+        i for i in set(isotopologue_names) if isotopologue_names.count(i) > 1
+    ]
+    if duplicate_names:
+        raise ValueError(
+            isotopologue_error_message(
+                f"Isotopologue section contains duplicate labels: {duplicate_names}"
+            )
+        )
     return isotopologue_names, isotopologue_dict
 
 

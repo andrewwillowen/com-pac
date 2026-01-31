@@ -25,6 +25,7 @@ from com_pac.core import (
     get_isotopologue_section,
     get_isotopologue_info,
     parse_input_isotopologue_section,
+    parse_input_file,
 )
 
 
@@ -419,7 +420,7 @@ class Test_dipole_error_message:
 class Test_isotopologue_error_message:
     def test_exact_message(self):
         expected_message: str = (
-            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    where mass# is the atomic mass number of the isotope,\n    and iso### is the isotopologue label to use in the output.\n    \n    "
+            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    where mass# is the atomic mass number of the isotope,\n    and iso### is the isotopologue label to use in the output.\n    \n    The number of atoms (lines) in the Coordinates section \n    MUST MATCH the number of mass numbers in each line of \n    the Isotopologues section!!\n    "
         )
         actual_message = isotopologue_error_message()
         assert expected_message == actual_message
@@ -429,7 +430,7 @@ class Test_isotopologue_error_message:
         arg2: str = "This is the second line appended to the message"
         arg3: str = "This is the last line appended to the message"
         expected_message: str = (
-            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    where mass# is the atomic mass number of the isotope,\n    and iso### is the isotopologue label to use in the output.\n    \n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
+            "\n    There was an error reading in the isotopologue masses.\n    \n    Proper format of the isotopologue section is:\n        Isotopologues   # comment\n        mass1 mass2 mass3 ... massZ iso000  # more comments\n        mass1 mass2 mass3 ... massZ iso001  \n        ...\n        mass1 mass2 mass3 ... massZ isoZZZ\n        (blank line)\n    where mass# is the atomic mass number of the isotope,\n    and iso### is the isotopologue label to use in the output.\n    \n    The number of atoms (lines) in the Coordinates section \n    MUST MATCH the number of mass numbers in each line of \n    the Isotopologues section!!\n    \n\tThis is the first line appended to the message\n\tThis is the second line appended to the message\n\tThis is the last line appended to the message"
         )
         actual_message = isotopologue_error_message(arg1, arg2, arg3)
         assert expected_message == actual_message
@@ -642,6 +643,57 @@ class Test_get_coordinate_info:
         )
 
 
+@pytest.fixture
+def example_A_input_coordinates():
+    return """Coordinates  # Example A
+H 0.0 0.0 0.0  # Example A atom 1
+H 1.0 -1.0 0.0  # Example A atom 2"""
+
+
+@pytest.fixture
+def example_A_parsed_coordinates():
+    return (
+        2,
+        ["H", "H"],
+        np.array([[0.0, 0.0, 0.0], [1.0, -1.0, 0.0]], dtype=float),
+        ["H1", "H2"],
+    )
+
+
+@pytest.fixture
+def example_B_input_coordinates():
+    return """Coordinates
+H 0.0 0.0 0.0
+N 1.0 1.0 -1.0
+N -1.0 -1.0 1.0
+N 0.0 2.0 -2.0"""
+
+
+@pytest.fixture
+def example_B_parsed_coordinates():
+    return (
+        4,
+        ["H", "N", "N", "N"],
+        np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 1.0, -1.0],
+                [-1.0, -1.0, 1.0],
+                [0.0, 2.0, -2.0],
+            ],
+            dtype=float,
+        ),
+        ["H1", "N2", "N3", "N4"],
+    )
+
+
+@pytest.fixture
+def example_C_input_coordinates():
+    return """Coordinates  # Example C
+H A B C  # Example C atom 1
+H 1.0  # Example C atom 2"""
+
+
 @pytest.mark.dependency(
     name="parse_coord",
     depends=[
@@ -685,6 +737,38 @@ class Test_parse_input_coordinate_section:
                 np.allclose(result[2], np.array([[0.0, 0.0, 0.0], [1.0, -1.0, 0.0]])),
                 result[3] == ["H1", "H2"],
             )
+        )
+
+    def test_example_A(self, example_A_input_coordinates, example_A_parsed_coordinates):
+        input_text = f"A comment\n{example_A_input_coordinates}\n\nOther stuff\n"
+        result = parse_input_coordinate_section(input_text)
+        assert all(
+            (
+                result[0] == example_A_parsed_coordinates[0],
+                result[1] == example_A_parsed_coordinates[1],
+                np.allclose(result[2], example_A_parsed_coordinates[2]),
+                result[3] == example_A_parsed_coordinates[3],
+            )
+        )
+
+    def test_example_B(self, example_B_input_coordinates, example_B_parsed_coordinates):
+        input_text = f"B comment\n{example_B_input_coordinates}\n\nOther stuff\n"
+        result = parse_input_coordinate_section(input_text)
+        assert all(
+            (
+                result[0] == example_B_parsed_coordinates[0],
+                result[1] == example_B_parsed_coordinates[1],
+                np.allclose(result[2], example_B_parsed_coordinates[2]),
+                result[3] == example_B_parsed_coordinates[3],
+            )
+        )
+
+    def test_example_C(self, example_C_input_coordinates):
+        input_text = f"C comment\n{example_C_input_coordinates}\n\nOther stuff\n"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_coordinate_section(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the atomic coordinates." in str(exc.value)
         )
 
 
@@ -837,6 +921,39 @@ class Test_get_dipole_info:
         result = get_dipole_info(dipole_section)
         assert np.allclose(result, np.array([-0.1, -0.2, -0.3]))
 
+    def test_zero_dipole(self):
+        dipole_section = "\n0 0 0"
+        result = get_dipole_info(dipole_section)
+        assert np.allclose(result, np.array([0.0, 0.0, 0.0]))
+
+
+@pytest.fixture
+def example_A_input_dipole():
+    return """Dipole  # Example A
+1.0 -1.0 0.0  # Example A dipole"""
+
+
+@pytest.fixture
+def example_A_parsed_dipole():
+    return np.array([1.0, -1.0, 0.0])
+
+
+@pytest.fixture
+def example_B_input_dipole():
+    return """Dipole
+0 2.0 -2.0"""
+
+
+@pytest.fixture
+def example_B_parsed_dipole():
+    return np.array([0.0, 2.0, -2.0])
+
+
+@pytest.fixture
+def example_C_input_dipole():
+    return """Dipole  # Example C
+H 1.0  # Example C dipole"""
+
 
 @pytest.mark.dependency(
     name="parse_dipole",
@@ -855,6 +972,24 @@ class Test_parse_input_dipole_section:
     def test_multiple_dipoles_input(self, multiple_dipoles):
         result = parse_input_dipole_section(multiple_dipoles)
         assert np.allclose(result, np.array([0.1, 0.2, 0.3]))
+
+    def test_example_A(self, example_A_input_dipole, example_A_parsed_dipole):
+        input_text = f"A comment\n{example_A_input_dipole}\n\nOther stuff"
+        result = parse_input_dipole_section(input_text)
+        assert np.allclose(result, example_A_parsed_dipole)
+
+    def test_example_B(self, example_B_input_dipole, example_B_parsed_dipole):
+        input_text = f"B comment\n{example_B_input_dipole}\n\nOther stuff"
+        result = parse_input_dipole_section(input_text)
+        assert np.allclose(result, example_B_parsed_dipole)
+
+    def test_example_C(self, example_C_input_dipole):
+        input_text = f"C comment\n{example_C_input_dipole}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_dipole_section(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the dipole." in str(exc.value)
+        )
 
 
 # Tests for isotopologue-section functions
@@ -1058,6 +1193,60 @@ class Test_get_isotopologue_info:
         result = get_isotopologue_info(input_text, 3)
         assert result == (["iso000"], {"iso000": [1, 2, 3]})
 
+    def test_duplicate_isolabel(self):
+        input_text = "\n1 2 3 iso000 #first one\n2 3 4 iso000 #second one"
+        with pytest.raises(ValueError) as exc:
+            result = get_isotopologue_info(input_text, 3)
+        assert (exc.type is ValueError) and (
+            "Isotopologue section contains duplicate labels: ['iso000']"
+            in str(exc.value)
+        )
+
+
+@pytest.fixture
+def example_A_input_isotopologues():
+    return """Isotopologues  # Example A
+1 1 iso000  # normal isotopologue
+1 2 iso001  # one heavy substitution
+2 2 iso002  # two heavy substitutions"""
+
+
+@pytest.fixture
+def example_A_parsed_isotopologues():
+    return (
+        ["iso000", "iso001", "iso002"],
+        {
+            "iso000": [1, 1],
+            "iso001": [1, 2],
+            "iso002": [2, 2],
+        },
+    )
+
+
+@pytest.fixture
+def example_B_input_isotopologues():
+    return """Isotopologues
+1 14 14 14 iso000
+2 14 14 14 iso001"""
+
+
+@pytest.fixture
+def example_B_parsed_isotopologues():
+    return (
+        ["iso000", "iso001"],
+        {
+            "iso000": [1, 14, 14, 14],
+            "iso001": [2, 14, 14, 14],
+        },
+    )
+
+
+@pytest.fixture
+def example_C_input_isotopologues():
+    return """Isotopologues  # Example C
+H A B C
+0 1.0"""
+
 
 @pytest.mark.dependency(
     name="parse_iso",
@@ -1081,14 +1270,326 @@ class Test_parse_input_isotopologue_section:
         result = parse_input_isotopologue_section(duplicate_isos_input, 3)
         assert result == multiple_isos_info
 
+    def test_example_A(
+        self, example_A_input_isotopologues, example_A_parsed_isotopologues
+    ):
+        input_text = f"A comment\n{example_A_input_isotopologues}\n\nOther stuff"
+        result = parse_input_isotopologue_section(input_text, 2)
+        assert result == example_A_parsed_isotopologues
+
+    def test_example_B(
+        self, example_B_input_isotopologues, example_B_parsed_isotopologues
+    ):
+        input_text = f"B comment\n{example_B_input_isotopologues}\n\nOther stuff"
+        result = parse_input_isotopologue_section(input_text, 4)
+        assert result == example_B_parsed_isotopologues
+
+    def test_example_C(self, example_C_input_isotopologues):
+        input_text = f"C comment\n{example_C_input_isotopologues}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_isotopologue_section(input_text, 3)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the isotopologue masses." in str(exc.value)
+        )
+
 
 # ---------------------------------
 # Tests for the whole input_parser!
 # ---------------------------------
 
 
+# Example A: valid, pseudo-H2
+# Example B: valid, pseudo-HN3
+# Example C: invalid, pseudo-H2
+
+
+@pytest.fixture
+def example_A_inputs(
+    example_A_input_coordinates, example_A_input_dipole, example_A_input_isotopologues
+):
+    return (
+        example_A_input_coordinates,
+        example_A_input_dipole,
+        example_A_input_isotopologues,
+    )
+
+
+@pytest.fixture
+def example_A_parsed(
+    example_A_parsed_coordinates,
+    example_A_parsed_dipole,
+    example_A_parsed_isotopologues,
+):
+    return (
+        example_A_parsed_coordinates,
+        example_A_parsed_dipole,
+        example_A_parsed_isotopologues,
+    )
+
+
+@pytest.fixture
+def example_B_inputs(
+    example_B_input_coordinates, example_B_input_dipole, example_B_input_isotopologues
+):
+    return (
+        example_B_input_coordinates,
+        example_B_input_dipole,
+        example_B_input_isotopologues,
+    )
+
+
+@pytest.fixture
+def example_B_parsed(
+    example_B_parsed_coordinates,
+    example_B_parsed_dipole,
+    example_B_parsed_isotopologues,
+):
+    return (
+        example_B_parsed_coordinates,
+        example_B_parsed_dipole,
+        example_B_parsed_isotopologues,
+    )
+
+
 class Test_parse_input_file:
-    pass
+    def test_example_A(
+        self,
+        example_A_inputs,
+        example_A_parsed,
+    ):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Example A input file\n\n{coord}\n\n{dip}\n\n{iso}\n\nOther stuff"
+
+        p_coord, p_dip, p_iso = example_A_parsed
+
+        n_atoms, atom_symbols, mol_coord, atom_numbering = p_coord
+        mol_dipole = p_dip
+        iso_names, iso_dict = p_iso
+
+        result = parse_input_file(input_text)
+
+        assert all(
+            (
+                result[0] == iso_names,
+                result[1] == iso_dict,
+                result[2] == n_atoms,
+                result[3] == atom_symbols,
+                np.allclose(result[4], mol_coord),
+                np.allclose(result[5], mol_dipole),
+                result[6] == atom_numbering,
+            )
+        )
+
+    def test_example_B(
+        self,
+        example_B_inputs,
+        example_B_parsed,
+    ):
+        coord, dip, iso = example_B_inputs
+        input_text = f"Example B input file\n\n{coord}\n\n{dip}\n\n{iso}\n\nOther stuff"
+
+        p_coord, p_dip, p_iso = example_B_parsed
+
+        n_atoms, atom_symbols, mol_coord, atom_numbering = p_coord
+        mol_dipole = p_dip
+        iso_names, iso_dict = p_iso
+
+        result = parse_input_file(input_text)
+
+        assert all(
+            (
+                result[0] == iso_names,
+                result[1] == iso_dict,
+                result[2] == n_atoms,
+                result[3] == atom_symbols,
+                np.allclose(result[4], mol_coord),
+                np.allclose(result[5], mol_dipole),
+                result[6] == atom_numbering,
+            )
+        )
+
+    def test_rearranged_A(self, example_A_inputs, example_A_parsed):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Example A input file\n\n{iso}\n\n{dip}\n\n{coord}\n\nOther stuff"
+
+        p_coord, p_dip, p_iso = example_A_parsed
+
+        n_atoms, atom_symbols, mol_coord, atom_numbering = p_coord
+        mol_dipole = p_dip
+        iso_names, iso_dict = p_iso
+
+        result = parse_input_file(input_text)
+
+        assert all(
+            (
+                result[0] == iso_names,
+                result[1] == iso_dict,
+                result[2] == n_atoms,
+                result[3] == atom_symbols,
+                np.allclose(result[4], mol_coord),
+                np.allclose(result[5], mol_dipole),
+                result[6] == atom_numbering,
+            )
+        )
+
+    def test_rearranged_B(
+        self,
+        example_B_inputs,
+        example_B_parsed,
+    ):
+        coord, dip, iso = example_B_inputs
+        input_text = f"Example B input file\n\n{iso}\n\n{coord}\n\n{dip}\n\nOther stuff"
+
+        p_coord, p_dip, p_iso = example_B_parsed
+
+        n_atoms, atom_symbols, mol_coord, atom_numbering = p_coord
+        mol_dipole = p_dip
+        iso_names, iso_dict = p_iso
+
+        result = parse_input_file(input_text)
+
+        assert all(
+            (
+                result[0] == iso_names,
+                result[1] == iso_dict,
+                result[2] == n_atoms,
+                result[3] == atom_symbols,
+                np.allclose(result[4], mol_coord),
+                np.allclose(result[5], mol_dipole),
+                result[6] == atom_numbering,
+            )
+        )
+
+    def test_coord_A_rest_B(self, example_A_inputs, example_B_inputs):
+        coordA, dipA, isoA = example_A_inputs
+        coordB, dipB, isoB = example_B_inputs
+        input_text = (
+            f"Mismatched input file\n\n{coordA}\n\n{dipB}\n\n{isoB}\n\nOther stuff"
+        )
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert exc.type is ValueError
+
+    def test_coord_B_rest_A(self, example_A_inputs, example_B_inputs):
+        coordA, dipA, isoA = example_A_inputs
+        coordB, dipB, isoB = example_B_inputs
+        input_text = (
+            f"Mismatched input file\n\n{coordB}\n\n{dipA}\n\n{isoA}\n\nOther stuff"
+        )
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert exc.type is ValueError
+
+    def test_AAC(self, example_A_inputs, example_C_input_isotopologues):
+        coordA, dipA, isoA = example_A_inputs
+        input_text = f"Bad input file\n\n{coordA}\n\n{dipA}\n\n{example_C_input_isotopologues}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the isotopologue masses" in str(exc.value)
+        )
+
+    def test_ACA(self, example_A_inputs, example_C_input_dipole):
+        coordA, dipA, isoA = example_A_inputs
+        input_text = f"Bad input file\n\n{coordA}\n\n{example_C_input_dipole}\n\n{isoA}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the dipole" in str(exc.value)
+        )
+
+    def test_CAA(self, example_A_inputs, example_C_input_coordinates):
+        coordA, dipA, isoA = example_A_inputs
+        input_text = f"Bad input file\n\n{example_C_input_coordinates}\n\n{dipA}\n\n{isoA}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the atomic coordinates" in str(exc.value)
+        )
+
+    def test_BBC(self, example_B_inputs, example_C_input_isotopologues):
+        coordB, dipB, isoB = example_B_inputs
+        input_text = f"Bad input file\n\n{coordB}\n\n{dipB}\n\n{example_C_input_isotopologues}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the isotopologue masses" in str(exc.value)
+        )
+
+    def test_BCB(self, example_B_inputs, example_C_input_dipole):
+        coordB, dipB, isoB = example_B_inputs
+        input_text = f"Bad input file\n\n{coordB}\n\n{example_C_input_dipole}\n\n{isoB}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the dipole" in str(exc.value)
+        )
+
+    def test_CBB(self, example_B_inputs, example_C_input_coordinates):
+        coordB, dipB, isoB = example_B_inputs
+        input_text = f"Bad input file\n\n{example_C_input_coordinates}\n\n{dipB}\n\n{isoB}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the atomic coordinates" in str(exc.value)
+        )
+
+    def test_white_space_double_lines_A(self, example_A_inputs, example_A_parsed):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Example A input file\n  \t \n{coord}\n  \t \n{dip}\n  \t \n{iso}\n  \t \nOther stuff"
+
+        p_coord, p_dip, p_iso = example_A_parsed
+
+        n_atoms, atom_symbols, mol_coord, atom_numbering = p_coord
+        mol_dipole = p_dip
+        iso_names, iso_dict = p_iso
+
+        result = parse_input_file(input_text)
+
+        assert all(
+            (
+                result[0] == iso_names,
+                result[1] == iso_dict,
+                result[2] == n_atoms,
+                result[3] == atom_symbols,
+                np.allclose(result[4], mol_coord),
+                np.allclose(result[5], mol_dipole),
+                result[6] == atom_numbering,
+            )
+        )
+
+    def test_white_space_double_lines_B(self, example_B_inputs, example_B_parsed):
+        coord, dip, iso = example_B_inputs
+        input_text = f"Example B input file\n  \t \n{coord}\n  \t \n{dip}\n  \t \n{iso}\n  \t \nOther stuff"
+
+        p_coord, p_dip, p_iso = example_B_parsed
+
+        n_atoms, atom_symbols, mol_coord, atom_numbering = p_coord
+        mol_dipole = p_dip
+        iso_names, iso_dict = p_iso
+
+        result = parse_input_file(input_text)
+
+        assert all(
+            (
+                result[0] == iso_names,
+                result[1] == iso_dict,
+                result[2] == n_atoms,
+                result[3] == atom_symbols,
+                np.allclose(result[4], mol_coord),
+                np.allclose(result[5], mol_dipole),
+                result[6] == atom_numbering,
+            )
+        )
+
+    def test_no_double_lines_A(self, example_A_inputs, example_A_parsed):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Example A input file\n{coord}\n{dip}\n{iso}\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            result = parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "There was an error reading in the atomic coordinates" in str(exc.value)
+        )
 
 
 # class Test_get_principal_axes:
