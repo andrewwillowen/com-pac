@@ -768,12 +768,30 @@ class Test_get_dipole_matches:
         )
 
 
-class Test_get_dipole_matches:
-    pass
+@pytest.fixture
+def dipole_section():
+    return "\n0.1 0.2 0.3"
 
 
+@pytest.mark.dependency(
+    name="dipole_section", depends=["dipole_matches", "simple_dipole_match"]
+)
 class Test_get_dipole_section:
-    pass
+    def test_dipole_match(self, multiple_dipoles_matched, dipole_section):
+        result = get_dipole_section(multiple_dipoles_matched)
+        assert result == dipole_section
+
+    def test_no_double_line_break(self, dipole_section):
+        with pytest.raises(ValueError) as exc:
+            result = get_dipole_section(dipole_section)
+        assert (exc.type is ValueError) and (
+            "Could not find end of dipole section" in str(exc.value)
+        )
+
+    def test_double_line_with_whitespace(self, dipole_section):
+        input_text: str = f"{dipole_section}\n \t  \nOther stuff"
+        result = get_dipole_section(input_text)
+        assert result == dipole_section
 
 
 class Test_get_dipole_info:

@@ -249,16 +249,16 @@ def get_dipole_matches(input_file):
 
 
 def get_dipole_section(dipole_matches):
-    try:
-        dipole_section = dipole_matches.split("\n\n")[0]
-    except (Exception,):
+    dipole_sections: list = re.split(r"\n\s*\n", dipole_matches)
+
+    if len(dipole_sections) < 2:
         raise ValueError(
             dipole_error_message(
                 "Could not find end of dipole section; make sure there is a blank line at the end of the section."
             )
         )
 
-    return dipole_section
+    return dipole_sections[0]
 
 
 def get_dipole_info(dipole_section):
