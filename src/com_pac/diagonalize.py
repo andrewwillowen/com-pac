@@ -8,6 +8,7 @@ from mendeleev import element
 import numpy as np
 
 
+# TODO: rename function "inertia_matrix" to "get_inertia_matrix"
 def inertia_matrix(coordinates_array, masses_array):
     matrix = np.zeros((3, 3))
     for axis1 in [0, 1, 2]:
@@ -43,6 +44,89 @@ def inertia_to_rot_const(inertia):
     return rot_constant
 
 
+def get_mol_masses(atom_symbols, atom_mass_numbers, n_atoms):
+    # TODO: Should be able to inherit the `isotopes` data structure from the input parser.
+    isotopes = [[atom_symbols[i], atom_mass_numbers[i]] for i in range(0, n_atoms)]
+    masses = []
+    for label, mass_number in isotopes:
+        mass = None
+        for isotope in element(label).isotopes:
+            if isotope.mass_number == mass_number:
+                mass = isotope.mass
+        if mass is None:
+            raise ValueError(
+                "\n    Isotopic mass not found for {} with mass number {}\n".format(
+                    label, mass_number
+                )
+            )
+        else:
+            masses.append(mass)
+    return np.array(masses)
+
+
+def get_COM_coordinates(masses, coordinates):
+    # TODO: properly vectorize this calculation to take advantage of numpy speed
+    if len(masses) != len(coordinates):
+        raise ValueError(
+            'Length of "masses" array must match length of "coordinates" array.'
+        )
+
+    n_points = len(masses)
+    COM = (1 / masses.sum()) * np.array(
+        [masses[x] * coordinates[x] for x in range(0, n_points)]
+    ).sum(axis=0)
+    return np.array([x - COM for x in coordinates])
+
+
+def get_eigens(matrix):
+    """
+    This implementation was "state of the art" at the time of initial writing, ca. 2022.
+    """
+    # TODO: Update to latest (?) implementation for numpy >=2.2
+    evals, evecs = np.linalg.eig(matrix)
+    sort_key = evals.argsort()[::1]
+    evals = evals[sort_key]
+    evecs = evecs[:, sort_key]
+    return evals, evecs
+
+
+def rotate_coordinates(coordinates, rotation):
+    # TODO: Make sure "rotation" does not do a mirror inversion!
+    #       That is, the right hand vector of any 3 non-colinear points  should be
+    #       the same before **and** after the rotation.
+    #       (Current hypothesis is that arbitrary sorting of evecs with the same
+    #        eval is responsible for mirror inversion.)
+    rotated_coordinates = np.dot(coordinates, rotation)
+    return rotated_coordinates
+
+
+def get_isotopologue_principal_axes(
+    mol_coordinates, atom_mass_numbers, atom_symbols, n_atoms
+):
+    # Lookup exact masses
+    mol_masses = get_mol_masses(atom_symbols, atom_mass_numbers, n_atoms)
+    # Shift into Center of Mass coordinate system
+    com_coordinate = get_COM_coordinates(mol_masses, mol_coordinates)
+    # Calculate inertia matrix in COM system
+    com_inertia = inertia_matrix(com_coordinate, mol_masses)
+    # Diagonalize said matrix
+    evals, evecs = get_eigens(com_inertia)
+    # Use resulting eigenvectors to rotate COM system into Principal Axes system
+    pa_coordinate = rotate_coordinates(com_coordinate, evecs)
+    # Calculate inertia matrix in PA system, to later check if actually diagonalized
+    pa_inertia = inertia_matrix(pa_coordinate, mol_masses)
+
+    return (
+        mol_masses,
+        com_coordinate,
+        com_inertia,
+        evecs,
+        evals,
+        pa_coordinate,
+        pa_inertia,
+    )
+
+
 def get_principal_axes(
     isotopologue_names,
     isotopologue_dict,
@@ -51,7 +135,7 @@ def get_principal_axes(
     mol_coordinates,
     mol_dipole,
 ):
-    rotational_constants = {}
+    # initialize empty data structures
     atom_masses = {}
     com_coordinates = {}
     com_inertias = {}
@@ -60,46 +144,43 @@ def get_principal_axes(
     pa_dipoles = {}
     pa_coordinates = {}
     pa_inertias = {}
+    rotational_constants = {}
+
     bad_diagonal_warnings = {}
 
     for iso in isotopologue_names:
+        # validate data
         atom_mass_numbers = isotopologue_dict[iso]
-        isotopes = []
-        for atom in range(0, n_atoms):
-            isotopes.append([atom_symbols[atom], atom_mass_numbers[atom]])
-        masses = []
-        for label, mass_number in isotopes:
-            mass = None
-            for isotope in element(label).isotopes:
-                if isotope.mass_number == mass_number:
-                    mass = isotope.mass
-            if mass is None:
-                raise ValueError(
-                    "\n    Isotopic mass not found for {} with mass number {}\n".format(
-                        label, mass_number
-                    )
-                )
-            else:
-                masses.append(mass)
-        mol_masses = np.array(masses)
+        if len(atom_mass_numbers) != n_atoms:
+            raise ValueError(
+                f"Number of atoms in isotopologue_dict[{iso}] does not match number of atoms in coordinates."
+            )
+
+        # do calculations
+
+        (
+            mol_masses,
+            com_coordinate,
+            com_inertia,
+            evecs,
+            evals,
+            pa_coordinate,
+            pa_inertia,
+        ) = get_isotopologue_principal_axes(
+            mol_coordinates, atom_mass_numbers, atom_symbols, n_atoms
+        )
+
+        # update data structures with results of calculations
         atom_masses[iso] = mol_masses
-        mol_COM = (1 / mol_masses.sum()) * np.array(
-            [mol_masses[x] * mol_coordinates[x] for x in range(0, n_atoms)]
-        ).sum(axis=0)
-        com_coordinate = np.array([x - mol_COM for x in mol_coordinates])
         com_coordinates[iso] = com_coordinate
-        com_inertia = inertia_matrix(com_coordinate, mol_masses)
         com_inertias[iso] = com_inertia
-        evals, evecs = np.linalg.eig(com_inertia)
-        sort_key = evals.argsort()[::1]
-        evals = evals[sort_key]
-        evecs = evecs[:, sort_key]
         eigenvectors[iso] = evecs
         eigenvalues[iso] = evals
-        pa_coordinate = np.dot(com_coordinate, evecs)
         pa_coordinates[iso] = pa_coordinate
-        pa_inertia = inertia_matrix(pa_coordinate, mol_masses)
         pa_inertias[iso] = pa_inertia
+        pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
+        rotational_constants[iso] = list(map(inertia_to_rot_const, evals))
+
         if not np.allclose(pa_inertia, np.diag(evals)):
             bad_diagonal_pas = """WARNING! The inertia matrix calculated using the principal axes system 
     is not diagonal for {}""".format(
@@ -107,8 +188,6 @@ def get_principal_axes(
             )
             print(bad_diagonal_pas)
             bad_diagonal_warnings[iso] = bad_diagonal_pas
-        pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
-        rotational_constants[iso] = list(map(inertia_to_rot_const, evals))
 
     return (
         atom_masses,

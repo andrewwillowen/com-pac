@@ -1,5 +1,5 @@
 """
-Unit tests for functions in core.py
+Unit tests for functions in diagonalize.py
 """
 
 from mendeleev.fetch import fetch_table
@@ -365,3 +365,9 @@ class Test_inertia_to_rot_const:
 
 # class Test_get_principal_axes:
 #
+
+# class Test_get_mol_masses:
+#     def test_switched_arguments(fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms):
+#         with pytest.raises(ValueError) as exc:
+#             result = get_mol_masses(fixture_atom_mass_numbers, fixture_atom_symbols, fixture_n_atoms)
+#         assert (exc.type is ValueError) and (f"Isotopic mass not found for {fixture_atom_mass_numbers[0]} with mass number {fixture_atom_symbols[0]}" in exc.value)
