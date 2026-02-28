@@ -10,18 +10,8 @@ import numpy as np
 from com_pac.diagonalize import (
     inertia_matrix,
     inertia_to_rot_const,
+    get_mol_masses,
 )
-
-
-class Test_read_args:
-    """
-    Test core.read_args()
-
-    Not sure how to test this yet.
-    Will wait until implementing ~argparse.
-    """
-
-    pass
 
 
 class Test_inertia_matrix:
@@ -363,11 +353,183 @@ class Test_inertia_to_rot_const:
         np.testing.assert_allclose(value, expected)
 
 
-# class Test_get_principal_axes:
-#
+# HN3 fixtures
+@pytest.fixture
+def hn3_symbols():
+    return ["H", "N", "N", "N"]
 
-# class Test_get_mol_masses:
-#     def test_switched_arguments(fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms):
-#         with pytest.raises(ValueError) as exc:
-#             result = get_mol_masses(fixture_atom_mass_numbers, fixture_atom_symbols, fixture_n_atoms)
-#         assert (exc.type is ValueError) and (f"Isotopic mass not found for {fixture_atom_mass_numbers[0]} with mass number {fixture_atom_symbols[0]}" in exc.value)
+
+@pytest.fixture
+def hn3_mass_numbers():
+    return [1, 14, 14, 14]
+
+
+@pytest.fixture
+def hn3_n_atoms():
+    return 4
+
+
+@pytest.fixture
+def hn3_inputs(hn3_symbols, hn3_mass_numbers, hn3_n_atoms):
+    return hn3_symbols, hn3_mass_numbers, hn3_n_atoms
+
+
+# DN3 fixtures
+@pytest.fixture
+def dn3_symbols():
+    return ["H", "N", "N", "N"]
+
+
+@pytest.fixture
+def dn3_mass_numbers():
+    return [2, 14, 14, 14]
+
+
+@pytest.fixture
+def dn3_n_atoms():
+    return 4
+
+
+@pytest.fixture
+def dn3_inputs(dn3_symbols, dn3_mass_numbers, dn3_n_atoms):
+    return dn3_symbols, dn3_mass_numbers, dn3_n_atoms
+
+
+# Pyridazine fixtures
+@pytest.fixture
+def pyridazine_symbols():
+    return ["N", "N", "C", "C", "C", "C", "H", "H", "H", "H"]
+
+
+@pytest.fixture
+def pyridazine_mass_numbers():
+    return [14, 14, 12, 12, 12, 12, 1, 1, 1, 1]
+
+
+@pytest.fixture
+def pyridazine_n_atoms():
+    return 10
+
+
+@pytest.fixture
+def pyridazine_inputs(pyridazine_symbols, pyridazine_mass_numbers, pyridazine_n_atoms):
+    return pyridazine_symbols, pyridazine_mass_numbers, pyridazine_n_atoms
+
+
+# Pyridazine 4-D, 4-C13 fixtures
+@pytest.fixture
+def pyridazine_heavy_symbols():
+    return ["N", "N", "C", "C", "C", "C", "H", "H", "H", "H"]
+
+
+@pytest.fixture
+def pyridazine_heavy_mass_numbers():
+    return [14, 14, 12, 13, 12, 12, 1, 2, 1, 1]
+
+
+@pytest.fixture
+def pyridazine_heavy_n_atoms():
+    return 10
+
+
+@pytest.fixture
+def pyridazine_heavy_inputs(
+    pyridazine_heavy_symbols, pyridazine_heavy_mass_numbers, pyridazine_heavy_n_atoms
+):
+    return (
+        pyridazine_heavy_symbols,
+        pyridazine_heavy_mass_numbers,
+        pyridazine_heavy_n_atoms,
+    )
+
+
+# get_mol_masses results
+@pytest.fixture
+def hn3_get_mol_masses():
+    return np.array([1.00782503, 14.003074, 14.003074, 14.003074])
+
+
+@pytest.fixture
+def dn3_get_mol_masses():
+    return np.array([2.01410178, 14.003074, 14.003074, 14.003074])
+
+
+@pytest.fixture
+def pyridazine_get_mol_masses():
+    return np.array(
+        [
+            14.003074,
+            14.003074,
+            12.0,
+            12.0,
+            12.0,
+            12.0,
+            1.00782503,
+            1.00782503,
+            1.00782503,
+            1.00782503,
+        ]
+    )
+
+
+@pytest.fixture
+def pyridazine_heavy_get_mol_masses():
+    return np.array(
+        [
+            14.003074,
+            14.003074,
+            12.0,
+            13.00335484,
+            12.0,
+            12.0,
+            1.00782503,
+            2.01410178,
+            1.00782503,
+            1.00782503,
+        ]
+    )
+
+
+class Test_get_mol_masses:
+    @pytest.mark.parametrize(
+        "inputs",
+        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pyridazine_heavy_inputs"],
+    )
+    def test_switched_arguments(self, inputs, request):
+        # Can't use a fixture directly in the list of parameterized values
+        # Instead, use the name of the fixture combined with the built-in "request"
+        # to fixture to look-up the fixture & its value.
+        fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms = (
+            request.getfixturevalue(inputs)
+        )
+
+        with pytest.raises(ValueError) as exc:
+            result = get_mol_masses(
+                fixture_atom_mass_numbers, fixture_atom_symbols, fixture_n_atoms
+            )
+        assert (
+            (exc.type is ValueError)
+            and ("Isotopic mass not found for" in str(exc.value))
+            and ("with mass number" in str(exc.value))
+        )
+
+    @pytest.mark.parametrize(
+        "inputs,result",
+        [
+            ("hn3_inputs", "hn3_get_mol_masses"),
+            ("dn3_inputs", "dn3_get_mol_masses"),
+            ("pyridazine_inputs", "pyridazine_get_mol_masses"),
+            ("pyridazine_heavy_inputs", "pyridazine_heavy_get_mol_masses"),
+        ],
+    )
+    def test_expected_output(self, inputs, result, request):
+        fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms = (
+            request.getfixturevalue(inputs)
+        )
+        fixture_result = request.getfixturevalue(result)
+
+        inputs_result = get_mol_masses(
+            fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms
+        )
+
+        assert np.allclose(inputs_result, fixture_result)

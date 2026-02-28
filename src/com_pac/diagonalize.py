@@ -3,6 +3,7 @@
 # ========= #
 #  Imports  #
 # ========= #
+from mendeleev.mendeleev import isotope
 
 from mendeleev import element
 import numpy as np
@@ -10,6 +11,7 @@ import numpy as np
 
 # TODO: rename function "inertia_matrix" to "get_inertia_matrix"
 def inertia_matrix(coordinates_array, masses_array):
+    # TODO: properly vectorize this function
     matrix = np.zeros((3, 3))
     for axis1 in [0, 1, 2]:
         [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
@@ -44,23 +46,46 @@ def inertia_to_rot_const(inertia):
     return rot_constant
 
 
+def get_isotopes_dict(atom_symbols, atom_mass_numbers, n_atoms):
+    isotopes_dict = {
+        i: {"symbol": atom_symbols[i], "mass_number": atom_mass_numbers[i]}
+        for i in range(0, n_atoms)
+    }
+    return isotopes_dict
+
+
+def get_unique_isotopes(isotopes_dict):
+    as_tuples = [(v["symbol"], v["mass_number"]) for k, v in isotopes_dict.items()]
+    unique_isotopes = set(as_tuples)
+    return unique_isotopes
+
+
+def get_isotopes_mass(symbol, mass_number):
+    try:
+        mass = isotope(symbol, mass_number).mass
+    except Exception as exc:
+        raise ValueError(
+            f"Isotopic mass not found for {symbol} with mass number {mass_number} due to {exc}"
+        )
+
+    return mass
+
+
+def get_unique_isotopes_mass_dict(unique_isotopes):
+    mass_dict = {
+        iso_tuple: get_isotopes_mass(*iso_tuple) for iso_tuple in unique_isotopes
+    }
+    return mass_dict
+
+
 def get_mol_masses(atom_symbols, atom_mass_numbers, n_atoms):
     # TODO: Should be able to inherit the `isotopes` data structure from the input parser.
-    isotopes = [[atom_symbols[i], atom_mass_numbers[i]] for i in range(0, n_atoms)]
-    masses = []
-    for label, mass_number in isotopes:
-        mass = None
-        for isotope in element(label).isotopes:
-            if isotope.mass_number == mass_number:
-                mass = isotope.mass
-        if mass is None:
-            raise ValueError(
-                "\n    Isotopic mass not found for {} with mass number {}\n".format(
-                    label, mass_number
-                )
-            )
-        else:
-            masses.append(mass)
+    isotopes_dict = get_isotopes_dict(atom_symbols, atom_mass_numbers, n_atoms)
+    unique_isos_dict = get_unique_isotopes_mass_dict(get_unique_isotopes(isotopes_dict))
+    masses = [
+        unique_isos_dict[(atom_symbols[i], atom_mass_numbers[i])]
+        for i in range(0, n_atoms)
+    ]
     return np.array(masses)
 
 
