@@ -47,6 +47,7 @@ def inertia_to_rot_const(inertia):
 
 
 def get_isotopes_dict(atom_symbols, atom_mass_numbers, n_atoms):
+    # TODO: When pulled into a proper data structure, add type checking.
     isotopes_dict = {
         i: {"symbol": atom_symbols[i], "mass_number": atom_mass_numbers[i]}
         for i in range(0, n_atoms)
@@ -65,13 +66,17 @@ def get_isotopes_mass(symbol, mass_number):
         mass = isotope(symbol, mass_number).mass
     except Exception as exc:
         raise ValueError(
-            f"Isotopic mass not found for {symbol} with mass number {mass_number} due to {exc}"
+            f"Isotopic mass not found for {symbol} with mass number {mass_number}."
         )
 
     return mass
 
 
 def get_unique_isotopes_mass_dict(unique_isotopes):
+    # TODO: This can be done for **all** the isotopologues in the input file
+    #       right after parsing the input file - that way, each isotopologue
+    #       isn't repeating the lookup for its atoms; only has to read the
+    #       main dictionary.
     mass_dict = {
         iso_tuple: get_isotopes_mass(*iso_tuple) for iso_tuple in unique_isotopes
     }

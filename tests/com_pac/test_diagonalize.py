@@ -11,6 +11,10 @@ from com_pac.diagonalize import (
     inertia_matrix,
     inertia_to_rot_const,
     get_mol_masses,
+    get_isotopes_dict,
+    get_unique_isotopes,
+    get_isotopes_mass,
+    get_unique_isotopes_mass_dict,
 )
 
 
@@ -441,6 +445,222 @@ def pyridazine_heavy_inputs(
         pyridazine_heavy_mass_numbers,
         pyridazine_heavy_n_atoms,
     )
+
+
+@pytest.fixture
+def hn3_isotopes_dict():
+    return {
+        0: {"symbol": "H", "mass_number": 1},
+        1: {"symbol": "N", "mass_number": 14},
+        2: {"symbol": "N", "mass_number": 14},
+        3: {"symbol": "N", "mass_number": 14},
+    }
+
+
+class Test_get_isotopes_dict:
+    def test_hn3_is_correct(self, hn3_inputs, hn3_isotopes_dict):
+        symbols, mass_numbers, n_atoms = hn3_inputs
+        result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
+        assert result == hn3_isotopes_dict
+
+    def test_hn3_switched_arguments(self, hn3_inputs, hn3_isotopes_dict):
+        # TODO: Update once there is a proper data structure, this should raise
+        #       an exception about improper types.
+        symbols, mass_numbers, n_atoms = hn3_inputs
+        result = get_isotopes_dict(mass_numbers, symbols, n_atoms)
+        assert all(
+            (
+                result[0]["symbol"] == hn3_isotopes_dict[0]["mass_number"],
+                result[1]["symbol"] == hn3_isotopes_dict[1]["mass_number"],
+                result[2]["symbol"] == hn3_isotopes_dict[2]["mass_number"],
+                result[3]["symbol"] == hn3_isotopes_dict[3]["mass_number"],
+                result[0]["mass_number"] == hn3_isotopes_dict[0]["symbol"],
+                result[1]["mass_number"] == hn3_isotopes_dict[1]["symbol"],
+                result[2]["mass_number"] == hn3_isotopes_dict[2]["symbol"],
+                result[3]["mass_number"] == hn3_isotopes_dict[3]["symbol"],
+            )
+        )
+
+    @pytest.mark.parametrize(
+        "inputs",
+        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pyridazine_heavy_inputs"],
+    )
+    def test_wrong_n_atoms(self, inputs, request):
+        symbols, mass_numbers, n_atoms = request.getfixturevalue(inputs)
+        n_atoms = 30
+        with pytest.raises(IndexError) as exc:
+            result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
+        assert exc.type is IndexError
+
+    @pytest.mark.parametrize(
+        "inputs",
+        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pyridazine_heavy_inputs"],
+    )
+    def test_wrong_mass_number_length(self, inputs, request):
+        # TODO: Data validation should be done earlier and this test can be dropped.
+        symbols, mass_numbers, n_atoms = request.getfixturevalue(inputs)
+        mass_numbers = mass_numbers[:-1]
+
+        with pytest.raises(IndexError) as exc:
+            result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
+        assert exc.type is IndexError
+
+    @pytest.mark.parametrize(
+        "inputs",
+        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pyridazine_heavy_inputs"],
+    )
+    def test_correct_length(self, inputs, request):
+        symbols, mass_numbers, n_atoms = request.getfixturevalue(inputs)
+        result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
+
+        assert len(result) == n_atoms
+
+
+@pytest.fixture
+def hn3_unique_isotopes():
+    return set([("H", 1), ("N", 14)])
+
+
+@pytest.fixture
+def dn3_unique_isotopes():
+    return set([("H", 2), ("N", 14)])
+
+
+@pytest.fixture
+def pyridazine_unique_isotopes():
+    return set([("H", 1), ("C", 12), ("N", 14)])
+
+
+@pytest.fixture
+def pyridazine_heavy_unique_isotopes():
+    return set([("H", 1), ("H", 2), ("C", 12), ("C", 13), ("N", 14)])
+
+
+class Test_get_unique_isotopes:
+    def test_hn3_is_correct(self, hn3_isotopes_dict, hn3_unique_isotopes):
+        result = get_unique_isotopes(hn3_isotopes_dict)
+        assert result == hn3_unique_isotopes
+
+    def test_missing_keys(self):
+        test_dict = {0: {"a": 1}, 1: {"a": 2}}
+        with pytest.raises(KeyError) as exc:
+            result = get_unique_isotopes(test_dict)
+        assert exc.type is KeyError
+
+    def test_different_types(self):
+        test_dict = {
+            0: {"symbol": 123, "mass_number": "A"},
+            1: {"symbol": (0, 1), "mass_number": "B"},
+        }
+        result = get_unique_isotopes(test_dict)
+        assert isinstance(result, set)
+
+    def test_unhashable_values(self):
+        test_dict = {
+            0: {"symbol": [1, 2, 3], "mass_number": [1, 2, 3]},
+            1: {"symbol": [1, 2, 3], "mass_number": [1, 2, 3]},
+        }
+        with pytest.raises(TypeError) as exc:
+            result = get_unique_isotopes(test_dict)
+        assert exc.type is TypeError
+
+
+class Test_get_isotopes_mass:
+    """
+    Only simple testing, since this function is effectively a wrapper for the Mendeleev method.
+    """
+
+    @pytest.mark.parametrize(
+        "symbol,mass_number,mass",
+        [
+            ("H", 1, 1.007825031898),
+            ("H", 2, 2.014101777844),
+            ("C", 12, 12.0),
+            ("C", 13, 13.00335483534),
+            ("N", 14, 14.00307400425),
+            ("N", 15, 15.00010889827),
+        ],
+    )
+    def test_masses(self, symbol, mass_number, mass):
+        assert np.allclose(get_isotopes_mass(symbol, mass_number), mass)
+
+    def test_bad_mass_number(self):
+        with pytest.raises(ValueError) as exc:
+            result = get_isotopes_mass("H", 123123)
+        assert exc.type is ValueError and (
+            "Isotopic mass not found for H with mass number 123123." in str(exc.value)
+        )
+
+    def test_bad_symbol(self):
+        with pytest.raises(ValueError) as exc:
+            result = get_isotopes_mass("AF", 123)
+        assert exc.type is ValueError and (
+            "Isotopic mass not found for AF with mass number 123." in str(exc.value)
+        )
+
+
+@pytest.fixture
+def hn3_unique_isotopes_dict():
+    return {
+        ("H", 1): 1.007825031898,
+        ("N", 14): 14.00307400425,
+    }
+
+
+@pytest.fixture
+def dn3_unique_isotopes_dict():
+    return {
+        ("H", 2): 2.014101777844,
+        ("N", 14): 14.00307400425,
+    }
+
+
+@pytest.fixture
+def pyridazine_unique_isotopes_dict():
+    return {
+        ("H", 1): 1.007825031898,
+        ("C", 12): 12.0,
+        ("N", 14): 14.00307400425,
+    }
+
+
+@pytest.fixture
+def pyridazine_heavy_unique_isotopes_dict():
+    return {
+        ("H", 1): 1.007825031898,
+        ("H", 2): 2.014101777844,
+        ("C", 12): 12.0,
+        ("C", 13): 13.00335483534,
+        ("N", 14): 14.00307400425,
+    }
+
+
+class Test_get_unique_isotopes_mass_dict:
+    @pytest.mark.parametrize(
+        "unique_isotopes,unique_isotopes_dict",
+        [
+            ("hn3_unique_isotopes", "hn3_unique_isotopes_dict"),
+            ("dn3_unique_isotopes_dict", "dn3_unique_isotopes_dict"),
+            ("pyridazine_unique_isotopes", "pyridazine_unique_isotopes_dict"),
+            (
+                "pyridazine_heavy_unique_isotopes",
+                "pyridazine_heavy_unique_isotopes_dict",
+            ),
+        ],
+    )
+    def test_expected_results(self, unique_isotopes, unique_isotopes_dict, request):
+        # TODO: Investigate why this test adds a full second to testing..
+        unique_isos = request.getfixturevalue(unique_isotopes)
+        unique_isos_dict = request.getfixturevalue(unique_isotopes_dict)
+        result = get_unique_isotopes_mass_dict(unique_isos)
+        assert result == unique_isos_dict
+
+    def test_incorrect_type(self):
+        # Normally, "unique_isotopes" should be a set, which inherently requires the entries
+        # to be hashable. Let's check what happens if that is not the case.
+        with pytest.raises(TypeError) as exc:
+            result = get_unique_isotopes_mass_dict([[1, 2], [3, 4]])
+        assert exc.type is TypeError
 
 
 # get_mol_masses results
