@@ -95,17 +95,18 @@ def get_mol_masses(atom_symbols, atom_mass_numbers, n_atoms):
 
 
 def get_COM_coordinates(masses, coordinates):
-    # TODO: properly vectorize this calculation to take advantage of numpy speed
     if len(masses) != len(coordinates):
         raise ValueError(
             'Length of "masses" array must match length of "coordinates" array.'
         )
 
     n_points = len(masses)
-    COM = (1 / masses.sum()) * np.array(
-        [masses[x] * coordinates[x] for x in range(0, n_points)]
-    ).sum(axis=0)
-    return np.array([x - COM for x in coordinates])
+    masses_sum = masses.sum()
+    if np.allclose(0, masses_sum):
+        raise ValueError('Sum of "masses" array is zero!')
+
+    COM = (1 / masses_sum) * np.dot(masses, coordinates)
+    return np.subtract(coordinates, COM), COM
 
 
 def get_eigens(matrix):
@@ -136,7 +137,7 @@ def get_isotopologue_principal_axes(
     # Lookup exact masses
     mol_masses = get_mol_masses(atom_symbols, atom_mass_numbers, n_atoms)
     # Shift into Center of Mass coordinate system
-    com_coordinate = get_COM_coordinates(mol_masses, mol_coordinates)
+    com_coordinate, COM = get_COM_coordinates(mol_masses, mol_coordinates)
     # Calculate inertia matrix in COM system
     com_inertia = inertia_matrix(com_coordinate, mol_masses)
     # Diagonalize said matrix
@@ -154,6 +155,7 @@ def get_isotopologue_principal_axes(
         evals,
         pa_coordinate,
         pa_inertia,
+        COM,
     )
 
 
@@ -175,6 +177,7 @@ def get_principal_axes(
     pa_coordinates = {}
     pa_inertias = {}
     rotational_constants = {}
+    COM_values = {}
 
     bad_diagonal_warnings = {}
 
@@ -196,6 +199,7 @@ def get_principal_axes(
             evals,
             pa_coordinate,
             pa_inertia,
+            COM,
         ) = get_isotopologue_principal_axes(
             mol_coordinates, atom_mass_numbers, atom_symbols, n_atoms
         )
@@ -210,6 +214,7 @@ def get_principal_axes(
         pa_inertias[iso] = pa_inertia
         pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
         rotational_constants[iso] = list(map(inertia_to_rot_const, evals))
+        COM_values[iso] = COM
 
         if not np.allclose(pa_inertia, np.diag(evals)):
             bad_diagonal_pas = """WARNING! The inertia matrix calculated using the principal axes system 
@@ -229,4 +234,5 @@ def get_principal_axes(
         com_inertias,
         eigenvectors,
         eigenvalues,
+        COM_values,
     )

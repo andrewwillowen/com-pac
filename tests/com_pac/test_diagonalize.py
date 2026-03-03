@@ -2,6 +2,8 @@
 Unit tests for functions in diagonalize.py
 """
 
+from decimal import DivisionByZero
+
 from mendeleev.fetch import fetch_table
 from mendeleev.mendeleev import element
 
@@ -70,6 +72,11 @@ def random_COM_coords1():
             [-1.26018961, -3.92364644, -1.6704474],
         ]
     )
+
+
+@pytest.fixture
+def random_COM_value1():
+    return np.array([-0.13906763, 0.0721934, -0.74482749])
 
 
 @pytest.fixture
@@ -144,6 +151,11 @@ def random_COM_coords2():
             [-3.69137486, -3.47538163, -1.80538432],
         ]
     )
+
+
+@pytest.fixture
+def random_COM_value2():
+    return np.array([1.16325926, 0.45013021, -0.5208609])
 
 
 @pytest.fixture
@@ -224,6 +236,11 @@ def random_COM_coords3():
 
 
 @pytest.fixture
+def random_COM_value3():
+    return np.array([-0.83923283, -0.33436235, 0.57716083])
+
+
+@pytest.fixture
 def random_coords4():
     return np.array(
         [
@@ -301,6 +318,11 @@ def random_COM_coords4():
             [0.72703794, 5.2919612, 4.46762621],
         ]
     )
+
+
+@pytest.fixture
+def random_COM_value4():
+    return np.array([-0.48437239, -0.73088701, -0.06534187])
 
 
 @pytest.fixture
@@ -396,6 +418,11 @@ def random_COM_coords5():
             [4.79510489, 4.25979581, -1.74670892],
         ]
     )
+
+
+@pytest.fixture
+def random_COM_value5():
+    return np.array([-0.0527959, -0.14978125, 0.46179269])
 
 
 @pytest.fixture
@@ -506,6 +533,11 @@ def random_COM_coords6():
             [-2.95460479, 4.79007685, 4.03656242],
         ]
     )
+
+
+@pytest.fixture
+def random_COM_value6():
+    return np.array([0.06631191, -0.60284039, 0.15428617])
 
 
 class Test_inertia_matrix:
@@ -968,24 +1000,102 @@ class Test_get_mol_masses:
 
 class Test_get_COM_coordinates:
     @pytest.mark.parametrize(
-        "f_masses,f_coordinates,f_COM_coordinates",
+        "f_masses,f_coordinates,f_COM_coordinates,f_COM_value",
         [
-            ("random_masses1", "random_coords1", "random_COM_coords1"),
-            ("random_masses2", "random_coords2", "random_COM_coords2"),
-            ("random_masses3", "random_coords3", "random_COM_coords3"),
-            ("random_masses4", "random_coords4", "random_COM_coords4"),
-            ("random_masses5", "random_coords5", "random_COM_coords5"),
-            ("random_masses6", "random_coords6", "random_COM_coords6"),
+            (
+                "random_masses1",
+                "random_coords1",
+                "random_COM_coords1",
+                "random_COM_value1",
+            ),
+            (
+                "random_masses2",
+                "random_coords2",
+                "random_COM_coords2",
+                "random_COM_value2",
+            ),
+            (
+                "random_masses3",
+                "random_coords3",
+                "random_COM_coords3",
+                "random_COM_value3",
+            ),
+            (
+                "random_masses4",
+                "random_coords4",
+                "random_COM_coords4",
+                "random_COM_value4",
+            ),
+            (
+                "random_masses5",
+                "random_coords5",
+                "random_COM_coords5",
+                "random_COM_value5",
+            ),
+            (
+                "random_masses6",
+                "random_coords6",
+                "random_COM_coords6",
+                "random_COM_value6",
+            ),
         ],
     )
-    def test_expected_output(self, f_masses, f_coordinates, f_COM_coordinates, request):
+    def test_expected_output(
+        self, f_masses, f_coordinates, f_COM_coordinates, f_COM_value, request
+    ):
         masses = request.getfixturevalue(f_masses)
         coordinates = request.getfixturevalue(f_coordinates)
         COM_coordinates = request.getfixturevalue(f_COM_coordinates)
+        COM_value = request.getfixturevalue(f_COM_value)
 
-        result = get_COM_coordinates(masses, coordinates)
+        result_COM_coordinates, result_COM_value = get_COM_coordinates(
+            masses, coordinates
+        )
 
-        print(f"{result=}")
-        print(f"{COM_coordinates=}")
+        print(f"{result_COM_value=}")
+        assert np.allclose(result_COM_coordinates, COM_coordinates) and np.allclose(
+            result_COM_value, COM_value
+        )
 
-        assert np.allclose(result, COM_coordinates)
+    @pytest.mark.parametrize(
+        "f_masses,f_coordinates",
+        [
+            ("random_masses1", "random_coords3"),
+            ("random_masses2", "random_coords4"),
+            ("random_masses3", "random_coords5"),
+        ],
+    )
+    def test_mismatched_lengths(self, f_masses, f_coordinates, request):
+        masses = request.getfixturevalue(f_masses)
+        coordinates = request.getfixturevalue(f_coordinates)
+
+        with pytest.raises(ValueError) as exc:
+            result = get_COM_coordinates(masses, coordinates)
+
+        assert (exc.type is ValueError) and (
+            'Length of "masses" array must match length of "coordinates" array.'
+            in str(exc.value)
+        )
+
+    @pytest.mark.parametrize(
+        "f_masses,f_coordinates",
+        [
+            ("random_masses1", "random_coords1"),
+            ("random_masses2", "random_coords2"),
+            ("random_masses3", "random_coords3"),
+            ("random_masses4", "random_coords4"),
+            ("random_masses5", "random_coords5"),
+            ("random_masses6", "random_coords6"),
+        ],
+    )
+    def test_zero_masses(self, f_masses, f_coordinates, request):
+        masses = request.getfixturevalue(f_masses)
+        masses = np.zeros(len(masses))
+        coordinates = request.getfixturevalue(f_coordinates)
+
+        with pytest.raises(ValueError) as exc:
+            result = get_COM_coordinates(masses, coordinates)
+
+        assert (exc.type is ValueError) and (
+            'Sum of "masses" array is zero!' in str(exc.value)
+        )
