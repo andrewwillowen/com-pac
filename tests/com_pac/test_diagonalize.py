@@ -18,6 +18,8 @@ from com_pac.diagonalize import (
     get_isotopes_mass,
     get_unique_isotopes_mass_dict,
     get_COM_coordinates,
+    get_eigens,
+    rotate_coordinates,
 )
 
 
@@ -77,6 +79,67 @@ def random_COM_coords1():
 @pytest.fixture
 def random_COM_value1():
     return np.array([-0.13906763, 0.0721934, -0.74482749])
+
+
+@pytest.fixture
+def random_COM_inertias1():
+    return np.array(
+        [
+            [3074.80862736, -1740.41486936, 352.70961294],
+            [-1740.41486936, 4384.50262567, 374.99830783],
+            [352.70961294, 374.99830783, 5559.30470071],
+        ]
+    )
+
+
+@pytest.fixture
+def random_evals1():
+    return np.array([1802.59995719, 5499.72702001, 5716.28897654])
+
+
+@pytest.fixture
+def random_evecs1():
+    return np.array(
+        [
+            [-0.81278719, -0.5085473, -0.28417712],
+            [-0.56719216, 0.57949809, 0.58521365],
+            [0.13292872, -0.63683719, 0.75945266],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_coords1():
+    return np.array(
+        [
+            [5.23823485, -0.15813875, -1.12023472],
+            [-4.7771423, 0.07198818, -0.39867891],
+            [2.20734025, 2.47207272, 3.36776561],
+            [-0.32103888, -5.57689522, 2.38716729],
+            [-3.18537976, 0.78827623, -0.74943663],
+            [3.02767703, -0.56907656, -3.20668013],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_inertias1():
+    return np.array(
+        [
+            [1.80259996e03, -1.72128978e-12, -1.49213975e-12],
+            [-1.72128978e-12, 5.49972702e03, 2.67696976e-12],
+            [-1.49213975e-12, 2.67696976e-12, 5.71628898e03],
+        ]
+    )
+
+
+@pytest.fixture
+def random_rot_consts1():
+    return [
+        np.float64(280.3611542226121),
+        np.float64(91.89165257858001),
+        np.float64(88.41033171591842),
+    ]
 
 
 @pytest.fixture
@@ -156,6 +219,74 @@ def random_COM_coords2():
 @pytest.fixture
 def random_COM_value2():
     return np.array([1.16325926, 0.45013021, -0.5208609])
+
+
+@pytest.fixture
+def random_COM_inertias2():
+    return np.array(
+        [
+            [10636.08147787, -1009.01438769, 1582.63189538],
+            [-1009.01438769, 9742.81462155, -497.57785028],
+            [1582.63189538, -497.57785028, 9876.44895467],
+        ]
+    )
+
+
+@pytest.fixture
+def random_evals2():
+    return np.array([8561.66542187, 9342.88468794, 12350.79494428])
+
+
+@pytest.fixture
+def random_evecs2():
+    return np.array(
+        [
+            [-0.6640655, 0.12063266, 0.73787857],
+            [-0.27427654, 0.87879164, -0.39050945],
+            [0.69554971, 0.46170663, 0.5504885],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_coords2():
+    return np.array(
+        [
+            [-4.85713137, -3.18133931, 1.31548175],
+            [4.92245143, 2.43269966, -0.58469493],
+            [4.18641704, 3.41311457, -2.93222413],
+            [6.59268451, -0.24110846, 0.67518089],
+            [-1.40642865, 3.89105389, 1.91331067],
+            [-3.58348389, 2.63770161, -1.39199456],
+            [2.02876969, -3.64312321, -3.86484559],
+            [5.50749895, 2.29937636, -1.27523833],
+            [-1.57790934, -3.25240871, 1.26577812],
+            [1.58701189, -3.73659355, 2.13717046],
+            [-2.74655355, 2.12741099, -3.63901795],
+            [0.95699694, 4.22433168, 2.93682308],
+            [2.14879577, -4.33299461, -2.36046031],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_inertias2():
+    return np.array(
+        [
+            [8.56166542e03, 1.36424205e-11, -2.61479727e-12],
+            [1.36424205e-11, 9.34288469e03, -1.25055521e-12],
+            [-2.61479727e-12, -1.25055521e-12, 1.23507949e04],
+        ]
+    )
+
+
+@pytest.fixture
+def random_rot_consts2():
+    return [
+        np.float64(59.02811891121509),
+        np.float64(54.09239453126498),
+        np.float64(40.918743034766095),
+    ]
 
 
 @pytest.fixture
@@ -241,6 +372,75 @@ def random_COM_value3():
 
 
 @pytest.fixture
+def random_COM_inertias3():
+    return np.array(
+        [
+            [6627.98222727, -1318.01260243, 204.33544295],
+            [-1318.01260243, 5875.35646453, 24.77398136],
+            [204.33544295, 24.77398136, 8009.11952539],
+        ]
+    )
+
+
+@pytest.fixture
+def random_evals3():
+    return np.array([4874.4618115, 7572.86642365, 8065.12998205])
+
+
+@pytest.fixture
+def random_evecs3():
+    return np.array(
+        [
+            [-0.60360442, -0.74696963, 0.27874375],
+            [-0.79597672, 0.58459783, -0.15705552],
+            [0.04563729, 0.31667294, 0.94743627],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_coords3():
+    return np.array(
+        [
+            [-1.2266167, 5.62559524, -0.68862095],
+            [-1.36349489, -3.5615436, 0.33577622],
+            [3.94361828, 1.09144973, 1.3557945],
+            [-6.34396973, -1.10802758, -0.91946249],
+            [-1.74662306, 1.54185803, 2.33758032],
+            [-0.59838802, 0.98101607, -5.40780287],
+            [-1.02688675, -1.27191354, -1.81866345],
+            [5.90216336, -0.02098458, -1.25419815],
+            [3.09232181, -2.07665614, -2.5331536],
+            [4.42996416, 0.84218229, 0.21092402],
+            [-2.01703806, 5.23351755, -0.21747674],
+            [-6.27522663, 0.33634895, 3.51925308],
+            [-2.52371252, 0.82263065, -1.88832695],
+            [1.40089926, -2.39273128, 2.63446669],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_inertias3():
+    return np.array(
+        [
+            [4.87446181e03, 1.98951966e-13, 1.70530257e-13],
+            [1.98951966e-13, 7.57286642e03, -9.09494702e-13],
+            [1.70530257e-13, -9.09494702e-13, 8.06512998e03],
+        ]
+    )
+
+
+@pytest.fixture
+def random_rot_consts3():
+    return [
+        np.float64(103.67893403276554),
+        np.float64(66.73549701363824),
+        np.float64(62.66222686113838),
+    ]
+
+
+@pytest.fixture
 def random_coords4():
     return np.array(
         [
@@ -323,6 +523,76 @@ def random_COM_coords4():
 @pytest.fixture
 def random_COM_value4():
     return np.array([-0.48437239, -0.73088701, -0.06534187])
+
+
+@pytest.fixture
+def random_COM_inertias4():
+    return np.array(
+        [
+            [10643.84624275, -1006.43865782, 1109.07261218],
+            [-1006.43865782, 10018.75883211, -242.83026478],
+            [1109.07261218, -242.83026478, 7633.14963987],
+        ]
+    )
+
+
+@pytest.fixture
+def random_evals4():
+    return np.array([7265.8834173, 9371.47285745, 11658.39843998])
+
+
+@pytest.fixture
+def random_evecs4():
+    return np.array(
+        [
+            [-0.32084209, 0.49589771, -0.80693606],
+            [-0.03380536, 0.84543917, 0.53300076],
+            [0.94652921, 0.19828784, -0.25448847],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_coords4():
+    return np.array(
+        [
+            [-4.95133033, 1.51944788, -2.61011256],
+            [-1.9017136, 0.55972501, 1.70822315],
+            [3.70693583, -2.46872892, -1.56025904],
+            [4.10894783, 2.67647059, -0.15745985],
+            [-0.52284249, -0.50904, 0.38102636],
+            [-0.37353441, 0.64739412, -2.97596115],
+            [-1.0349838, 2.31258576, 3.96560324],
+            [0.66696271, -4.81084372, 0.09245939],
+            [2.06930921, 1.85391932, 1.59088389],
+            [-3.28070699, -4.01534226, 2.25001578],
+            [0.50165911, 2.08598093, 1.23648428],
+            [2.87913452, -1.04224756, -3.74484484],
+            [2.51888979, 2.17601527, 0.48676291],
+            [-5.14993454, 1.91077655, -1.62740493],
+            [3.81657771, 5.72044369, 1.09698684],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_inertias4():
+    return np.array(
+        [
+            [7.26588342e03, -1.76214598e-12, 5.33795230e-13],
+            [-1.76214598e-12, 9.37147286e03, 1.78168591e-12],
+            [5.33795230e-13, 1.78168591e-12, 1.16583984e04],
+        ]
+    )
+
+
+@pytest.fixture
+def random_rot_consts4():
+    return [
+        np.float64(69.55506654515754),
+        np.float64(53.92738284444609),
+        np.float64(43.348921998318616),
+    ]
 
 
 @pytest.fixture
@@ -423,6 +693,81 @@ def random_COM_coords5():
 @pytest.fixture
 def random_COM_value5():
     return np.array([-0.0527959, -0.14978125, 0.46179269])
+
+
+@pytest.fixture
+def random_COM_inertias5():
+    return np.array(
+        [
+            [19149.07694514, -1157.89150809, 453.37490896],
+            [-1157.89150809, 16041.64803492, 2238.43270098],
+            [453.37490896, 2238.43270098, 16644.31320216],
+        ]
+    )
+
+
+@pytest.fixture
+def random_evals5():
+    return np.array([13825.3778147, 18430.26331592, 19579.39705161])
+
+
+@pytest.fixture
+def random_evecs5():
+    return np.array(
+        [
+            [0.21606256, 0.37512542, 0.90144211],
+            [0.74741099, 0.53051595, -0.39991204],
+            [-0.62824659, 0.76015376, -0.16574823],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_coords5():
+    return np.array(
+        [
+            [-1.36491879, 2.27482121, 3.52473374],
+            [-1.04902705, -4.46283187, 2.8452703],
+            [-1.37802967, 1.61899145, -1.35083635],
+            [-0.18156123, 0.81864177, 2.32709339],
+            [-2.96381744, -0.30061355, -1.53948903],
+            [-4.84229174, 0.67828627, -3.08813377],
+            [-2.19995022, 3.70914477, 3.12749209],
+            [5.31130396, -2.76326413, -3.76566165],
+            [0.02044518, -4.69710212, -1.80724994],
+            [0.91328368, 3.09878382, 1.40741807],
+            [-0.40179875, 2.22310784, -0.80853195],
+            [-0.34447496, -0.7031461, 4.79998423],
+            [4.70593341, 0.90853809, -2.1002979],
+            [3.45965372, 2.73792113, -2.1484051],
+            [6.8715062, 0.15599908, 1.00040632],
+            [-2.65568142, -0.23051814, 6.30220231],
+            [0.60244886, -4.10106267, 3.36388286],
+            [4.62730372, -2.51615635, -0.33535492],
+            [-5.40399428, -0.08696955, 0.46229541],
+            [5.31722479, 2.73088801, 2.90847977],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_inertias5():
+    return np.array(
+        [
+            [1.38253778e04, 1.93267624e-12, -6.25277607e-12],
+            [1.93267624e-12, 1.84302633e04, -2.27373675e-13],
+            [-6.25277607e-12, -2.27373675e-13, 1.95793971e04],
+        ]
+    )
+
+
+@pytest.fixture
+def random_rot_consts5():
+    return [
+        np.float64(36.55444439736383),
+        np.float64(27.42114943976391),
+        np.float64(25.811775677664073),
+    ]
 
 
 @pytest.fixture
@@ -540,6 +885,86 @@ def random_COM_value6():
     return np.array([0.06631191, -0.60284039, 0.15428617])
 
 
+@pytest.fixture
+def random_COM_inertias6():
+    return np.array(
+        [
+            [22983.19133622, 950.99688089, 7469.71647789],
+            [950.99688089, 24990.77851323, 265.83777493],
+            [7469.71647789, 265.83777493, 21682.64871461],
+        ]
+    )
+
+
+@pytest.fixture
+def random_evals6():
+    return np.array([14815.24454289, 24854.83579265, 29986.53822854])
+
+
+@pytest.fixture
+def random_evecs6():
+    return np.array(
+        [
+            [-0.67699564, 0.09870115, 0.72933873],
+            [0.04407816, -0.98375064, 0.17404538],
+            [0.73466592, 0.14997587, 0.66164433],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_coords6():
+    return np.array(
+        [
+            [4.43995219, 2.44680398, 1.04295166],
+            [-0.85177857, 4.41584117, 1.98344145],
+            [-2.76531567, -0.56007284, -1.7345059],
+            [-3.69104612, -0.49218707, 2.92764129],
+            [-4.72676377, -0.82252767, -1.78746071],
+            [4.58653127, 3.13364606, 1.20902479],
+            [-0.95584511, -1.85226273, 3.09145094],
+            [-1.63996457, -4.87166598, -4.6036973],
+            [-4.81030746, -0.10215495, -2.37282666],
+            [-1.03918098, 2.34779576, -0.25520295],
+            [-0.28002899, 2.73157042, -1.070114],
+            [3.80040599, -1.70225271, -1.63432759],
+            [-0.99592775, 3.15486236, 2.3947271],
+            [2.92208339, -0.94227132, -0.33532808],
+            [5.28111739, -4.51592014, -0.53192464],
+            [0.80097431, -1.96476658, 2.30667914],
+            [4.22858883, 3.18128431, -3.28382202],
+            [0.33084856, -4.34521461, 1.11965866],
+            [4.56084692, -1.81008253, -2.25378607],
+            [-4.4117627, -3.30556069, -0.87007618],
+            [-5.42276308, 2.37298461, -1.03559103],
+            [4.60308907, 3.98490971, 0.55061531],
+            [-5.6970619, 1.79777652, 1.13544039],
+            [-5.58576093, 3.00858549, -1.21537377],
+            [5.17691718, -4.39847708, 1.34955167],
+        ]
+    )
+
+
+@pytest.fixture
+def random_pa_inertias6():
+    return np.array(
+        [
+            [1.48152445e04, 5.22959454e-12, 9.66338121e-13],
+            [5.22959454e-12, 2.48548358e04, -5.11590770e-13],
+            [9.66338121e-13, -5.11590770e-13, 2.99865382e04],
+        ]
+    )
+
+
+@pytest.fixture
+def random_rot_consts6():
+    return [
+        np.float64(34.112093333121415),
+        np.float64(20.33322645203411),
+        np.float64(16.853529432052575),
+    ]
+
+
 class Test_inertia_matrix:
     """
     Test core.inertia_matrix()
@@ -581,6 +1006,8 @@ class Test_inertia_matrix:
         inertias = request.getfixturevalue(f_inertias)
         value = inertia_matrix(coordinates, masses)
         np.testing.assert_allclose(value, inertias)
+
+    # TODO: add test for diagonal symmetry
 
 
 class Test_inertia_to_rot_const:
@@ -1099,3 +1526,61 @@ class Test_get_COM_coordinates:
         assert (exc.type is ValueError) and (
             'Sum of "masses" array is zero!' in str(exc.value)
         )
+
+
+class Test_get_eigens:
+    """
+    This should be fairly minimal - mostly to make sure that the matching
+    of eigenvalues to eigenvectors is correct.
+    """
+
+    @pytest.mark.parametrize(
+        "f_COM_inertia, f_evals, f_evecs",
+        [
+            ("random_COM_inertias1", "random_evals1", "random_evecs1"),
+            ("random_COM_inertias2", "random_evals2", "random_evecs2"),
+            ("random_COM_inertias3", "random_evals3", "random_evecs3"),
+            ("random_COM_inertias4", "random_evals4", "random_evecs4"),
+            ("random_COM_inertias5", "random_evals5", "random_evecs5"),
+            ("random_COM_inertias6", "random_evals6", "random_evecs6"),
+        ],
+    )
+    def test_expected_results(self, f_COM_inertia, f_evals, f_evecs, request):
+        COM_inertia = request.getfixturevalue(f_COM_inertia)
+        evals = request.getfixturevalue(f_evals)
+        evecs = request.getfixturevalue(f_evecs)
+
+        r_evals, r_evecs = get_eigens(COM_inertia)
+        assert np.allclose(r_evals, evals) and np.allclose(r_evecs, evecs)
+
+    # TODO: Test negative conditions
+
+
+class Test_rotate_coordinates:
+    @pytest.mark.parametrize(
+        "f_COM_coordinate,f_evecs,f_pa_coordinate",
+        [
+            ("random_COM_coords1", "random_evecs1", "random_pa_coords1"),
+            ("random_COM_coords2", "random_evecs2", "random_pa_coords2"),
+            ("random_COM_coords3", "random_evecs3", "random_pa_coords3"),
+            ("random_COM_coords4", "random_evecs4", "random_pa_coords4"),
+            ("random_COM_coords5", "random_evecs5", "random_pa_coords5"),
+            ("random_COM_coords6", "random_evecs6", "random_pa_coords6"),
+        ],
+    )
+    def test_expected_results(
+        self, f_COM_coordinate, f_evecs, f_pa_coordinate, request
+    ):
+        COM_coordinates = request.getfixturevalue(f_COM_coordinate)
+        evecs = request.getfixturevalue(f_evecs)
+        pa_coordinates = request.getfixturevalue(f_pa_coordinate)
+
+        result = rotate_coordinates(COM_coordinates, evecs)
+
+        assert np.allclose(result, pa_coordinates)
+
+    # TODO: Test negative conditions
+
+
+class Test_get_principal_axes:
+    pass
