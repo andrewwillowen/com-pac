@@ -159,6 +159,24 @@ def get_isotopologue_principal_axes(
     )
 
 
+def check_for_length_mismatch(listlike, expected_length: int, message: str):
+    if not isinstance(expected_length, int):
+        raise TypeError("'expected_length' must be of type 'int'")
+
+    actual_length = len(listlike)
+    if actual_length != expected_length:
+        raise ValueError(f"{actual_length=} vs {expected_length=}: {message}")
+
+
+def check_for_bad_diagonal(matrix, eigenvalues, message):
+    if not np.allclose(matrix, np.diag(eigenvalues)):
+        print(message)
+
+
+def transform_dipole(dipole, vectors):
+    return abs(np.dot(dipole, vectors))
+
+
 def get_principal_axes(
     isotopologue_names,
     isotopologue_dict,
@@ -184,10 +202,11 @@ def get_principal_axes(
     for iso in isotopologue_names:
         # validate data
         atom_mass_numbers = isotopologue_dict[iso]
-        if len(atom_mass_numbers) != n_atoms:
-            raise ValueError(
-                f"Number of atoms in isotopologue_dict[{iso}] does not match number of atoms in coordinates."
-            )
+        check_for_length_mismatch(
+            atom_mass_numbers,
+            n_atoms,
+            f"Number of atoms in isotopologue_dict[{iso}] does not match number of atoms in coordinates.",
+        )
 
         # do calculations
 
@@ -212,17 +231,15 @@ def get_principal_axes(
         eigenvalues[iso] = evals
         pa_coordinates[iso] = pa_coordinate
         pa_inertias[iso] = pa_inertia
-        pa_dipoles[iso] = abs(np.dot(mol_dipole, evecs))
+        pa_dipoles[iso] = transform_dipole(mol_dipole, evecs)
         rotational_constants[iso] = list(map(inertia_to_rot_const, evals))
         COM_values[iso] = COM
 
-        if not np.allclose(pa_inertia, np.diag(evals)):
-            bad_diagonal_pas = """WARNING! The inertia matrix calculated using the principal axes system 
-    is not diagonal for {}""".format(
-                iso
-            )
-            print(bad_diagonal_pas)
-            bad_diagonal_warnings[iso] = bad_diagonal_pas
+        check_for_bad_diagonal(
+            pa_inertia,
+            evals,
+            f"WARNING! The inertia matrix calculated using the principal axes system is not diagonal for {iso}",
+        )
 
     return (
         atom_masses,

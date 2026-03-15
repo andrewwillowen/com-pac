@@ -22,6 +22,9 @@ from com_pac.diagonalize import (
     rotate_coordinates,
     get_principal_axes,
     get_isotopologue_principal_axes,
+    check_for_length_mismatch,
+    check_for_bad_diagonal,
+    transform_dipole,
 )
 
 
@@ -1664,7 +1667,7 @@ def hn3_COM_value():
 @pytest.fixture
 def dn3_coords():
     return np.array(
-        [[-1.0, 0.0, 1.0], [0.0, 1.0, 2.0], [-2.0, -1.0, 0.0], [2.0, 0.0, -3.0]]
+        [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [2.0, 1.0, 0.0], [3.0, 0.0, -1.0]]
     )
 
 
@@ -1677,10 +1680,10 @@ def dn3_mol_masses():
 def dn3_COM_coords():
     return np.array(
         [
-            [-0.95424921, 0.0, 1.27233228],
-            [0.04575079, 1.0, 2.27233228],
-            [-1.95424921, -1.0, 0.27233228],
-            [2.04575079, 0.0, -2.72766772],
+            [-1.90849842, -0.31808307, 0.31808307],
+            [-0.90849842, -0.31808307, 0.31808307],
+            [0.09150158, 0.68191693, 0.31808307],
+            [1.09150158, -0.31808307, -0.68191693],
         ]
     )
 
@@ -1689,9 +1692,9 @@ def dn3_COM_coords():
 def dn3_COM_inertia():
     return np.array(
         [
-            [208.79522768, -28.00614801, 86.58105074],
-            [-28.00614801, 294.73562674, -28.00614801],
-            [86.58105074, -28.00614801, 141.95269508],
+            [19.09786646, -1.28130336, 15.28437736],
+            [-1.28130336, 45.24290137, -4.45414078],
+            [15.28437736, -4.45414078, 45.24290137],
         ]
     )
 
@@ -1700,26 +1703,26 @@ def dn3_COM_inertia():
 def dn3_evecs():
     return np.array(
         [
-            [0.55913269, 0.68640689, -0.46499055],
-            [-0.03548915, 0.58015374, 0.81373347],
-            [-0.82831827, 0.43848286, -0.34874292],
+            [0.90705872, 0.20349833, 0.36855517],
+            [-0.02140286, 0.89657661, -0.44237121],
+            [-0.42045975, 0.39336853, 0.81760308],
         ]
     )
 
 
 @pytest.fixture
 def dn3_evals():
-    return np.array([82.3087009, 240.43307384, 322.74177474])
+    return np.array([12.04315016, 42.99784848, 54.54267056])
 
 
 @pytest.fixture
 def dn3_pa_coords():
     return np.array(
         [
-            [-1.58744800e00, -9.71073326e-02, 1.24334567e-16],
-            [-1.89212273e00, 1.60793616e00, 5.34837957e-16],
-            [-1.28277327e00, -1.80215082e00, -3.00395522e-16],
-            [3.40322314e00, 2.08181888e-01, -3.53340462e-16],
+            [-1.85805337, -0.54843822, -0.30261046],
+            [-0.95099466, -0.34493989, 0.0659447],
+            [-0.0653388, 0.75513506, -0.00787134],
+            [1.28358253, -0.33131175, -0.01454804],
         ]
     )
 
@@ -1728,16 +1731,16 @@ def dn3_pa_coords():
 def dn3_pa_inertia():
     return np.array(
         [
-            [8.23087009e01, -1.36779477e-13, 2.60110616e-14],
-            [-1.36779477e-13, 2.40433074e02, -1.85687432e-14],
-            [2.60110616e-14, -1.85687432e-14, 3.22741775e02],
+            [1.20431502e01, 3.55271368e-15, -5.55111512e-15],
+            [3.55271368e-15, 4.29978485e01, -2.25236496e-14],
+            [-5.55111512e-15, -2.25236496e-14, 5.45426706e01],
         ]
     )
 
 
 @pytest.fixture
 def dn3_COM_value():
-    return np.array([-0.04575079, 0.0, -0.27233228])
+    return np.array([1.90849842, 0.31808307, -0.31808307])
 
 
 @pytest.fixture
@@ -1859,16 +1862,16 @@ def pyridazine_COM_value():
 def pheavy_coords():
     return np.array(
         [
-            [-4.49293915, 4.03885847, 1.65023071],
-            [2.73773913, -1.38385831, -0.29478332],
-            [-3.6569788, -3.04826657, 2.38729837],
-            [3.56138384, 4.21194603, -0.93437524],
-            [-0.28509864, 1.59014592, 3.20042278],
-            [-2.71822367, 1.56476573, -4.26303531],
-            [0.22374025, 0.02508884, -1.59555182],
-            [-4.73572977, -4.8476358, -0.34839849],
-            [-1.86067362, -3.61194145, -2.33933639],
-            [-4.08346961, -3.40129955, 1.2458658],
+            [4.97560498, -1.52711508, -4.6439251],
+            [-2.24354171, 1.46618232, 3.7042745],
+            [-3.36868809, 3.44637206, 2.35270223],
+            [-2.74559909, -1.83363707, 4.32503685],
+            [3.97839912, 3.50814032, 1.35067896],
+            [2.83399728, 4.29457292, -2.56178475],
+            [-3.47524305, -1.79860119, -2.91935792],
+            [-3.1576719, 1.45821783, 3.66951168],
+            [2.75273824, -2.46957419, -2.42323765],
+            [1.23559648, -4.10342235, 0.0342625],
         ]
     )
 
@@ -1895,16 +1898,16 @@ def pheavy_mol_masses():
 def pheavy_COM_coords():
     return np.array(
         [
-            [-3.59716957, 3.10743145, 1.41481864],
-            [3.63350871, -2.31528533, -0.53019539],
-            [-2.76120922, -3.97969359, 2.1518863],
-            [4.45715342, 3.28051901, -1.16978731],
-            [0.61067094, 0.6587189, 2.96501071],
-            [-1.82245409, 0.63333871, -4.49844738],
-            [1.11950983, -0.90633818, -1.83096389],
-            [-3.83996019, -5.77906282, -0.58381056],
-            [-0.96490404, -4.54336847, -2.57474846],
-            [-3.18770003, -4.33272657, 1.01045373],
+            [4.51200507, -2.80433589, -5.36085553],
+            [-2.70714162, 0.18896151, 2.98734407],
+            [-3.832288, 2.16915125, 1.6357718],
+            [-3.209199, -3.11085788, 3.60810642],
+            [3.51479921, 2.23091951, 0.63374853],
+            [2.37039737, 3.01735211, -3.27871518],
+            [-3.93884296, -3.075822, -3.63628835],
+            [-3.62127181, 0.18099702, 2.95258125],
+            [2.28913833, -3.746795, -3.14016808],
+            [0.77199657, -5.38064316, -0.68266793],
         ]
     )
 
@@ -1913,9 +1916,9 @@ def pheavy_COM_coords():
 def pheavy_COM_inertia():
     return np.array(
         [
-            [1123.54302411, -100.65635437, 115.52978292],
-            [-100.65635437, 1267.7901769, 68.81941458],
-            [115.52978292, 68.81941458, 1460.4715294],
+            [1418.73129399, -23.69901859, 759.15505338],
+            [-23.69901859, 1865.3608688, -41.20466634],
+            [759.15505338, -41.20466634, 1476.28955893],
         ]
     )
 
@@ -1924,32 +1927,32 @@ def pheavy_COM_inertia():
 def pheavy_evecs():
     return np.array(
         [
-            [0.84516193, 0.47544063, 0.24424889],
-            [0.44388552, -0.87886885, 0.17480045],
-            [-0.29776997, 0.03931614, 0.9538277],
+            [-0.72013525, 0.09817077, -0.6868535],
+            [0.00978195, 0.99127777, 0.13142566],
+            [0.69376476, 0.08792548, -0.71481436],
         ]
     )
 
 
 @pytest.fixture
 def pheavy_evals():
-    return np.array([1029.97373772, 1319.16349286, 1502.66749983])
+    return np.array([687.6975053, 1859.35902817, 2213.32518825])
 
 
 @pytest.fixture
 def pheavy_pa_coords():
     return np.array(
         [
-            [-2.08213745, -4.38564005, 1.01406895],
-            [2.20105787, 3.74150458, -0.02294751],
-            [-4.7409644, 2.26944152, 0.68245425],
-            [5.57151881, -0.81002564, 0.54631541],
-            [-0.07437954, -0.17201697, 3.0924094],
-            [0.08036363, -1.59995197, -4.62516822],
-            [1.08906277, 1.25682642, -1.63141337],
-            [-5.63678921, 3.230412, -2.50494347],
-            [-2.06555286, 3.43304125, -3.485726],
-            [-4.91824007, 2.33206343, -0.57215598],
+            [-6.99585841, -2.80828461, 0.36436837],
+            [4.02387055, 0.18421483, -0.25115237],
+            [3.91582503, 1.91783876, 1.74802937],
+            [4.78380413, -3.08152929, -0.78372329],
+            [-2.06963566, 2.61223411, -2.5739646],
+            [-3.95214815, 2.93545518, 1.11211448],
+            [0.2836834, -3.75539563, 4.90043725],
+            [4.65797279, 0.08352241, 0.40052337],
+            [-3.86367812, -3.76548889, 0.17990956],
+            [-1.08218609, -5.31794834, -0.74942229],
         ]
     )
 
@@ -1958,16 +1961,16 @@ def pheavy_pa_coords():
 def pheavy_pa_inertia():
     return np.array(
         [
-            [1.02997374e03, -2.34479103e-13, 2.01616501e-13],
-            [-2.34479103e-13, 1.31916349e03, -6.96998015e-13],
-            [2.01616501e-13, -6.96998015e-13, 1.50266750e03],
+            [6.87697505e02, -8.10018719e-13, -1.16895382e-12],
+            [-8.10018719e-13, 1.85935903e03, 2.87769808e-13],
+            [-1.16895382e-12, 2.87769808e-13, 2.21332519e03],
         ]
     )
 
 
 @pytest.fixture
 def pheavy_COM_value():
-    return np.array([-0.89576958, 0.93142702, 0.23541207])
+    return np.array([0.46359991, 1.27722081, 0.71693043])
 
 
 class Test_get_isotopologue_principal_axes:
@@ -2090,11 +2093,448 @@ class Test_get_isotopologue_principal_axes:
         )
 
 
-# class Test_get_principal_axes:
-#     @pytest.mark.parametrize("",[])
-#     def test_one_at_a_time(self,):
-#         isotopologue_names = ["iso000"]
-#         isotopologue_dict = {"iso000":
+class Test_check_for_length_mismatch:
+    @pytest.mark.parametrize(
+        "listlike,expected",
+        [
+            ([1, 2, 3], 3),
+            ((1, 2, 3, 4), 4),
+            ("ab", 2),
+        ],
+    )
+    def test_matching_lengths(self, listlike, expected, capsys):
+        result = check_for_length_mismatch(
+            listlike, expected, "This string should not be printed"
+        )
+        captured = capsys.readouterr()
+        assert (result is None) and (captured.out == "") and (captured.err == "")
 
-#         }
-#         result = get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole)
+    @pytest.mark.parametrize(
+        "listlike,expected",
+        [
+            ([1, 2, 3], 1),
+            ((1, 2, 3, 4), 1),
+            ("ab", 1),
+        ],
+    )
+    def test_mismatched_lengths(self, listlike, expected):
+        with pytest.raises(ValueError) as exc:
+            result = check_for_length_mismatch(
+                listlike, expected, "This string should be printed"
+            )
+        expected_message = f"actual_length={len(listlike)} vs expected_length={expected}: This string should be printed"
+        assert exc.type is ValueError and (expected_message in str(exc.value))
+
+    @pytest.mark.parametrize(
+        "listlike,expected",
+        [
+            (1, 1),
+            ((1, 2, 3, 4), "asdf"),
+        ],
+    )
+    def test_bad_types(self, listlike, expected):
+        with pytest.raises(TypeError) as exc:
+            result = check_for_length_mismatch(
+                listlike, expected, "This string should not be printed"
+            )
+        assert exc.type is TypeError
+
+
+class Test_check_for_bad_diagonal:
+    @pytest.mark.parametrize(
+        "matrix,eigenvalues",
+        [
+            (np.array([[1, 0], [0, 2]]), np.array([1, 2])),
+            (
+                np.array([[-1, 0, 0], [0, 34, 0], [0, 0, -200]]),
+                np.array([-1, 34, -200]),
+            ),
+        ],
+    )
+    def test_good_diagonal(self, matrix, eigenvalues, capsys):
+        result = check_for_bad_diagonal(
+            matrix, eigenvalues, "This string should not be printed"
+        )
+        captured = capsys.readouterr()
+        assert (result is None) and (captured.out == "") and (captured.err == "")
+
+    @pytest.mark.parametrize(
+        "matrix, eigenvalues",
+        [
+            (np.array([[1, 0], [0, 2]]), np.array([0, 0])),
+            (
+                np.array([[-1, 0, 0], [0, 34, 0], [0, 0, -200]]),
+                np.array([0, 0, 0]),
+            ),
+        ],
+    )
+    def test_bad_diagonal(self, matrix, eigenvalues, capsys):
+        result = check_for_bad_diagonal(
+            matrix, eigenvalues, "This string should be printed"
+        )
+        captured = capsys.readouterr()
+        assert (
+            (result is None)
+            and ("This string should be printed" in captured.out)
+            and (captured.err == "")
+        )
+
+
+@pytest.fixture
+def hn3_dipole():
+    return np.array([1.5, 0.5, 0])
+
+
+@pytest.fixture
+def dn3_dipole():
+    return np.array([1.5, 0.5, 0])
+
+
+@pytest.fixture
+def hn3_pa_dipole():
+    return np.array([[1.31553109, 0.79777959, 0.36458971]])
+
+
+@pytest.fixture
+def dn3_pa_dipole():
+    return np.array([1.34988665, 0.7535358, 0.33164715])
+
+
+@pytest.fixture
+def hn3_rot_consts():
+    return [
+        np.float64(43600.86531487504),
+        np.float64(12831.877575816354),
+        np.float64(9970.135974936498),
+    ]
+
+
+@pytest.fixture
+def dn3_rot_consts():
+    return [
+        np.float64(41964.020865451035),
+        np.float64(11753.588201862513),
+        np.float64(9265.754672647625),
+    ]
+
+
+@pytest.fixture
+def pyridazine_dipole():
+    return np.array([0.123, 1.943, 0.923])
+
+
+@pytest.fixture
+def pheavy_dipole():
+    return np.array([0.123, 1.943, 0.923])
+
+
+@pytest.fixture
+def pyridazine_pa_dipole():
+    return np.array([0.59633032, 2.01518877, 0.4750909])
+
+
+@pytest.fixture
+def pheavy_pa_dipole():
+    return np.array([0.57077457, 2.01928293, 0.48889658])
+
+
+@pytest.fixture
+def pyridazine_rot_consts():
+    return [
+        np.float64(746.4139388190787),
+        np.float64(278.7783956374336),
+        np.float64(234.21259161282072),
+    ]
+
+
+@pytest.fixture
+def pheavy_rot_consts():
+    return [
+        np.float64(734.8856157032798),
+        np.float64(271.80280781888536),
+        np.float64(228.33472789399997),
+    ]
+
+
+class Test_transform_dipole:
+    @pytest.mark.parametrize(
+        "f_dipole,f_evecs,f_pa_dipole",
+        [
+            ("hn3_dipole", "hn3_evecs", "hn3_pa_dipole"),
+            ("dn3_dipole", "dn3_evecs", "dn3_pa_dipole"),
+            ("pyridazine_dipole", "pyridazine_evecs", "pyridazine_pa_dipole"),
+            ("pheavy_dipole", "pheavy_evecs", "pheavy_pa_dipole"),
+        ],
+    )
+    def test_expected(self, f_dipole, f_evecs, f_pa_dipole, request):
+        dipole = request.getfixturevalue(f_dipole)
+        evecs = request.getfixturevalue(f_evecs)
+        pa_dipole = request.getfixturevalue(f_pa_dipole)
+
+        result = transform_dipole(dipole, evecs)
+
+        assert np.allclose(result, pa_dipole)
+
+
+class Test_get_principal_axes:
+    def test_hn3_dn3(
+        self,
+        hn3_mass_numbers,
+        dn3_mass_numbers,
+        hn3_n_atoms,
+        hn3_symbols,
+        hn3_coords,
+        hn3_dipole,
+        hn3_mol_masses,
+        dn3_mol_masses,
+        hn3_rot_consts,
+        dn3_rot_consts,
+        hn3_pa_dipole,
+        dn3_pa_dipole,
+        hn3_pa_coords,
+        dn3_pa_coords,
+        hn3_pa_inertia,
+        dn3_pa_inertia,
+        hn3_COM_coords,
+        dn3_COM_coords,
+        hn3_COM_inertia,
+        dn3_COM_inertia,
+        hn3_evecs,
+        dn3_evecs,
+        hn3_evals,
+        dn3_evals,
+        hn3_COM_value,
+        dn3_COM_value,
+    ):
+        isotopologue_names = ["iso001", "iso002"]
+        isotopologue_dict = {
+            "iso001": hn3_mass_numbers,
+            "iso002": dn3_mass_numbers,
+        }
+        n_atoms = hn3_n_atoms
+        atom_symbols = hn3_symbols
+        mol_coordinates = hn3_coords
+        mol_dipole = hn3_dipole
+
+        atom_masses = {
+            "iso001": hn3_mol_masses,
+            "iso002": dn3_mol_masses,
+        }
+
+        rot_consts = {
+            "iso001": hn3_rot_consts,
+            "iso002": dn3_rot_consts,
+        }
+
+        pa_dipoles = {
+            "iso001": hn3_pa_dipole,
+            "iso002": dn3_pa_dipole,
+        }
+
+        pa_coordinates = {
+            "iso001": hn3_pa_coords,
+            "iso002": dn3_pa_coords,
+        }
+
+        pa_inertias = {
+            "iso001": hn3_pa_inertia,
+            "iso002": dn3_pa_inertia,
+        }
+
+        COM_coords = {
+            "iso001": hn3_COM_coords,
+            "iso002": dn3_COM_coords,
+        }
+
+        COM_inertias = {
+            "iso001": hn3_COM_inertia,
+            "iso002": dn3_COM_inertia,
+        }
+
+        evecs = {
+            "iso001": hn3_evecs,
+            "iso002": dn3_evecs,
+        }
+
+        evals = {
+            "iso001": hn3_evals,
+            "iso002": dn3_evals,
+        }
+
+        COM_values = {
+            "iso001": hn3_COM_value,
+            "iso002": dn3_COM_value,
+        }
+
+        (
+            r_atom_masses,
+            r_rot_consts,
+            r_pa_dipoles,
+            r_pa_coordinates,
+            r_pa_inertias,
+            r_COM_coords,
+            r_COM_inertias,
+            r_evecs,
+            r_evals,
+            r_COM_values,
+        ) = get_principal_axes(
+            isotopologue_names,
+            isotopologue_dict,
+            n_atoms,
+            atom_symbols,
+            mol_coordinates,
+            mol_dipole,
+        )
+
+        assert all(
+            [
+                all(
+                    [
+                        (k in dict2.keys() and np.allclose(v, dict2[k]))
+                        for k, v in dict1.items()
+                    ]
+                )
+                for dict1, dict2 in (
+                    (r_atom_masses, atom_masses),
+                    (r_rot_consts, rot_consts),
+                    (r_pa_dipoles, pa_dipoles),
+                    (r_pa_inertias, pa_inertias),
+                    (r_COM_coords, COM_coords),
+                    (r_COM_inertias, COM_inertias),
+                    (r_evecs, evecs),
+                    (r_evals, evals),
+                    (r_COM_values, COM_values),
+                )
+            ]
+        )
+
+    def test_pyridazine_and_heavy(
+        self,
+        pyridazine_mass_numbers,
+        pheavy_mass_numbers,
+        pyridazine_n_atoms,
+        pyridazine_symbols,
+        pyridazine_coords,
+        pyridazine_dipole,
+        pyridazine_mol_masses,
+        pheavy_mol_masses,
+        pyridazine_rot_consts,
+        pheavy_rot_consts,
+        pyridazine_pa_dipole,
+        pheavy_pa_dipole,
+        pyridazine_pa_coords,
+        pheavy_pa_coords,
+        pyridazine_pa_inertia,
+        pheavy_pa_inertia,
+        pyridazine_COM_coords,
+        pheavy_COM_coords,
+        pyridazine_COM_inertia,
+        pheavy_COM_inertia,
+        pyridazine_evecs,
+        pheavy_evecs,
+        pyridazine_evals,
+        pheavy_evals,
+        pyridazine_COM_value,
+        pheavy_COM_value,
+    ):
+        isotopologue_names = ["iso001", "iso002"]
+        isotopologue_dict = {
+            "iso001": pyridazine_mass_numbers,
+            "iso002": pheavy_mass_numbers,
+        }
+        n_atoms = pyridazine_n_atoms
+        atom_symbols = pyridazine_symbols
+        mol_coordinates = pyridazine_coords
+        mol_dipole = pyridazine_dipole
+
+        atom_masses = {
+            "iso001": pyridazine_mol_masses,
+            "iso002": pheavy_mol_masses,
+        }
+
+        rot_consts = {
+            "iso001": pyridazine_rot_consts,
+            "iso002": pheavy_rot_consts,
+        }
+
+        pa_dipoles = {
+            "iso001": pyridazine_pa_dipole,
+            "iso002": pheavy_pa_dipole,
+        }
+
+        pa_coordinates = {
+            "iso001": pyridazine_pa_coords,
+            "iso002": pheavy_pa_coords,
+        }
+
+        pa_inertias = {
+            "iso001": pyridazine_pa_inertia,
+            "iso002": pheavy_pa_inertia,
+        }
+
+        COM_coords = {
+            "iso001": pyridazine_COM_coords,
+            "iso002": pheavy_COM_coords,
+        }
+
+        COM_inertias = {
+            "iso001": pyridazine_COM_inertia,
+            "iso002": pheavy_COM_inertia,
+        }
+
+        evecs = {
+            "iso001": pyridazine_evecs,
+            "iso002": pheavy_evecs,
+        }
+
+        evals = {
+            "iso001": pyridazine_evals,
+            "iso002": pheavy_evals,
+        }
+
+        COM_values = {
+            "iso001": pyridazine_COM_value,
+            "iso002": pheavy_COM_value,
+        }
+
+        (
+            r_atom_masses,
+            r_rot_consts,
+            r_pa_dipoles,
+            r_pa_coordinates,
+            r_pa_inertias,
+            r_COM_coords,
+            r_COM_inertias,
+            r_evecs,
+            r_evals,
+            r_COM_values,
+        ) = get_principal_axes(
+            isotopologue_names,
+            isotopologue_dict,
+            n_atoms,
+            atom_symbols,
+            mol_coordinates,
+            mol_dipole,
+        )
+
+        assert all(
+            [
+                all(
+                    [
+                        (k in dict2.keys() and np.allclose(v, dict2[k]))
+                        for k, v in dict1.items()
+                    ]
+                )
+                for dict1, dict2 in (
+                    (r_atom_masses, atom_masses),
+                    (r_rot_consts, rot_consts),
+                    (r_pa_dipoles, pa_dipoles),
+                    (r_pa_inertias, pa_inertias),
+                    (r_COM_coords, COM_coords),
+                    (r_COM_inertias, COM_inertias),
+                    (r_evecs, evecs),
+                    (r_evals, evals),
+                    (r_COM_values, COM_values),
+                )
+            ]
+        )
