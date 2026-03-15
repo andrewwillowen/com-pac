@@ -21,7 +21,8 @@ def read_args(num_of_decimals):
 
     # reading arguments from shell
     if len(argv) < 2:
-        print("""
+        print(
+            """
         Usage:
             principal_axes_calculator pac-input-file.txt num_of_decimals
 
@@ -60,7 +61,8 @@ def read_args(num_of_decimals):
         Cartesian coordinates for the corresponding isotopologue. That guarantees that the
         axes are in A, B, C ordering and you can simply set the dipole values to the 
         experimental mu_A, mu_B, mu_C.  
-        """)
+        """
+        )
         quit()
     else:
         input_file_path = Path(argv[1])
@@ -114,6 +116,7 @@ def main():
         com_inertias,
         eigenvectors,
         eigenvalues,
+        COM_values,
     ) = get_principal_axes(
         isotopologue_names,
         isotopologue_dict,
