@@ -56,8 +56,15 @@ Copyright &copy; 2025 The authors
 nav = [
   { "Home" = "index.md" },
   { "Usage" = "usage/index.md" },
-  { "Theory" = [{"index" = "theory/index.md"}, {"Intro" = "theory/intro.md"}]},
+  { "Theory" = [
+     {"index" = "theory/index.md"},
+     {"Intro" = "theory/intro.md"}
+    ]},
   { "Reference" = "reference/index.md"},
+  { "Develop" = [
+     "develop/index.md",
+     {"Development Cycle" = "develop/cycle.md"},
+    ]},
 ]
 
 # With the "extra_css" option you can add your own CSS styling to customize
