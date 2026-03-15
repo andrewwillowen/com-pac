@@ -2,30 +2,11 @@
 Unit tests for functions in diagonalize.py
 """
 
-from decimal import DivisionByZero
+from com_pac.diagonalize import get_isotopologue_principal_axes
 
-from mendeleev.fetch import fetch_table
-from mendeleev.mendeleev import element
-
-import pytest
 import numpy as np
-from com_pac.diagonalize import (
-    inertia_matrix,
-    inertia_to_rot_const,
-    get_mol_masses,
-    get_isotopes_dict,
-    get_unique_isotopes,
-    get_isotopes_mass,
-    get_unique_isotopes_mass_dict,
-    get_COM_coordinates,
-    get_eigens,
-    rotate_coordinates,
-    get_principal_axes,
-    get_isotopologue_principal_axes,
-)
 
 
-@pytest.fixture
 def random_coords1():
     return np.array(
         [
@@ -39,7 +20,6 @@ def random_coords1():
     )
 
 
-@pytest.fixture
 def random_masses1():
     return np.array(
         [
@@ -53,7 +33,6 @@ def random_masses1():
     )
 
 
-@pytest.fixture
 def random_inertias1():
     return np.array(
         [
@@ -64,7 +43,6 @@ def random_inertias1():
     )
 
 
-@pytest.fixture
 def random_COM_coords1():
     return np.array(
         [
@@ -78,12 +56,10 @@ def random_COM_coords1():
     )
 
 
-@pytest.fixture
 def random_COM_value1():
     return np.array([-0.13906763, 0.0721934, -0.74482749])
 
 
-@pytest.fixture
 def random_COM_inertias1():
     return np.array(
         [
@@ -94,12 +70,10 @@ def random_COM_inertias1():
     )
 
 
-@pytest.fixture
 def random_evals1():
     return np.array([1802.59995719, 5499.72702001, 5716.28897654])
 
 
-@pytest.fixture
 def random_evecs1():
     return np.array(
         [
@@ -110,7 +84,6 @@ def random_evecs1():
     )
 
 
-@pytest.fixture
 def random_pa_coords1():
     return np.array(
         [
@@ -124,7 +97,6 @@ def random_pa_coords1():
     )
 
 
-@pytest.fixture
 def random_pa_inertias1():
     return np.array(
         [
@@ -135,7 +107,6 @@ def random_pa_inertias1():
     )
 
 
-@pytest.fixture
 def random_rot_consts1():
     return [
         np.float64(280.3611542226121),
@@ -144,7 +115,6 @@ def random_rot_consts1():
     ]
 
 
-@pytest.fixture
 def random_coords2():
     return np.array(
         [
@@ -165,7 +135,6 @@ def random_coords2():
     )
 
 
-@pytest.fixture
 def random_masses2():
     return np.array(
         [
@@ -186,7 +155,6 @@ def random_masses2():
     )
 
 
-@pytest.fixture
 def random_inertias2():
     return np.array(
         [
@@ -197,7 +165,6 @@ def random_inertias2():
     )
 
 
-@pytest.fixture
 def random_COM_coords2():
     return np.array(
         [
@@ -218,12 +185,10 @@ def random_COM_coords2():
     )
 
 
-@pytest.fixture
 def random_COM_value2():
     return np.array([1.16325926, 0.45013021, -0.5208609])
 
 
-@pytest.fixture
 def random_COM_inertias2():
     return np.array(
         [
@@ -234,12 +199,10 @@ def random_COM_inertias2():
     )
 
 
-@pytest.fixture
 def random_evals2():
     return np.array([8561.66542187, 9342.88468794, 12350.79494428])
 
 
-@pytest.fixture
 def random_evecs2():
     return np.array(
         [
@@ -250,7 +213,6 @@ def random_evecs2():
     )
 
 
-@pytest.fixture
 def random_pa_coords2():
     return np.array(
         [
@@ -271,7 +233,6 @@ def random_pa_coords2():
     )
 
 
-@pytest.fixture
 def random_pa_inertias2():
     return np.array(
         [
@@ -282,7 +243,6 @@ def random_pa_inertias2():
     )
 
 
-@pytest.fixture
 def random_rot_consts2():
     return [
         np.float64(59.02811891121509),
@@ -291,7 +251,6 @@ def random_rot_consts2():
     ]
 
 
-@pytest.fixture
 def random_coords3():
     return np.array(
         [
@@ -313,7 +272,6 @@ def random_coords3():
     )
 
 
-@pytest.fixture
 def random_masses3():
     return np.array(
         [
@@ -335,7 +293,6 @@ def random_masses3():
     )
 
 
-@pytest.fixture
 def random_inertias3():
     return np.array(
         [
@@ -346,7 +303,6 @@ def random_inertias3():
     )
 
 
-@pytest.fixture
 def random_COM_coords3():
     return np.array(
         [
@@ -368,12 +324,10 @@ def random_COM_coords3():
     )
 
 
-@pytest.fixture
 def random_COM_value3():
     return np.array([-0.83923283, -0.33436235, 0.57716083])
 
 
-@pytest.fixture
 def random_COM_inertias3():
     return np.array(
         [
@@ -384,12 +338,10 @@ def random_COM_inertias3():
     )
 
 
-@pytest.fixture
 def random_evals3():
     return np.array([4874.4618115, 7572.86642365, 8065.12998205])
 
 
-@pytest.fixture
 def random_evecs3():
     return np.array(
         [
@@ -400,7 +352,6 @@ def random_evecs3():
     )
 
 
-@pytest.fixture
 def random_pa_coords3():
     return np.array(
         [
@@ -422,7 +373,6 @@ def random_pa_coords3():
     )
 
 
-@pytest.fixture
 def random_pa_inertias3():
     return np.array(
         [
@@ -433,7 +383,6 @@ def random_pa_inertias3():
     )
 
 
-@pytest.fixture
 def random_rot_consts3():
     return [
         np.float64(103.67893403276554),
@@ -442,7 +391,6 @@ def random_rot_consts3():
     ]
 
 
-@pytest.fixture
 def random_coords4():
     return np.array(
         [
@@ -465,7 +413,6 @@ def random_coords4():
     )
 
 
-@pytest.fixture
 def random_masses4():
     return np.array(
         [
@@ -488,7 +435,6 @@ def random_masses4():
     )
 
 
-@pytest.fixture
 def random_inertias4():
     return np.array(
         [
@@ -499,7 +445,6 @@ def random_inertias4():
     )
 
 
-@pytest.fixture
 def random_COM_coords4():
     return np.array(
         [
@@ -522,12 +467,10 @@ def random_COM_coords4():
     )
 
 
-@pytest.fixture
 def random_COM_value4():
     return np.array([-0.48437239, -0.73088701, -0.06534187])
 
 
-@pytest.fixture
 def random_COM_inertias4():
     return np.array(
         [
@@ -538,12 +481,10 @@ def random_COM_inertias4():
     )
 
 
-@pytest.fixture
 def random_evals4():
     return np.array([7265.8834173, 9371.47285745, 11658.39843998])
 
 
-@pytest.fixture
 def random_evecs4():
     return np.array(
         [
@@ -554,7 +495,6 @@ def random_evecs4():
     )
 
 
-@pytest.fixture
 def random_pa_coords4():
     return np.array(
         [
@@ -577,7 +517,6 @@ def random_pa_coords4():
     )
 
 
-@pytest.fixture
 def random_pa_inertias4():
     return np.array(
         [
@@ -588,7 +527,6 @@ def random_pa_inertias4():
     )
 
 
-@pytest.fixture
 def random_rot_consts4():
     return [
         np.float64(69.55506654515754),
@@ -597,7 +535,6 @@ def random_rot_consts4():
     ]
 
 
-@pytest.fixture
 def random_coords5():
     return np.array(
         [
@@ -625,7 +562,6 @@ def random_coords5():
     )
 
 
-@pytest.fixture
 def random_masses5():
     return np.array(
         [
@@ -653,7 +589,6 @@ def random_masses5():
     )
 
 
-@pytest.fixture
 def random_inertias5():
     return np.array(
         [
@@ -664,7 +599,6 @@ def random_inertias5():
     )
 
 
-@pytest.fixture
 def random_COM_coords5():
     return np.array(
         [
@@ -692,12 +626,10 @@ def random_COM_coords5():
     )
 
 
-@pytest.fixture
 def random_COM_value5():
     return np.array([-0.0527959, -0.14978125, 0.46179269])
 
 
-@pytest.fixture
 def random_COM_inertias5():
     return np.array(
         [
@@ -708,12 +640,10 @@ def random_COM_inertias5():
     )
 
 
-@pytest.fixture
 def random_evals5():
     return np.array([13825.3778147, 18430.26331592, 19579.39705161])
 
 
-@pytest.fixture
 def random_evecs5():
     return np.array(
         [
@@ -724,7 +654,6 @@ def random_evecs5():
     )
 
 
-@pytest.fixture
 def random_pa_coords5():
     return np.array(
         [
@@ -752,7 +681,6 @@ def random_pa_coords5():
     )
 
 
-@pytest.fixture
 def random_pa_inertias5():
     return np.array(
         [
@@ -763,7 +691,6 @@ def random_pa_inertias5():
     )
 
 
-@pytest.fixture
 def random_rot_consts5():
     return [
         np.float64(36.55444439736383),
@@ -772,7 +699,6 @@ def random_rot_consts5():
     ]
 
 
-@pytest.fixture
 def random_coords6():
     return np.array(
         [
@@ -805,7 +731,6 @@ def random_coords6():
     )
 
 
-@pytest.fixture
 def random_masses6():
     return np.array(
         [
@@ -838,7 +763,6 @@ def random_masses6():
     )
 
 
-@pytest.fixture
 def random_inertias6():
     return np.array(
         [
@@ -849,7 +773,6 @@ def random_inertias6():
     )
 
 
-@pytest.fixture
 def random_COM_coords6():
     return np.array(
         [
@@ -882,12 +805,10 @@ def random_COM_coords6():
     )
 
 
-@pytest.fixture
 def random_COM_value6():
     return np.array([0.06631191, -0.60284039, 0.15428617])
 
 
-@pytest.fixture
 def random_COM_inertias6():
     return np.array(
         [
@@ -898,12 +819,10 @@ def random_COM_inertias6():
     )
 
 
-@pytest.fixture
 def random_evals6():
     return np.array([14815.24454289, 24854.83579265, 29986.53822854])
 
 
-@pytest.fixture
 def random_evecs6():
     return np.array(
         [
@@ -914,7 +833,6 @@ def random_evecs6():
     )
 
 
-@pytest.fixture
 def random_pa_coords6():
     return np.array(
         [
@@ -947,7 +865,6 @@ def random_pa_coords6():
     )
 
 
-@pytest.fixture
 def random_pa_inertias6():
     return np.array(
         [
@@ -958,7 +875,6 @@ def random_pa_inertias6():
     )
 
 
-@pytest.fixture
 def random_rot_consts6():
     return [
         np.float64(34.112093333121415),
@@ -967,148 +883,70 @@ def random_rot_consts6():
     ]
 
 
-class Test_inertia_matrix:
-    """
-    Test core.inertia_matrix()
-    """
-
-    # The following parameterize block was generated as follows:
-    # >>> import numpy as np
-    # >>> from com_pac.core import inertia_matrix
-    # >>> from random import randint
-    # >>> n_atoms = set()
-    # >>> while len(n_atoms) < 6:
-    # ...     n_atoms.add(randint(2, 30))
-    # ...
-    # >>> rng = np.random.default_rng()
-    # >>> params = []
-    # >>> for n in n_atoms:
-    # ...     coordinates = 10*rng.random((n, 3)) - 5
-    # ...     masses = 100*rng.random(n)
-    # ...     expected = inertia_matrix(coordinates, masses)
-    # ...     params.append((coordinates, masses, expected))
-    # ...
-    # >>> params
-    #
-    # and then replacing `array` with `np.array`.
-    @pytest.mark.parametrize(
-        "f_coordinates,f_masses,f_inertias",
-        [
-            ("random_coords1", "random_masses1", "random_inertias1"),
-            ("random_coords2", "random_masses2", "random_inertias2"),
-            ("random_coords3", "random_masses3", "random_inertias3"),
-            ("random_coords4", "random_masses4", "random_inertias4"),
-            ("random_coords5", "random_masses5", "random_inertias5"),
-            ("random_coords6", "random_masses6", "random_inertias6"),
-        ],
-    )
-    def test_inertia_matrix_rand(self, f_coordinates, f_masses, f_inertias, request):
-        coordinates = request.getfixturevalue(f_coordinates)
-        masses = request.getfixturevalue(f_masses)
-        inertias = request.getfixturevalue(f_inertias)
-        value = inertia_matrix(coordinates, masses)
-        np.testing.assert_allclose(value, inertias)
-
-    # TODO: add test for diagonal symmetry
-
-
-class Test_inertia_to_rot_const:
-    @pytest.mark.parametrize(
-        "inertia, expected",
-        [
-            (np.float64(884870.6315160872), np.float64(0.5711332104379058)),
-            (np.float64(559120.6814956776), np.float64(0.903881793905538)),
-            (np.float64(50143.26041790018), np.float64(10.078702509332429)),
-            (np.float64(877851.8579169718), np.float64(0.5756996468620555)),
-            (np.float64(356444.735124563), np.float64(1.417832709531789)),
-            (np.float64(598210.5345886707), np.float64(0.8448179618693916)),
-        ],
-    )
-    def test_inertia_to_rot_const_rand(self, inertia, expected):
-        value = inertia_to_rot_const(inertia)
-        np.testing.assert_allclose(value, expected)
-
-
 # HN3 fixtures
-@pytest.fixture
 def hn3_symbols():
     return ["H", "N", "N", "N"]
 
 
-@pytest.fixture
 def hn3_mass_numbers():
     return [1, 14, 14, 14]
 
 
-@pytest.fixture
 def hn3_n_atoms():
     return 4
 
 
-@pytest.fixture
 def hn3_inputs(hn3_symbols, hn3_mass_numbers, hn3_n_atoms):
     return hn3_symbols, hn3_mass_numbers, hn3_n_atoms
 
 
 # DN3 fixtures
-@pytest.fixture
 def dn3_symbols():
     return ["H", "N", "N", "N"]
 
 
-@pytest.fixture
 def dn3_mass_numbers():
     return [2, 14, 14, 14]
 
 
-@pytest.fixture
 def dn3_n_atoms():
     return 4
 
 
-@pytest.fixture
 def dn3_inputs(dn3_symbols, dn3_mass_numbers, dn3_n_atoms):
     return dn3_symbols, dn3_mass_numbers, dn3_n_atoms
 
 
 # Pyridazine fixtures
-@pytest.fixture
 def pyridazine_symbols():
     return ["N", "N", "C", "C", "C", "C", "H", "H", "H", "H"]
 
 
-@pytest.fixture
 def pyridazine_mass_numbers():
     return [14, 14, 12, 12, 12, 12, 1, 1, 1, 1]
 
 
-@pytest.fixture
 def pyridazine_n_atoms():
     return 10
 
 
-@pytest.fixture
 def pyridazine_inputs(pyridazine_symbols, pyridazine_mass_numbers, pyridazine_n_atoms):
     return pyridazine_symbols, pyridazine_mass_numbers, pyridazine_n_atoms
 
 
 # Pyridazine 4-D, 4-C13 fixtures
-@pytest.fixture
 def pheavy_symbols():
     return ["N", "N", "C", "C", "C", "C", "H", "H", "H", "H"]
 
 
-@pytest.fixture
 def pheavy_mass_numbers():
     return [14, 14, 12, 13, 12, 12, 1, 2, 1, 1]
 
 
-@pytest.fixture
 def pheavy_n_atoms():
     return 10
 
 
-@pytest.fixture
 def pheavy_inputs(pheavy_symbols, pheavy_mass_numbers, pheavy_n_atoms):
     return (
         pheavy_symbols,
@@ -1117,7 +955,6 @@ def pheavy_inputs(pheavy_symbols, pheavy_mass_numbers, pheavy_n_atoms):
     )
 
 
-@pytest.fixture
 def hn3_isotopes_dict():
     return {
         0: {"symbol": "H", "mass_number": 1},
@@ -1127,149 +964,22 @@ def hn3_isotopes_dict():
     }
 
 
-class Test_get_isotopes_dict:
-    def test_hn3_is_correct(self, hn3_inputs, hn3_isotopes_dict):
-        symbols, mass_numbers, n_atoms = hn3_inputs
-        result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
-        assert result == hn3_isotopes_dict
-
-    def test_hn3_switched_arguments(self, hn3_inputs, hn3_isotopes_dict):
-        # TODO: Update once there is a proper data structure, this should raise
-        #       an exception about improper types.
-        symbols, mass_numbers, n_atoms = hn3_inputs
-        result = get_isotopes_dict(mass_numbers, symbols, n_atoms)
-        assert all(
-            (
-                result[0]["symbol"] == hn3_isotopes_dict[0]["mass_number"],
-                result[1]["symbol"] == hn3_isotopes_dict[1]["mass_number"],
-                result[2]["symbol"] == hn3_isotopes_dict[2]["mass_number"],
-                result[3]["symbol"] == hn3_isotopes_dict[3]["mass_number"],
-                result[0]["mass_number"] == hn3_isotopes_dict[0]["symbol"],
-                result[1]["mass_number"] == hn3_isotopes_dict[1]["symbol"],
-                result[2]["mass_number"] == hn3_isotopes_dict[2]["symbol"],
-                result[3]["mass_number"] == hn3_isotopes_dict[3]["symbol"],
-            )
-        )
-
-    @pytest.mark.parametrize(
-        "inputs",
-        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pheavy_inputs"],
-    )
-    def test_wrong_n_atoms(self, inputs, request):
-        symbols, mass_numbers, n_atoms = request.getfixturevalue(inputs)
-        n_atoms = 30
-        with pytest.raises(IndexError) as exc:
-            result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
-        assert exc.type is IndexError
-
-    @pytest.mark.parametrize(
-        "inputs",
-        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pheavy_inputs"],
-    )
-    def test_wrong_mass_number_length(self, inputs, request):
-        # TODO: Data validation should be done earlier and this test can be dropped.
-        symbols, mass_numbers, n_atoms = request.getfixturevalue(inputs)
-        mass_numbers = mass_numbers[:-1]
-
-        with pytest.raises(IndexError) as exc:
-            result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
-        assert exc.type is IndexError
-
-    @pytest.mark.parametrize(
-        "inputs",
-        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pheavy_inputs"],
-    )
-    def test_correct_length(self, inputs, request):
-        symbols, mass_numbers, n_atoms = request.getfixturevalue(inputs)
-        result = get_isotopes_dict(symbols, mass_numbers, n_atoms)
-
-        assert len(result) == n_atoms
-
-
-@pytest.fixture
 def hn3_unique_isotopes():
     return set([("H", 1), ("N", 14)])
 
 
-@pytest.fixture
 def dn3_unique_isotopes():
     return set([("H", 2), ("N", 14)])
 
 
-@pytest.fixture
 def pyridazine_unique_isotopes():
     return set([("H", 1), ("C", 12), ("N", 14)])
 
 
-@pytest.fixture
 def pheavy_unique_isotopes():
     return set([("H", 1), ("H", 2), ("C", 12), ("C", 13), ("N", 14)])
 
 
-class Test_get_unique_isotopes:
-    def test_hn3_is_correct(self, hn3_isotopes_dict, hn3_unique_isotopes):
-        result = get_unique_isotopes(hn3_isotopes_dict)
-        assert result == hn3_unique_isotopes
-
-    def test_missing_keys(self):
-        test_dict = {0: {"a": 1}, 1: {"a": 2}}
-        with pytest.raises(KeyError) as exc:
-            result = get_unique_isotopes(test_dict)
-        assert exc.type is KeyError
-
-    def test_different_types(self):
-        test_dict = {
-            0: {"symbol": 123, "mass_number": "A"},
-            1: {"symbol": (0, 1), "mass_number": "B"},
-        }
-        result = get_unique_isotopes(test_dict)
-        assert isinstance(result, set)
-
-    def test_unhashable_values(self):
-        test_dict = {
-            0: {"symbol": [1, 2, 3], "mass_number": [1, 2, 3]},
-            1: {"symbol": [1, 2, 3], "mass_number": [1, 2, 3]},
-        }
-        with pytest.raises(TypeError) as exc:
-            result = get_unique_isotopes(test_dict)
-        assert exc.type is TypeError
-
-
-class Test_get_isotopes_mass:
-    """
-    Only simple testing, since this function is effectively a wrapper for the Mendeleev method.
-    """
-
-    @pytest.mark.parametrize(
-        "symbol,mass_number,mass",
-        [
-            ("H", 1, 1.007825031898),
-            ("H", 2, 2.014101777844),
-            ("C", 12, 12.0),
-            ("C", 13, 13.00335483534),
-            ("N", 14, 14.00307400425),
-            ("N", 15, 15.00010889827),
-        ],
-    )
-    def test_masses(self, symbol, mass_number, mass):
-        assert np.allclose(get_isotopes_mass(symbol, mass_number), mass)
-
-    def test_bad_mass_number(self):
-        with pytest.raises(ValueError) as exc:
-            result = get_isotopes_mass("H", 123123)
-        assert exc.type is ValueError and (
-            "Isotopic mass not found for H with mass number 123123." in str(exc.value)
-        )
-
-    def test_bad_symbol(self):
-        with pytest.raises(ValueError) as exc:
-            result = get_isotopes_mass("AF", 123)
-        assert exc.type is ValueError and (
-            "Isotopic mass not found for AF with mass number 123." in str(exc.value)
-        )
-
-
-@pytest.fixture
 def hn3_unique_isotopes_dict():
     return {
         ("H", 1): 1.007825031898,
@@ -1277,7 +987,6 @@ def hn3_unique_isotopes_dict():
     }
 
 
-@pytest.fixture
 def dn3_unique_isotopes_dict():
     return {
         ("H", 2): 2.014101777844,
@@ -1285,7 +994,6 @@ def dn3_unique_isotopes_dict():
     }
 
 
-@pytest.fixture
 def pyridazine_unique_isotopes_dict():
     return {
         ("H", 1): 1.007825031898,
@@ -1294,7 +1002,6 @@ def pyridazine_unique_isotopes_dict():
     }
 
 
-@pytest.fixture
 def pheavy_unique_isotopes_dict():
     return {
         ("H", 1): 1.007825031898,
@@ -1305,46 +1012,15 @@ def pheavy_unique_isotopes_dict():
     }
 
 
-class Test_get_unique_isotopes_mass_dict:
-    @pytest.mark.parametrize(
-        "unique_isotopes,unique_isotopes_dict",
-        [
-            ("hn3_unique_isotopes", "hn3_unique_isotopes_dict"),
-            ("dn3_unique_isotopes_dict", "dn3_unique_isotopes_dict"),
-            ("pyridazine_unique_isotopes", "pyridazine_unique_isotopes_dict"),
-            (
-                "pheavy_unique_isotopes",
-                "pheavy_unique_isotopes_dict",
-            ),
-        ],
-    )
-    def test_expected_results(self, unique_isotopes, unique_isotopes_dict, request):
-        # TODO: Investigate why this test adds a full second to testing..
-        unique_isos = request.getfixturevalue(unique_isotopes)
-        unique_isos_dict = request.getfixturevalue(unique_isotopes_dict)
-        result = get_unique_isotopes_mass_dict(unique_isos)
-        assert result == unique_isos_dict
-
-    def test_incorrect_type(self):
-        # Normally, "unique_isotopes" should be a set, which inherently requires the entries
-        # to be hashable. Let's check what happens if that is not the case.
-        with pytest.raises(TypeError) as exc:
-            result = get_unique_isotopes_mass_dict([[1, 2], [3, 4]])
-        assert exc.type is TypeError
-
-
 # get_mol_masses results
-@pytest.fixture
 def hn3_get_mol_masses():
     return np.array([1.00782503, 14.003074, 14.003074, 14.003074])
 
 
-@pytest.fixture
 def dn3_get_mol_masses():
     return np.array([2.01410178, 14.003074, 14.003074, 14.003074])
 
 
-@pytest.fixture
 def pyridazine_get_mol_masses():
     return np.array(
         [
@@ -1362,7 +1038,6 @@ def pyridazine_get_mol_masses():
     )
 
 
-@pytest.fixture
 def pheavy_get_mol_masses():
     return np.array(
         [
@@ -1380,367 +1055,18 @@ def pheavy_get_mol_masses():
     )
 
 
-class Test_get_mol_masses:
-    @pytest.mark.parametrize(
-        "inputs",
-        ["hn3_inputs", "dn3_inputs", "pyridazine_inputs", "pheavy_inputs"],
-    )
-    def test_switched_arguments(self, inputs, request):
-        # Can't use a fixture directly in the list of parameterized values
-        # Instead, use the name of the fixture combined with the built-in "request"
-        # to fixture to look-up the fixture & its value.
-        fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms = (
-            request.getfixturevalue(inputs)
-        )
-
-        with pytest.raises(ValueError) as exc:
-            result = get_mol_masses(
-                fixture_atom_mass_numbers, fixture_atom_symbols, fixture_n_atoms
-            )
-        assert (
-            (exc.type is ValueError)
-            and ("Isotopic mass not found for" in str(exc.value))
-            and ("with mass number" in str(exc.value))
-        )
-
-    @pytest.mark.parametrize(
-        "inputs,result",
-        [
-            ("hn3_inputs", "hn3_get_mol_masses"),
-            ("dn3_inputs", "dn3_get_mol_masses"),
-            ("pyridazine_inputs", "pyridazine_get_mol_masses"),
-            ("pheavy_inputs", "pheavy_get_mol_masses"),
-        ],
-    )
-    def test_expected_output(self, inputs, result, request):
-        fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms = (
-            request.getfixturevalue(inputs)
-        )
-        fixture_result = request.getfixturevalue(result)
-
-        inputs_result = get_mol_masses(
-            fixture_atom_symbols, fixture_atom_mass_numbers, fixture_n_atoms
-        )
-
-        assert np.allclose(inputs_result, fixture_result)
-
-
-class Test_get_COM_coordinates:
-    @pytest.mark.parametrize(
-        "f_masses,f_coordinates,f_COM_coordinates,f_COM_value",
-        [
-            (
-                "random_masses1",
-                "random_coords1",
-                "random_COM_coords1",
-                "random_COM_value1",
-            ),
-            (
-                "random_masses2",
-                "random_coords2",
-                "random_COM_coords2",
-                "random_COM_value2",
-            ),
-            (
-                "random_masses3",
-                "random_coords3",
-                "random_COM_coords3",
-                "random_COM_value3",
-            ),
-            (
-                "random_masses4",
-                "random_coords4",
-                "random_COM_coords4",
-                "random_COM_value4",
-            ),
-            (
-                "random_masses5",
-                "random_coords5",
-                "random_COM_coords5",
-                "random_COM_value5",
-            ),
-            (
-                "random_masses6",
-                "random_coords6",
-                "random_COM_coords6",
-                "random_COM_value6",
-            ),
-        ],
-    )
-    def test_expected_output(
-        self, f_masses, f_coordinates, f_COM_coordinates, f_COM_value, request
-    ):
-        masses = request.getfixturevalue(f_masses)
-        coordinates = request.getfixturevalue(f_coordinates)
-        COM_coordinates = request.getfixturevalue(f_COM_coordinates)
-        COM_value = request.getfixturevalue(f_COM_value)
-
-        result_COM_coordinates, result_COM_value = get_COM_coordinates(
-            masses, coordinates
-        )
-
-        print(f"{result_COM_value=}")
-        assert np.allclose(result_COM_coordinates, COM_coordinates) and np.allclose(
-            result_COM_value, COM_value
-        )
-
-    @pytest.mark.parametrize(
-        "f_masses,f_coordinates",
-        [
-            ("random_masses1", "random_coords3"),
-            ("random_masses2", "random_coords4"),
-            ("random_masses3", "random_coords5"),
-        ],
-    )
-    def test_mismatched_lengths(self, f_masses, f_coordinates, request):
-        masses = request.getfixturevalue(f_masses)
-        coordinates = request.getfixturevalue(f_coordinates)
-
-        with pytest.raises(ValueError) as exc:
-            result = get_COM_coordinates(masses, coordinates)
-
-        assert (exc.type is ValueError) and (
-            'Length of "masses" array must match length of "coordinates" array.'
-            in str(exc.value)
-        )
-
-    @pytest.mark.parametrize(
-        "f_masses,f_coordinates",
-        [
-            ("random_masses1", "random_coords1"),
-            ("random_masses2", "random_coords2"),
-            ("random_masses3", "random_coords3"),
-            ("random_masses4", "random_coords4"),
-            ("random_masses5", "random_coords5"),
-            ("random_masses6", "random_coords6"),
-        ],
-    )
-    def test_zero_masses(self, f_masses, f_coordinates, request):
-        masses = request.getfixturevalue(f_masses)
-        masses = np.zeros(len(masses))
-        coordinates = request.getfixturevalue(f_coordinates)
-
-        with pytest.raises(ValueError) as exc:
-            result = get_COM_coordinates(masses, coordinates)
-
-        assert (exc.type is ValueError) and (
-            'Sum of "masses" array is zero!' in str(exc.value)
-        )
-
-
-class Test_get_eigens:
-    """
-    This should be fairly minimal - mostly to make sure that the matching
-    of eigenvalues to eigenvectors is correct.
-    """
-
-    @pytest.mark.parametrize(
-        "f_COM_inertia, f_evals, f_evecs",
-        [
-            ("random_COM_inertias1", "random_evals1", "random_evecs1"),
-            ("random_COM_inertias2", "random_evals2", "random_evecs2"),
-            ("random_COM_inertias3", "random_evals3", "random_evecs3"),
-            ("random_COM_inertias4", "random_evals4", "random_evecs4"),
-            ("random_COM_inertias5", "random_evals5", "random_evecs5"),
-            ("random_COM_inertias6", "random_evals6", "random_evecs6"),
-        ],
-    )
-    def test_expected_results(self, f_COM_inertia, f_evals, f_evecs, request):
-        COM_inertia = request.getfixturevalue(f_COM_inertia)
-        evals = request.getfixturevalue(f_evals)
-        evecs = request.getfixturevalue(f_evecs)
-
-        r_evals, r_evecs = get_eigens(COM_inertia)
-        assert np.allclose(r_evals, evals) and np.allclose(r_evecs, evecs)
-
-    # TODO: Test negative conditions
-
-
-class Test_rotate_coordinates:
-    @pytest.mark.parametrize(
-        "f_COM_coordinate,f_evecs,f_pa_coordinate",
-        [
-            ("random_COM_coords1", "random_evecs1", "random_pa_coords1"),
-            ("random_COM_coords2", "random_evecs2", "random_pa_coords2"),
-            ("random_COM_coords3", "random_evecs3", "random_pa_coords3"),
-            ("random_COM_coords4", "random_evecs4", "random_pa_coords4"),
-            ("random_COM_coords5", "random_evecs5", "random_pa_coords5"),
-            ("random_COM_coords6", "random_evecs6", "random_pa_coords6"),
-        ],
-    )
-    def test_expected_results(
-        self, f_COM_coordinate, f_evecs, f_pa_coordinate, request
-    ):
-        COM_coordinates = request.getfixturevalue(f_COM_coordinate)
-        evecs = request.getfixturevalue(f_evecs)
-        pa_coordinates = request.getfixturevalue(f_pa_coordinate)
-
-        result = rotate_coordinates(COM_coordinates, evecs)
-
-        assert np.allclose(result, pa_coordinates)
-
-    # TODO: Test negative conditions
-
-
-@pytest.fixture
 def hn3_coords():
     return np.array(
         [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [2.0, 1.0, 0.0], [3.0, 0.0, -1.0]]
     )
 
 
-@pytest.fixture
-def hn3_mol_masses():
-    return np.array([1.00782503, 14.003074, 14.003074, 14.003074])
-
-
-@pytest.fixture
-def hn3_COM_coords():
-    return np.array(
-        [
-            [-1.95314299, -0.32552383, 0.32552383],
-            [-0.95314299, -0.32552383, 0.32552383],
-            [0.04685701, 0.67447617, 0.32552383],
-            [1.04685701, -0.32552383, -0.67447617],
-        ]
-    )
-
-
-@pytest.fixture
-def hn3_COM_inertia():
-    return np.array(
-        [
-            [18.88947938, -0.65614213, 14.65921614],
-            [-0.65614213, 41.3877405, -4.55833431],
-            [14.65921614, -4.55833431, 41.3877405],
-        ]
-    )
-
-
-@pytest.fixture
-def hn3_evecs():
-    return np.array(
-        [
-            [0.89325355, 0.23100136, 0.38566367],
-            [-0.04869846, 0.9025551, -0.42781159],
-            [-0.44690777, 0.36336299, 0.81745996],
-        ]
-    )
-
-
-@pytest.fixture
-def hn3_evals():
-    return np.array([11.59103153, 39.3846498, 50.68927905])
-
-
-@pytest.fixture
-def hn3_pa_coords():
-    return np.array(
-        [
-            [-1.87427854, -0.62669857, -0.34789073],
-            [-0.98102498, -0.39569721, 0.03777294],
-            [-0.13646989, 0.73785925, -0.00437498],
-            [1.25238989, -0.29705748, -0.00835968],
-        ]
-    )
-
-
-@pytest.fixture
-def hn3_pa_inertia():
-    return np.array(
-        [
-            [1.15910315e01, 1.77635684e-15, -2.27595720e-15],
-            [1.77635684e-15, 3.93846498e01, -2.56045185e-15],
-            [-2.27595720e-15, -2.56045185e-15, 5.06892790e01],
-        ]
-    )
-
-
-@pytest.fixture
-def hn3_COM_value():
-    return np.array([1.95314299, 0.32552383, -0.32552383])
-
-
-@pytest.fixture
 def dn3_coords():
     return np.array(
         [[-1.0, 0.0, 1.0], [0.0, 1.0, 2.0], [-2.0, -1.0, 0.0], [2.0, 0.0, -3.0]]
     )
 
 
-@pytest.fixture
-def dn3_mol_masses():
-    return np.array([2.01410178, 14.003074, 14.003074, 14.003074])
-
-
-@pytest.fixture
-def dn3_COM_coords():
-    return np.array(
-        [
-            [-0.95424921, 0.0, 1.27233228],
-            [0.04575079, 1.0, 2.27233228],
-            [-1.95424921, -1.0, 0.27233228],
-            [2.04575079, 0.0, -2.72766772],
-        ]
-    )
-
-
-@pytest.fixture
-def dn3_COM_inertia():
-    return np.array(
-        [
-            [208.79522768, -28.00614801, 86.58105074],
-            [-28.00614801, 294.73562674, -28.00614801],
-            [86.58105074, -28.00614801, 141.95269508],
-        ]
-    )
-
-
-@pytest.fixture
-def dn3_evecs():
-    return np.array(
-        [
-            [0.55913269, 0.68640689, -0.46499055],
-            [-0.03548915, 0.58015374, 0.81373347],
-            [-0.82831827, 0.43848286, -0.34874292],
-        ]
-    )
-
-
-@pytest.fixture
-def dn3_evals():
-    return np.array([82.3087009, 240.43307384, 322.74177474])
-
-
-@pytest.fixture
-def dn3_pa_coords():
-    return np.array(
-        [
-            [-1.58744800e00, -9.71073326e-02, 1.24334567e-16],
-            [-1.89212273e00, 1.60793616e00, 5.34837957e-16],
-            [-1.28277327e00, -1.80215082e00, -3.00395522e-16],
-            [3.40322314e00, 2.08181888e-01, -3.53340462e-16],
-        ]
-    )
-
-
-@pytest.fixture
-def dn3_pa_inertia():
-    return np.array(
-        [
-            [8.23087009e01, -1.36779477e-13, 2.60110616e-14],
-            [-1.36779477e-13, 2.40433074e02, -1.85687432e-14],
-            [2.60110616e-14, -1.85687432e-14, 3.22741775e02],
-        ]
-    )
-
-
-@pytest.fixture
-def dn3_COM_value():
-    return np.array([-0.04575079, 0.0, -0.27233228])
-
-
-@pytest.fixture
 def pyridazine_coords():
     return np.array(
         [
@@ -1758,104 +1084,6 @@ def pyridazine_coords():
     )
 
 
-@pytest.fixture
-def pyridazine_mol_masses():
-    return np.array(
-        [
-            14.003074,
-            14.003074,
-            12.0,
-            12.0,
-            12.0,
-            12.0,
-            1.00782503,
-            1.00782503,
-            1.00782503,
-            1.00782503,
-        ]
-    )
-
-
-@pytest.fixture
-def pyridazine_COM_coords():
-    return np.array(
-        [
-            [4.42624563, -2.84105821, -5.27850252],
-            [-2.79290106, 0.15223919, 3.06969708],
-            [-3.91804744, 2.13242893, 1.71812481],
-            [-3.29495844, -3.1475802, 3.69045943],
-            [3.42903977, 2.19419719, 0.71610154],
-            [2.28463793, 2.98062979, -3.19636217],
-            [-4.0246024, -3.11254432, -3.55393534],
-            [-3.70703125, 0.1442747, 3.03493426],
-            [2.20337889, -3.78351732, -3.05781507],
-            [0.68623713, -5.41736548, -0.60031492],
-        ]
-    )
-
-
-@pytest.fixture
-def pyridazine_COM_inertia():
-    return np.array(
-        [
-            [1386.50311554, -14.08965667, 736.21259661],
-            [-14.08965667, 1818.86541187, -52.17091434],
-            [736.21259661, -52.17091434, 1442.32067778],
-        ]
-    )
-
-
-@pytest.fixture
-def pyridazine_evecs():
-    return np.array(
-        [
-            [-0.71967888, 0.11247809, -0.68513575],
-            [0.02282647, 0.99009027, 0.13856485],
-            [0.69393174, 0.08408296, -0.71511453],
-        ]
-    )
-
-
-@pytest.fixture
-def pyridazine_evals():
-    return np.array([677.07605434, 1812.83418123, 2157.77896961])
-
-
-@pytest.fixture
-def pyridazine_pa_coords():
-    return np.array(
-        [
-            [-6.91324728, -2.75888055, 0.34848395],
-            [4.14362723, 0.09469958, -0.26057364],
-            [4.06067317, 1.81506765, 1.75121803],
-            [4.86039078, -3.17669439, -0.81775134],
-            [-1.92079612, 2.61835706, -2.55741373],
-            [-3.79422556, 2.93930465, 1.13348845],
-            [0.35918439, -3.83320485, 4.86758053],
-            [4.7772026, -0.01892856, 0.38948543],
-            [-3.79400455, -3.75530197, 0.15281184],
-            [-1.0341073, -5.33697045, -0.7915281],
-        ]
-    )
-
-
-@pytest.fixture
-def pyridazine_pa_inertia():
-    return np.array(
-        [
-            [6.77076054e02, 1.34114941e-13, 2.88657986e-14],
-            [1.34114941e-13, 1.81283418e03, 1.72306613e-13],
-            [2.88657986e-14, 1.72306613e-13, 2.15777897e03],
-        ]
-    )
-
-
-@pytest.fixture
-def pyridazine_COM_value():
-    return np.array([0.54935935, 1.31394313, 0.63457742])
-
-
-@pytest.fixture
 def pheavy_coords():
     return np.array(
         [
@@ -1873,228 +1101,114 @@ def pheavy_coords():
     )
 
 
+(
+    hn3_mol_masses,
+    hn3_COM_coords,
+    hn3_COM_inertia,
+    hn3_evecs,
+    hn3_evals,
+    hn3_pa_coords,
+    hn3_pa_inertia,
+    hn3_COM_value,
+) = get_isotopologue_principal_axes(
+    hn3_coords(), hn3_mass_numbers(), hn3_symbols(), hn3_n_atoms()
+)
+
+hn3_dict = {
+    "hn3_mol_masses": hn3_mol_masses,
+    "hn3_COM_coords": hn3_COM_coords,
+    "hn3_COM_inertia": hn3_COM_inertia,
+    "hn3_evecs": hn3_evecs,
+    "hn3_evals": hn3_evals,
+    "hn3_pa_coords": hn3_pa_coords,
+    "hn3_pa_inertia": hn3_pa_inertia,
+    "hn3_COM_value": hn3_COM_value,
+}
+
+
+(
+    dn3_mol_masses,
+    dn3_COM_coords,
+    dn3_COM_inertia,
+    dn3_evecs,
+    dn3_evals,
+    dn3_pa_coords,
+    dn3_pa_inertia,
+    dn3_COM_value,
+) = get_isotopologue_principal_axes(
+    dn3_coords(), dn3_mass_numbers(), dn3_symbols(), dn3_n_atoms()
+)
+
+dn3_dict = {
+    "dn3_mol_masses": dn3_mol_masses,
+    "dn3_COM_coords": dn3_COM_coords,
+    "dn3_COM_inertia": dn3_COM_inertia,
+    "dn3_evecs": dn3_evecs,
+    "dn3_evals": dn3_evals,
+    "dn3_pa_coords": dn3_pa_coords,
+    "dn3_pa_inertia": dn3_pa_inertia,
+    "dn3_COM_value": dn3_COM_value,
+}
+
+
+(
+    pyridazine_mol_masses,
+    pyridazine_COM_coords,
+    pyridazine_COM_inertia,
+    pyridazine_evecs,
+    pyridazine_evals,
+    pyridazine_pa_coords,
+    pyridazine_pa_inertia,
+    pyridazine_COM_value,
+) = get_isotopologue_principal_axes(
+    pyridazine_coords(),
+    pyridazine_mass_numbers(),
+    pyridazine_symbols(),
+    pyridazine_n_atoms(),
+)
+
+pyridazine_dict = {
+    "pyridazine_mol_masses": pyridazine_mol_masses,
+    "pyridazine_COM_coords": pyridazine_COM_coords,
+    "pyridazine_COM_inertia": pyridazine_COM_inertia,
+    "pyridazine_evecs": pyridazine_evecs,
+    "pyridazine_evals": pyridazine_evals,
+    "pyridazine_pa_coords": pyridazine_pa_coords,
+    "pyridazine_pa_inertia": pyridazine_pa_inertia,
+    "pyridazine_COM_value": pyridazine_COM_value,
+}
+
+
+(
+    pheavy_mol_masses,
+    pheavy_COM_coords,
+    pheavy_COM_inertia,
+    pheavy_evecs,
+    pheavy_evals,
+    pheavy_pa_coords,
+    pheavy_pa_inertia,
+    pheavy_COM_value,
+) = get_isotopologue_principal_axes(
+    pheavy_coords(), pheavy_mass_numbers(), pheavy_symbols(), pheavy_n_atoms()
+)
+
+pheavy_dict = {
+    "pheavy_mol_masses": pheavy_mol_masses,
+    "pheavy_COM_coords": pheavy_COM_coords,
+    "pheavy_COM_inertia": pheavy_COM_inertia,
+    "pheavy_evecs": pheavy_evecs,
+    "pheavy_evals": pheavy_evals,
+    "pheavy_pa_coords": pheavy_pa_coords,
+    "pheavy_pa_inertia": pheavy_pa_inertia,
+    "pheavy_COM_value": pheavy_COM_value,
+}
+
+for test_dict in [hn3_dict, dn3_dict, pyridazine_dict, pheavy_dict]:
+    for k, v in test_dict.items():
+        print(
+            f"""
 @pytest.fixture
-def pheavy_mol_masses():
-    return np.array(
-        [
-            14.003074,
-            14.003074,
-            12.0,
-            13.00335484,
-            12.0,
-            12.0,
-            1.00782503,
-            2.01410178,
-            1.00782503,
-            1.00782503,
-        ]
-    )
-
-
-@pytest.fixture
-def pheavy_COM_coords():
-    return np.array(
-        [
-            [-3.59716957, 3.10743145, 1.41481864],
-            [3.63350871, -2.31528533, -0.53019539],
-            [-2.76120922, -3.97969359, 2.1518863],
-            [4.45715342, 3.28051901, -1.16978731],
-            [0.61067094, 0.6587189, 2.96501071],
-            [-1.82245409, 0.63333871, -4.49844738],
-            [1.11950983, -0.90633818, -1.83096389],
-            [-3.83996019, -5.77906282, -0.58381056],
-            [-0.96490404, -4.54336847, -2.57474846],
-            [-3.18770003, -4.33272657, 1.01045373],
-        ]
-    )
-
-
-@pytest.fixture
-def pheavy_COM_inertia():
-    return np.array(
-        [
-            [1123.54302411, -100.65635437, 115.52978292],
-            [-100.65635437, 1267.7901769, 68.81941458],
-            [115.52978292, 68.81941458, 1460.4715294],
-        ]
-    )
-
-
-@pytest.fixture
-def pheavy_evecs():
-    return np.array(
-        [
-            [0.84516193, 0.47544063, 0.24424889],
-            [0.44388552, -0.87886885, 0.17480045],
-            [-0.29776997, 0.03931614, 0.9538277],
-        ]
-    )
-
-
-@pytest.fixture
-def pheavy_evals():
-    return np.array([1029.97373772, 1319.16349286, 1502.66749983])
-
-
-@pytest.fixture
-def pheavy_pa_coords():
-    return np.array(
-        [
-            [-2.08213745, -4.38564005, 1.01406895],
-            [2.20105787, 3.74150458, -0.02294751],
-            [-4.7409644, 2.26944152, 0.68245425],
-            [5.57151881, -0.81002564, 0.54631541],
-            [-0.07437954, -0.17201697, 3.0924094],
-            [0.08036363, -1.59995197, -4.62516822],
-            [1.08906277, 1.25682642, -1.63141337],
-            [-5.63678921, 3.230412, -2.50494347],
-            [-2.06555286, 3.43304125, -3.485726],
-            [-4.91824007, 2.33206343, -0.57215598],
-        ]
-    )
-
-
-@pytest.fixture
-def pheavy_pa_inertia():
-    return np.array(
-        [
-            [1.02997374e03, -2.34479103e-13, 2.01616501e-13],
-            [-2.34479103e-13, 1.31916349e03, -6.96998015e-13],
-            [2.01616501e-13, -6.96998015e-13, 1.50266750e03],
-        ]
-    )
-
-
-@pytest.fixture
-def pheavy_COM_value():
-    return np.array([-0.89576958, 0.93142702, 0.23541207])
-
-
-class Test_get_isotopologue_principal_axes:
-    @pytest.mark.parametrize(
-        "f_coords,f_mass_nums,f_atom_symbols,f_n_atoms,f_mol_masses,f_COM_coords,f_COM_inertia,f_evecs,f_evals,f_pa_coords,f_pa_inertia,f_COM_value",
-        [
-            (
-                "hn3_coords",
-                "hn3_mass_numbers",
-                "hn3_symbols",
-                "hn3_n_atoms",
-                "hn3_mol_masses",
-                "hn3_COM_coords",
-                "hn3_COM_inertia",
-                "hn3_evecs",
-                "hn3_evals",
-                "hn3_pa_coords",
-                "hn3_pa_inertia",
-                "hn3_COM_value",
-            ),
-            (
-                "dn3_coords",
-                "dn3_mass_numbers",
-                "dn3_symbols",
-                "dn3_n_atoms",
-                "dn3_mol_masses",
-                "dn3_COM_coords",
-                "dn3_COM_inertia",
-                "dn3_evecs",
-                "dn3_evals",
-                "dn3_pa_coords",
-                "dn3_pa_inertia",
-                "dn3_COM_value",
-            ),
-            (
-                "pyridazine_coords",
-                "pyridazine_mass_numbers",
-                "pyridazine_symbols",
-                "pyridazine_n_atoms",
-                "pyridazine_mol_masses",
-                "pyridazine_COM_coords",
-                "pyridazine_COM_inertia",
-                "pyridazine_evecs",
-                "pyridazine_evals",
-                "pyridazine_pa_coords",
-                "pyridazine_pa_inertia",
-                "pyridazine_COM_value",
-            ),
-            (
-                "pheavy_coords",
-                "pheavy_mass_numbers",
-                "pheavy_symbols",
-                "pheavy_n_atoms",
-                "pheavy_mol_masses",
-                "pheavy_COM_coords",
-                "pheavy_COM_inertia",
-                "pheavy_evecs",
-                "pheavy_evals",
-                "pheavy_pa_coords",
-                "pheavy_pa_inertia",
-                "pheavy_COM_value",
-            ),
-        ],
-    )
-    def test_expected_results(
-        self,
-        f_coords,
-        f_mass_nums,
-        f_atom_symbols,
-        f_n_atoms,
-        f_mol_masses,
-        f_COM_coords,
-        f_COM_inertia,
-        f_evecs,
-        f_evals,
-        f_pa_coords,
-        f_pa_inertia,
-        f_COM_value,
-        request,
-    ):
-        coords = request.getfixturevalue(f_coords)
-        mass_nums = request.getfixturevalue(f_mass_nums)
-        atom_symbols = request.getfixturevalue(f_atom_symbols)
-        n_atoms = request.getfixturevalue(f_n_atoms)
-
-        mol_masses = request.getfixturevalue(f_mol_masses)
-        COM_coords = request.getfixturevalue(f_COM_coords)
-        COM_inertia = request.getfixturevalue(f_COM_inertia)
-        evecs = request.getfixturevalue(f_evecs)
-        evals = request.getfixturevalue(f_evals)
-        pa_coords = request.getfixturevalue(f_pa_coords)
-        pa_inertia = request.getfixturevalue(f_pa_inertia)
-        COM_value = request.getfixturevalue(f_COM_value)
-
-        (
-            r_mol_masses,
-            r_COM_coords,
-            r_COM_inertia,
-            r_evecs,
-            r_evals,
-            r_pa_coords,
-            r_pa_inertia,
-            r_COM_value,
-        ) = get_isotopologue_principal_axes(coords, mass_nums, atom_symbols, n_atoms)
-
-        assert all(
-            [
-                np.allclose(i, j)
-                for i, j in (
-                    [mol_masses, r_mol_masses],
-                    [COM_coords, r_COM_coords],
-                    [COM_inertia, r_COM_inertia],
-                    [evecs, r_evecs],
-                    [evals, r_evals],
-                    [pa_coords, r_pa_coords],
-                    [pa_inertia, r_pa_inertia],
-                    [COM_value, r_COM_value],
-                )
-            ]
+def {k}():
+    return np.{v.__repr__()}
+"""
         )
-
-
-# class Test_get_principal_axes:
-#     @pytest.mark.parametrize("",[])
-#     def test_one_at_a_time(self,):
-#         isotopologue_names = ["iso000"]
-#         isotopologue_dict = {"iso000":
-
-#         }
-#         result = get_principal_axes(isotopologue_names, isotopologue_dict, n_atoms, atom_symbols, mol_coordinates, mol_dipole)

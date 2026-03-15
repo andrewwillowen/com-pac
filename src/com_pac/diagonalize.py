@@ -11,7 +11,7 @@ import numpy as np
 
 # TODO: rename function "inertia_matrix" to "get_inertia_matrix"
 def inertia_matrix(coordinates_array, masses_array):
-    # TODO: properly vectorize this function
+    # TODO: properly vectorize this function; add checks for bad scenarios.
     matrix = np.zeros((3, 3))
     for axis1 in [0, 1, 2]:
         [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
