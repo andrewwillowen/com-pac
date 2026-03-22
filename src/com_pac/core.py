@@ -4,7 +4,7 @@
 #  Imports  #
 # ========= #
 from com_pac.writer import generate_output_file, generate_csv_output
-from com_pac.isotopologues import get_dataframes
+from com_pac.dataframes import get_dataframes
 from com_pac.diagonalize import get_principal_axes
 from com_pac.parser import parse_input_file
 
