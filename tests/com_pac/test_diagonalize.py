@@ -1280,10 +1280,10 @@ class Test_get_mol_masses:
     @pytest.mark.parametrize(
         "inputs,result",
         [
-            ("hn3_inputs", "hn3_get_mol_masses"),
-            ("dn3_inputs", "dn3_get_mol_masses"),
-            ("pyridazine_inputs", "pyridazine_get_mol_masses"),
-            ("pheavy_inputs", "pheavy_get_mol_masses"),
+            ("hn3_inputs", "hn3_mol_masses"),
+            ("dn3_inputs", "dn3_mol_masses"),
+            ("pyridazine_inputs", "pyridazine_mol_masses"),
+            ("pheavy_inputs", "pheavy_mol_masses"),
         ],
     )
     def test_expected_output(self, inputs, result, request):

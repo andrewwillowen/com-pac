@@ -2,6 +2,8 @@
 Unit tests for functions in dataframes.py
 """
 
+from com_pac.dataframes import get_atom_masses_df
+
 import pytest
 import numpy as np
 import pandas as pd
@@ -26,11 +28,38 @@ import pandas as pd
 ################################
 
 
+def assert_equal_df_float(df1, df2, **kwargs):
+    """
+    Shorthand for pandas test.
+    Useful kwargs include
+        rtol: float
+            relative tolerance
+        atol: float
+            relative tolerance
+    """
+    pd.testing.assert_frame_equal(df1, df2, check_exact=False, **kwargs)
+
+
 # fi_atom_masses
 # fi_atom_symbols
 # fo_atom_masses_df
 class Test_get_atoms_masses_df:
-    pass
+    @pytest.mark.parametrize(
+        "f_atom_masses,f_atom_symbols,f_atom_masses_df",
+        [
+            ("hn3_atom_masses", "hn3_symbols", "hn3_atom_masses_df"),
+        ],
+    )
+    def test_expected_results_one_iso(
+        self, f_atom_masses, f_atom_symbols, f_atom_masses_df, request
+    ):
+        atom_masses = request.getfixturevalue(f_atom_masses)
+        atom_symbols = request.getfixturevalue(f_atom_symbols)
+        atom_masses_df = request.getfixturevalue(f_atom_masses_df)
+
+        result = get_atom_masses_df(atom_masses, atom_symbols)
+
+        assert_equal_df_float(result, atom_masses_df)
 
 
 # fi_rotational_constants

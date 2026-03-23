@@ -4,6 +4,7 @@ Sharing fixtures across module tests.
 
 import pytest
 import numpy as np
+import pandas as pd
 
 module_fixture = pytest.fixture(scope="module")
 
@@ -27,11 +28,6 @@ def hn3_n_atoms():
 @module_fixture
 def hn3_inputs(hn3_symbols, hn3_mass_numbers, hn3_n_atoms):
     return hn3_symbols, hn3_mass_numbers, hn3_n_atoms
-
-
-@module_fixture
-def hn3_get_mol_masses():
-    return np.array([1.00782503, 14.003074, 14.003074, 14.003074])
 
 
 @module_fixture
@@ -132,6 +128,25 @@ def hn3_rot_consts():
     ]
 
 
+@module_fixture
+def hn3_iso_name():
+    return "hn3"
+
+
+@module_fixture
+def hn3_atom_masses():
+    return {"hn3": np.array([1.00782503, 14.003074, 14.003074, 14.003074])}
+
+
+@module_fixture
+def hn3_atom_masses_df():
+    return pd.DataFrame(
+        np.array([[1.00782503], [14.003074], [14.003074], [14.003074], [43.01704704]]),
+        index=pd.Index(["H", "N", "N", "N", "Total"], dtype="object", name="Atom"),
+        columns=pd.Index(["hn3"], dtype="object"),
+    )
+
+
 # DN3 fixtures
 @module_fixture
 def dn3_symbols():
@@ -151,11 +166,6 @@ def dn3_n_atoms():
 @module_fixture
 def dn3_inputs(dn3_symbols, dn3_mass_numbers, dn3_n_atoms):
     return dn3_symbols, dn3_mass_numbers, dn3_n_atoms
-
-
-@module_fixture
-def dn3_get_mol_masses():
-    return np.array([2.01410178, 14.003074, 14.003074, 14.003074])
 
 
 @module_fixture
@@ -275,24 +285,6 @@ def pyridazine_n_atoms():
 @module_fixture
 def pyridazine_inputs(pyridazine_symbols, pyridazine_mass_numbers, pyridazine_n_atoms):
     return pyridazine_symbols, pyridazine_mass_numbers, pyridazine_n_atoms
-
-
-@module_fixture
-def pyridazine_get_mol_masses():
-    return np.array(
-        [
-            14.003074,
-            14.003074,
-            12.0,
-            12.0,
-            12.0,
-            12.0,
-            1.00782503,
-            1.00782503,
-            1.00782503,
-            1.00782503,
-        ]
-    )
 
 
 @module_fixture
@@ -451,24 +443,6 @@ def pheavy_inputs(pheavy_symbols, pheavy_mass_numbers, pheavy_n_atoms):
         pheavy_symbols,
         pheavy_mass_numbers,
         pheavy_n_atoms,
-    )
-
-
-@module_fixture
-def pheavy_get_mol_masses():
-    return np.array(
-        [
-            14.003074,
-            14.003074,
-            12.0,
-            13.00335484,
-            12.0,
-            12.0,
-            1.00782503,
-            2.01410178,
-            1.00782503,
-            1.00782503,
-        ]
     )
 
 
