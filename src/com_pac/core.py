@@ -9,7 +9,6 @@ from com_pac.diagonalize import get_principal_axes
 from com_pac.parser import parse_input_file
 
 from sys import argv
-import pandas as pd
 from pathlib import Path
 
 
