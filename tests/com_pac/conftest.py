@@ -850,6 +850,194 @@ def pyridazine_rot_consts():
     ]
 
 
+@module_fixture
+def pyridazine_iso_name():
+    return "pyridazine"
+
+
+@module_fixture
+def pyridazine_atom_numbering(pyridazine_symbols, pyridazine_mass_numbers):
+    return [
+        f"{sym}{num}" for sym, num in zip(pyridazine_symbols, pyridazine_mass_numbers)
+    ]
+
+
+@module_fixture
+def pyridazine_atom_masses(pyridazine_iso_name, pyridazine_mol_masses):
+    return {pyridazine_iso_name: pyridazine_mol_masses}
+
+
+@module_fixture
+def pyridazine_atom_masses_df(
+    pyridazine_iso_name, pyridazine_mol_masses, pyridazine_symbols
+):
+    return pd.DataFrame(
+        np.array(
+            [[mass] for mass in pyridazine_mol_masses]
+            + [[np.sum(pyridazine_mol_masses)]]
+        ),
+        index=pd.Index(pyridazine_symbols + ["Total"], dtype="object", name="Atom"),
+        columns=pd.Index([pyridazine_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_rotational_constants_df(
+    pyridazine_iso_name, pyridazine_rot_consts, pa_axis_labels
+):
+    return pd.DataFrame(
+        np.array(pyridazine_rot_consts).reshape(3, 1),
+        index=pd.Index(pa_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index([pyridazine_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_dipole_components_df(
+    pyridazine_iso_name, pyridazine_pa_dipole, dipole_index_labels
+):
+    return pd.DataFrame(
+        np.array([pyridazine_pa_dipole]).T,
+        index=pd.Index(dipole_index_labels, dtype="object"),
+        columns=pd.Index([pyridazine_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_com_coordinates_df(
+    pyridazine_iso_name,
+    pyridazine_COM_coords,
+    com_column_labels,
+    pyridazine_atom_numbering,
+):
+    return pd.DataFrame(
+        pyridazine_COM_coords,
+        index=pd.Index(pyridazine_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_pa_coordinates_df(
+    pyridazine_iso_name,
+    pyridazine_pa_coords,
+    pa_column_labels,
+    pyridazine_atom_numbering,
+):
+    return pd.DataFrame(
+        pyridazine_pa_coords,
+        index=pd.Index(pyridazine_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_com_inertias_df(
+    pyridazine_iso_name, pyridazine_COM_inertia, com_column_labels, com_axis_labels
+):
+    return pd.DataFrame(
+        pyridazine_COM_inertia,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_eigenvectors_df(
+    pyridazine_iso_name, pyridazine_evecs, com_axis_labels, evec_column_labels
+):
+    return pd.DataFrame(
+        pyridazine_evecs,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(evec_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_pa_inertias_df(
+    pyridazine_iso_name, pyridazine_pa_inertia, pa_axis_labels, pa_column_labels
+):
+    return pd.DataFrame(
+        pyridazine_pa_inertia,
+        index=pd.Index(pa_column_labels, dtype="object", name="Axis"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_isotopologue_names(pyridazine_iso_name):
+    return [pyridazine_iso_name]
+
+
+@module_fixture
+def pyridazine_com_coordinates_df_dict(
+    pyridazine_iso_name, pyridazine_com_coordinates_df
+):
+    return {pyridazine_iso_name: pyridazine_com_coordinates_df}
+
+
+@module_fixture
+def pyridazine_com_inertias_df_dict(pyridazine_iso_name, pyridazine_com_inertias_df):
+    return {pyridazine_iso_name: pyridazine_com_inertias_df}
+
+
+@module_fixture
+def pyridazine_eigenvectors_df_dict(pyridazine_iso_name, pyridazine_eigenvectors_df):
+    return {pyridazine_iso_name: pyridazine_eigenvectors_df}
+
+
+@module_fixture
+def pyridazine_pa_inertias_df_dict(pyridazine_iso_name, pyridazine_pa_inertias_df):
+    return {pyridazine_iso_name: pyridazine_pa_inertias_df}
+
+
+@module_fixture
+def pyridazine_pa_coordinates_df_dict(
+    pyridazine_iso_name, pyridazine_pa_coordinates_df
+):
+    return {pyridazine_iso_name: pyridazine_pa_coordinates_df}
+
+
+@module_fixture
+def pyridazine_rot_consts_dict(pyridazine_iso_name, pyridazine_rot_consts):
+    return {pyridazine_iso_name: pyridazine_rot_consts}
+
+
+@module_fixture
+def pyridazine_pa_dipole_list(pyridazine_pa_dipole):
+    return pyridazine_pa_dipole.flatten().tolist()
+
+
+@module_fixture
+def pyridazine_pa_dipole_dict(pyridazine_iso_name, pyridazine_pa_dipole_list):
+    return {pyridazine_iso_name: pyridazine_pa_dipole_list}
+
+
+@module_fixture
+def pyridazine_COM_coords_dict(pyridazine_iso_name, pyridazine_COM_coords):
+    return {pyridazine_iso_name: pyridazine_COM_coords}
+
+
+@module_fixture
+def pyridazine_COM_inertia_dict(pyridazine_iso_name, pyridazine_COM_inertia):
+    return {pyridazine_iso_name: pyridazine_COM_inertia}
+
+
+@module_fixture
+def pyridazine_evecs_dict(pyridazine_iso_name, pyridazine_evecs):
+    return {pyridazine_iso_name: pyridazine_evecs}
+
+
+@module_fixture
+def pyridazine_pa_inertia_dict(pyridazine_iso_name, pyridazine_pa_inertia):
+    return {pyridazine_iso_name: pyridazine_pa_inertia}
+
+
+@module_fixture
+def pyridazine_pa_coords_dict(pyridazine_iso_name, pyridazine_pa_coords):
+    return {pyridazine_iso_name: pyridazine_pa_coords}
+
+
 # Pyridazine "heavy" (4-D, 4-C13) fixtures
 @module_fixture
 def pheavy_symbols():
@@ -1007,3 +1195,286 @@ def pheavy_rot_consts():
         np.float64(271.80280781888536),
         np.float64(228.33472789399997),
     ]
+
+
+@module_fixture
+def pheavy_iso_name():
+    return "pheavy"
+
+
+@module_fixture
+def pheavy_atom_numbering(pyridazine_atom_numbering):
+    return pyridazine_atom_numbering
+
+
+@module_fixture
+def pheavy_atom_masses(pheavy_iso_name, pheavy_mol_masses):
+    return {pheavy_iso_name: pheavy_mol_masses}
+
+
+@module_fixture
+def pheavy_atom_masses_df(pheavy_iso_name, pheavy_mol_masses, pheavy_symbols):
+    return pd.DataFrame(
+        np.array(
+            [[mass] for mass in pheavy_mol_masses] + [[np.sum(pheavy_mol_masses)]]
+        ),
+        index=pd.Index(pheavy_symbols + ["Total"], dtype="object", name="Atom"),
+        columns=pd.Index([pheavy_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_rotational_constants_df(pheavy_iso_name, pheavy_rot_consts, pa_axis_labels):
+    return pd.DataFrame(
+        np.array(pheavy_rot_consts).reshape(3, 1),
+        index=pd.Index(pa_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index([pheavy_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_dipole_components_df(pheavy_iso_name, pheavy_pa_dipole, dipole_index_labels):
+    return pd.DataFrame(
+        np.array([pheavy_pa_dipole]).T,
+        index=pd.Index(dipole_index_labels, dtype="object"),
+        columns=pd.Index([pheavy_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_com_coordinates_df(
+    pheavy_iso_name, pheavy_COM_coords, com_column_labels, pheavy_atom_numbering
+):
+    return pd.DataFrame(
+        pheavy_COM_coords,
+        index=pd.Index(pheavy_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_pa_coordinates_df(
+    pheavy_iso_name, pheavy_pa_coords, pa_column_labels, pheavy_atom_numbering
+):
+    return pd.DataFrame(
+        pheavy_pa_coords,
+        index=pd.Index(pheavy_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_com_inertias_df(
+    pheavy_iso_name, pheavy_COM_inertia, com_column_labels, com_axis_labels
+):
+    return pd.DataFrame(
+        pheavy_COM_inertia,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_eigenvectors_df(
+    pheavy_iso_name, pheavy_evecs, com_axis_labels, evec_column_labels
+):
+    return pd.DataFrame(
+        pheavy_evecs,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(evec_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_pa_inertias_df(
+    pheavy_iso_name, pheavy_pa_inertia, pa_axis_labels, pa_column_labels
+):
+    return pd.DataFrame(
+        pheavy_pa_inertia,
+        index=pd.Index(pa_column_labels, dtype="object", name="Axis"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pheavy_isotopologue_names(pheavy_iso_name):
+    return [pheavy_iso_name]
+
+
+@module_fixture
+def pheavy_com_coordinates_df_dict(pheavy_iso_name, pheavy_com_coordinates_df):
+    return {pheavy_iso_name: pheavy_com_coordinates_df}
+
+
+@module_fixture
+def pheavy_com_inertias_df_dict(pheavy_iso_name, pheavy_com_inertias_df):
+    return {pheavy_iso_name: pheavy_com_inertias_df}
+
+
+@module_fixture
+def pheavy_eigenvectors_df_dict(pheavy_iso_name, pheavy_eigenvectors_df):
+    return {pheavy_iso_name: pheavy_eigenvectors_df}
+
+
+@module_fixture
+def pheavy_pa_inertias_df_dict(pheavy_iso_name, pheavy_pa_inertias_df):
+    return {pheavy_iso_name: pheavy_pa_inertias_df}
+
+
+@module_fixture
+def pheavy_pa_coordinates_df_dict(pheavy_iso_name, pheavy_pa_coordinates_df):
+    return {pheavy_iso_name: pheavy_pa_coordinates_df}
+
+
+@module_fixture
+def pheavy_rot_consts_dict(pheavy_iso_name, pheavy_rot_consts):
+    return {pheavy_iso_name: pheavy_rot_consts}
+
+
+@module_fixture
+def pheavy_pa_dipole_list(pheavy_pa_dipole):
+    return pheavy_pa_dipole.flatten().tolist()
+
+
+@module_fixture
+def pheavy_pa_dipole_dict(pheavy_iso_name, pheavy_pa_dipole_list):
+    return {pheavy_iso_name: pheavy_pa_dipole_list}
+
+
+@module_fixture
+def pheavy_COM_coords_dict(pheavy_iso_name, pheavy_COM_coords):
+    return {pheavy_iso_name: pheavy_COM_coords}
+
+
+@module_fixture
+def pheavy_COM_inertia_dict(pheavy_iso_name, pheavy_COM_inertia):
+    return {pheavy_iso_name: pheavy_COM_inertia}
+
+
+@module_fixture
+def pheavy_evecs_dict(pheavy_iso_name, pheavy_evecs):
+    return {pheavy_iso_name: pheavy_evecs}
+
+
+@module_fixture
+def pheavy_pa_inertia_dict(pheavy_iso_name, pheavy_pa_inertia):
+    return {pheavy_iso_name: pheavy_pa_inertia}
+
+
+@module_fixture
+def pheavy_pa_coords_dict(pheavy_iso_name, pheavy_pa_coords):
+    return {pheavy_iso_name: pheavy_pa_coords}
+
+
+# Consolidated Pyridazine and Pheavy fixtures
+@module_fixture
+def pyridazine_pheavy_isotopologue_names(
+    pyridazine_isotopologue_names, pheavy_isotopologue_names
+):
+    return pyridazine_isotopologue_names + pheavy_isotopologue_names
+
+
+@module_fixture
+def pyridazine_pheavy_atom_masses(pyridazine_atom_masses, pheavy_atom_masses):
+    return {**pyridazine_atom_masses, **pheavy_atom_masses}
+
+
+@module_fixture
+def pyridazine_pheavy_rot_consts_dict(
+    pyridazine_rot_consts_dict, pheavy_rot_consts_dict
+):
+    return {**pyridazine_rot_consts_dict, **pheavy_rot_consts_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_pa_dipole_dict(pyridazine_pa_dipole_dict, pheavy_pa_dipole_dict):
+    return {**pyridazine_pa_dipole_dict, **pheavy_pa_dipole_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_COM_coords_dict(
+    pyridazine_COM_coords_dict, pheavy_COM_coords_dict
+):
+    return {**pyridazine_COM_coords_dict, **pheavy_COM_coords_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_COM_inertia_dict(
+    pyridazine_COM_inertia_dict, pheavy_COM_inertia_dict
+):
+    return {**pyridazine_COM_inertia_dict, **pheavy_COM_inertia_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_evecs_dict(pyridazine_evecs_dict, pheavy_evecs_dict):
+    return {**pyridazine_evecs_dict, **pheavy_evecs_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_pa_inertia_dict(
+    pyridazine_pa_inertia_dict, pheavy_pa_inertia_dict
+):
+    return {**pyridazine_pa_inertia_dict, **pheavy_pa_inertia_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_pa_coords_dict(pyridazine_pa_coords_dict, pheavy_pa_coords_dict):
+    return {**pyridazine_pa_coords_dict, **pheavy_pa_coords_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_atom_masses_df(pyridazine_atom_masses_df, pheavy_atom_masses_df):
+    return pd.concat([pyridazine_atom_masses_df, pheavy_atom_masses_df], axis=1)
+
+
+@module_fixture
+def pyridazine_pheavy_rotational_constants_df(
+    pyridazine_rotational_constants_df, pheavy_rotational_constants_df
+):
+    return pd.concat(
+        [pyridazine_rotational_constants_df, pheavy_rotational_constants_df], axis=1
+    )
+
+
+@module_fixture
+def pyridazine_pheavy_dipole_components_df(
+    pyridazine_dipole_components_df, pheavy_dipole_components_df
+):
+    return pd.concat(
+        [pyridazine_dipole_components_df, pheavy_dipole_components_df], axis=1
+    )
+
+
+@module_fixture
+def pyridazine_pheavy_com_coordinates_df_dict(
+    pyridazine_com_coordinates_df_dict, pheavy_com_coordinates_df_dict
+):
+    return {**pyridazine_com_coordinates_df_dict, **pheavy_com_coordinates_df_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_com_inertias_df_dict(
+    pyridazine_com_inertias_df_dict, pheavy_com_inertias_df_dict
+):
+    return {**pyridazine_com_inertias_df_dict, **pheavy_com_inertias_df_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_eigenvectors_df_dict(
+    pyridazine_eigenvectors_df_dict, pheavy_eigenvectors_df_dict
+):
+    return {**pyridazine_eigenvectors_df_dict, **pheavy_eigenvectors_df_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_pa_inertias_df_dict(
+    pyridazine_pa_inertias_df_dict, pheavy_pa_inertias_df_dict
+):
+    return {**pyridazine_pa_inertias_df_dict, **pheavy_pa_inertias_df_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_pa_coordinates_df_dict(
+    pyridazine_pa_coordinates_df_dict, pheavy_pa_coordinates_df_dict
+):
+    return {**pyridazine_pa_coordinates_df_dict, **pheavy_pa_coordinates_df_dict}
