@@ -440,6 +440,169 @@ def dn3_rot_consts():
     ]
 
 
+@module_fixture
+def dn3_iso_name():
+    return "dn3"
+
+
+@module_fixture
+def dn3_atom_numbering(dn3_symbols, dn3_mass_numbers):
+    return [f"{sym}{num}" for sym, num in zip(dn3_symbols, dn3_mass_numbers)]
+
+
+@module_fixture
+def dn3_atom_masses(dn3_iso_name, dn3_mol_masses):
+    return {dn3_iso_name: dn3_mol_masses}
+
+
+@module_fixture
+def dn3_atom_masses_df(dn3_iso_name, dn3_mol_masses, dn3_symbols):
+    return pd.DataFrame(
+        np.array([[mass] for mass in dn3_mol_masses] + [[np.sum(dn3_mol_masses)]]),
+        index=pd.Index(dn3_symbols + ["Total"], dtype="object", name="Atom"),
+        columns=pd.Index([dn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_rotational_constants_df(dn3_iso_name, dn3_rot_consts, pa_axis_labels):
+    return pd.DataFrame(
+        np.array(dn3_rot_consts).reshape(3, 1),
+        index=pd.Index(pa_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index([dn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_dipole_components_df(dn3_iso_name, dn3_pa_dipole, dipole_index_labels):
+    return pd.DataFrame(
+        np.array([dn3_pa_dipole]).T,
+        index=pd.Index(dipole_index_labels, dtype="object"),
+        columns=pd.Index([dn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_com_coordinates_df(
+    dn3_iso_name, dn3_COM_coords, com_column_labels, dn3_atom_numbering
+):
+    return pd.DataFrame(
+        dn3_COM_coords,
+        index=pd.Index(dn3_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_pa_coordinates_df(
+    dn3_iso_name, dn3_pa_coords, pa_column_labels, dn3_atom_numbering
+):
+    return pd.DataFrame(
+        dn3_pa_coords,
+        index=pd.Index(dn3_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_com_inertias_df(
+    dn3_iso_name, dn3_COM_inertia, com_column_labels, com_axis_labels
+):
+    return pd.DataFrame(
+        dn3_COM_inertia,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_eigenvectors_df(dn3_iso_name, dn3_evecs, com_axis_labels, evec_column_labels):
+    return pd.DataFrame(
+        dn3_evecs,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(evec_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_pa_inertias_df(dn3_iso_name, dn3_pa_inertia, pa_axis_labels, pa_column_labels):
+    return pd.DataFrame(
+        dn3_pa_inertia,
+        index=pd.Index(pa_column_labels, dtype="object", name="Axis"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def dn3_isotopologue_names(dn3_iso_name):
+    return [dn3_iso_name]
+
+
+@module_fixture
+def dn3_com_coordinates_df_dict(dn3_iso_name, dn3_com_coordinates_df):
+    return {dn3_iso_name: dn3_com_coordinates_df}
+
+
+@module_fixture
+def dn3_com_inertias_df_dict(dn3_iso_name, dn3_com_inertias_df):
+    return {dn3_iso_name: dn3_com_inertias_df}
+
+
+@module_fixture
+def dn3_eigenvectors_df_dict(dn3_iso_name, dn3_eigenvectors_df):
+    return {dn3_iso_name: dn3_eigenvectors_df}
+
+
+@module_fixture
+def dn3_pa_inertias_df_dict(dn3_iso_name, dn3_pa_inertias_df):
+    return {dn3_iso_name: dn3_pa_inertias_df}
+
+
+@module_fixture
+def dn3_pa_coordinates_df_dict(dn3_iso_name, dn3_pa_coordinates_df):
+    return {dn3_iso_name: dn3_pa_coordinates_df}
+
+
+@module_fixture
+def dn3_rot_consts_dict(dn3_iso_name, dn3_rot_consts):
+    return {dn3_iso_name: dn3_rot_consts}
+
+
+@module_fixture
+def dn3_pa_dipole_list(dn3_pa_dipole):
+    return dn3_pa_dipole.flatten().tolist()
+
+
+@module_fixture
+def dn3_pa_dipole_dict(dn3_iso_name, dn3_pa_dipole_list):
+    return {dn3_iso_name: dn3_pa_dipole_list}
+
+
+@module_fixture
+def dn3_COM_coords_dict(dn3_iso_name, dn3_COM_coords):
+    return {dn3_iso_name: dn3_COM_coords}
+
+
+@module_fixture
+def dn3_COM_inertia_dict(dn3_iso_name, dn3_COM_inertia):
+    return {dn3_iso_name: dn3_COM_inertia}
+
+
+@module_fixture
+def dn3_evecs_dict(dn3_iso_name, dn3_evecs):
+    return {dn3_iso_name: dn3_evecs}
+
+
+@module_fixture
+def dn3_pa_inertia_dict(dn3_iso_name, dn3_pa_inertia):
+    return {dn3_iso_name: dn3_pa_inertia}
+
+
+@module_fixture
+def dn3_pa_coords_dict(dn3_iso_name, dn3_pa_coords):
+    return {dn3_iso_name: dn3_pa_coords}
+
+
 # Pyridazine fixtures
 @module_fixture
 def pyridazine_symbols():

@@ -33,6 +33,7 @@ class Test_get_atoms_masses_df:
         "f_atom_masses,f_atom_symbols,f_atom_masses_df",
         [
             ("hn3_atom_masses", "hn3_symbols", "hn3_atom_masses_df"),
+            ("dn3_atom_masses", "dn3_symbols", "dn3_atom_masses_df"),
         ],
     )
     def test_expected_results_one_iso(
@@ -52,6 +53,7 @@ class Test_get_rotational_constants_df:
         "f_iso_name,f_rotational_constants,f_rotational_constants_df",
         [
             ("hn3_iso_name", "hn3_rot_consts", "hn3_rotational_constants_df"),
+            ("dn3_iso_name", "dn3_rot_consts", "dn3_rotational_constants_df"),
         ],
     )
     def test_expected_results_one_iso(
@@ -72,6 +74,7 @@ class Test_get_dipole_components_df:
         "f_iso_name,f_dipoles,f_dipole_components_df",
         [
             ("hn3_iso_name", "hn3_pa_dipole_list", "hn3_dipole_components_df"),
+            ("dn3_iso_name", "dn3_pa_dipole_list", "dn3_dipole_components_df"),
         ],
     )
     def test_expected_results_one_iso(
@@ -102,6 +105,18 @@ class Test_get_atom_indexed_df:
                 "hn3_atom_numbering",
                 "pa_column_labels",
                 "hn3_pa_coordinates_df",
+            ),
+            (
+                "dn3_COM_coords",
+                "dn3_atom_numbering",
+                "com_column_labels",
+                "dn3_com_coordinates_df",
+            ),
+            (
+                "dn3_pa_coords",
+                "dn3_atom_numbering",
+                "pa_column_labels",
+                "dn3_pa_coordinates_df",
             ),
         ],
     )
@@ -145,6 +160,24 @@ class Test_get_axis_indexed_df:
                 "pa_column_labels",
                 "hn3_pa_inertias_df",
             ),
+            (
+                "dn3_COM_inertia",
+                "com_column_labels",
+                "com_axis_labels",
+                "dn3_com_inertias_df",
+            ),
+            (
+                "dn3_evecs",
+                "evec_column_labels",
+                "com_axis_labels",
+                "dn3_eigenvectors_df",
+            ),
+            (
+                "dn3_pa_inertia",
+                "pa_column_labels",
+                "pa_column_labels",
+                "dn3_pa_inertias_df",
+            ),
         ],
     )
     def test_expected_results_one_iso(
@@ -167,15 +200,15 @@ class Test_get_dataframes:
             (
                 "hn3_atom_masses",
                 "hn3_symbols",
-                "hn3_rot_consts_dict",  # should be a dict
-                "hn3_pa_dipole_dict",  # should be a dict
+                "hn3_rot_consts_dict",
+                "hn3_pa_dipole_dict",
                 "hn3_isotopologue_names",
-                "hn3_COM_coords_dict",  # should be a dict
+                "hn3_COM_coords_dict",
                 "hn3_atom_numbering",
-                "hn3_COM_inertia_dict",  # should be a dict
-                "hn3_evecs_dict",  # should be a dict
-                "hn3_pa_inertia_dict",  # should be a dict
-                "hn3_pa_coords_dict",  # should be a dict
+                "hn3_COM_inertia_dict",
+                "hn3_evecs_dict",
+                "hn3_pa_inertia_dict",
+                "hn3_pa_coords_dict",
                 "hn3_atom_masses_df",
                 "hn3_rotational_constants_df",
                 "hn3_dipole_components_df",
@@ -184,6 +217,27 @@ class Test_get_dataframes:
                 "hn3_eigenvectors_df_dict",
                 "hn3_pa_inertias_df_dict",
                 "hn3_pa_coordinates_df_dict",
+            ),
+            (
+                "dn3_atom_masses",
+                "dn3_symbols",
+                "dn3_rot_consts_dict",
+                "dn3_pa_dipole_dict",
+                "dn3_isotopologue_names",
+                "dn3_COM_coords_dict",
+                "dn3_atom_numbering",
+                "dn3_COM_inertia_dict",
+                "dn3_evecs_dict",
+                "dn3_pa_inertia_dict",
+                "dn3_pa_coords_dict",
+                "dn3_atom_masses_df",
+                "dn3_rotational_constants_df",
+                "dn3_dipole_components_df",
+                "dn3_com_coordinates_df_dict",
+                "dn3_com_inertias_df_dict",
+                "dn3_eigenvectors_df_dict",
+                "dn3_pa_inertias_df_dict",
+                "dn3_pa_coordinates_df_dict",
             ),
         ],
     )
