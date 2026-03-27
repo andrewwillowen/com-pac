@@ -162,18 +162,28 @@ def get_dataframes(
         value = dipole_list: np.array[float] of length 3 in order of "A", "B", and "C" axes
     isotopologue_names: list[str]
         List of isotopologue names
-    com_coordinates: np.array[float]
-        Center-Of-Mass coordinates with n_atoms rows for atoms, 3 columns for axes
+    com_coordinates: dict
+        key = isotopologue_name: str
+        value = np.array[float]
+            Center-Of-Mass coordinates with n_atoms rows for atoms, 3 columns for axes
     atom_numbering: list[str]
         List of length n_atoms containing labels of the form "<Symbol><AtomNumber>"
-    com_inertias: np.array[float]
-        Center-of-Mass inertias, 3 columns and 3 rows
-    eigenvectors: np.array[float]
-        3x3 matrix that transforms from the COM coordinates into the Principal Axes coordinates
-    pa_inertias: np.array[float]
-        Principal Axes inertias, 3 columns and 3 rows
-    pa_coordinates: np.array[float]
-        Principal Axes coordinates with n_atoms rows for atoms, 3 columns for axes
+    com_inertias: dict
+        key = isotopologue_name: str
+        value = np.array[float]
+            Center-of-Mass inertias, 3 columns and 3 rows
+    eigenvectors: dict
+        key = isotopologue_name: str
+        value = np.array[float]
+            3x3 matrix that transforms from the COM coordinates into the Principal Axes coordinates
+    pa_inertias: dict
+        key = isotopologue_name: str
+        value = np.array[float]
+            Principal Axes inertias, 3 columns and 3 rows
+    pa_coordinates: dict
+        key = isotopologue_name: str
+        value = np.array[float]
+            Principal Axes coordinates with n_atoms rows for atoms, 3 columns for axes
 
     Returns
     -------

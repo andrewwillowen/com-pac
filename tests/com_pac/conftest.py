@@ -21,6 +21,11 @@ def hn3_mass_numbers():
 
 
 @module_fixture
+def hn3_atom_numbering(hn3_symbols, hn3_mass_numbers):
+    return [f"{sym}{num}" for sym, num in zip(hn3_symbols, hn3_mass_numbers)]
+
+
+@module_fixture
 def hn3_n_atoms():
     return 4
 
@@ -120,6 +125,11 @@ def hn3_pa_dipole():
 
 
 @module_fixture
+def hn3_pa_dipole_list(hn3_pa_dipole):
+    return hn3_pa_dipole.flatten().tolist()
+
+
+@module_fixture
 def hn3_rot_consts():
     return [
         np.float64(43600.86531487504),
@@ -134,17 +144,181 @@ def hn3_iso_name():
 
 
 @module_fixture
-def hn3_atom_masses():
-    return {"hn3": np.array([1.00782503, 14.003074, 14.003074, 14.003074])}
+def hn3_atom_masses(hn3_iso_name, hn3_mol_masses):
+    return {hn3_iso_name: hn3_mol_masses}
 
 
 @module_fixture
-def hn3_atom_masses_df():
+def hn3_atom_masses_df(hn3_iso_name, hn3_mol_masses, hn3_symbols):
     return pd.DataFrame(
-        np.array([[1.00782503], [14.003074], [14.003074], [14.003074], [43.01704704]]),
-        index=pd.Index(["H", "N", "N", "N", "Total"], dtype="object", name="Atom"),
-        columns=pd.Index(["hn3"], dtype="object"),
+        np.array([[mass] for mass in hn3_mol_masses] + [[np.sum(hn3_mol_masses)]]),
+        index=pd.Index(hn3_symbols + ["Total"], dtype="object", name="Atom"),
+        columns=pd.Index([hn3_iso_name], dtype="object"),
     )
+
+
+@module_fixture
+def pa_axis_labels():
+    return ["A", "B", "C"]
+
+
+@module_fixture
+def hn3_rotational_constants_df(hn3_iso_name, hn3_rot_consts, pa_axis_labels):
+    return pd.DataFrame(
+        np.array(hn3_rot_consts).reshape(3, 1),
+        index=pd.Index(pa_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index([hn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def dipole_index_labels():
+    return ["mu_A", "mu_B", "mu_C"]
+
+
+@module_fixture
+def hn3_dipole_components_df(hn3_iso_name, hn3_pa_dipole, dipole_index_labels):
+    return pd.DataFrame(
+        np.array(hn3_pa_dipole).T,
+        index=pd.Index(dipole_index_labels, dtype="object"),
+        columns=pd.Index([hn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
+def com_column_labels():
+    return ["x", "y", "z"]
+
+
+@module_fixture
+def com_axis_labels():
+    return ["x", "y", "z"]
+
+
+@module_fixture
+def pa_column_labels():
+    return ["a", "b", "c"]
+
+
+@module_fixture
+def hn3_com_coordinates_df(
+    hn3_iso_name, hn3_COM_coords, com_column_labels, hn3_atom_numbering
+):
+    return pd.DataFrame(
+        hn3_COM_coords,
+        index=pd.Index(hn3_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def hn3_pa_coordinates_df(
+    hn3_iso_name, hn3_pa_coords, pa_column_labels, hn3_atom_numbering
+):
+    return pd.DataFrame(
+        hn3_pa_coords,
+        index=pd.Index(hn3_atom_numbering, dtype="object", name="Atom"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def hn3_com_inertias_df(
+    hn3_iso_name, hn3_COM_inertia, com_column_labels, com_axis_labels
+):
+    return pd.DataFrame(
+        hn3_COM_inertia,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(com_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def evec_column_labels():
+    return ["1", "2", "3"]
+
+
+@module_fixture
+def hn3_eigenvectors_df(hn3_iso_name, hn3_evecs, com_axis_labels, evec_column_labels):
+    return pd.DataFrame(
+        hn3_evecs,
+        index=pd.Index(com_axis_labels, dtype="object", name="Axis"),
+        columns=pd.Index(evec_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def hn3_pa_inertias_df(hn3_iso_name, hn3_pa_inertia, pa_axis_labels, pa_column_labels):
+    return pd.DataFrame(
+        hn3_pa_inertia,
+        index=pd.Index(pa_column_labels, dtype="object", name="Axis"),
+        columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def hn3_isotopologue_names(hn3_iso_name):
+    return [hn3_iso_name]
+
+
+@module_fixture
+def hn3_com_coordinates_df_dict(hn3_iso_name, hn3_com_coordinates_df):
+    return {hn3_iso_name: hn3_com_coordinates_df}
+
+
+@module_fixture
+def hn3_com_inertias_df_dict(hn3_iso_name, hn3_com_inertias_df):
+    return {hn3_iso_name: hn3_com_inertias_df}
+
+
+@module_fixture
+def hn3_eigenvectors_df_dict(hn3_iso_name, hn3_eigenvectors_df):
+    return {hn3_iso_name: hn3_eigenvectors_df}
+
+
+@module_fixture
+def hn3_pa_inertias_df_dict(hn3_iso_name, hn3_pa_inertias_df):
+    return {hn3_iso_name: hn3_pa_inertias_df}
+
+
+@module_fixture
+def hn3_pa_coordinates_df_dict(hn3_iso_name, hn3_pa_coordinates_df):
+    return {hn3_iso_name: hn3_pa_coordinates_df}
+
+
+@module_fixture
+def hn3_rot_consts_dict(hn3_iso_name, hn3_rot_consts):
+    return {hn3_iso_name: hn3_rot_consts}
+
+
+@module_fixture
+def hn3_pa_dipole_dict(hn3_iso_name, hn3_pa_dipole_list):
+    return {hn3_iso_name: hn3_pa_dipole_list}
+
+
+@module_fixture
+def hn3_COM_coords_dict(hn3_iso_name, hn3_COM_coords):
+    return {hn3_iso_name: hn3_COM_coords}
+
+
+@module_fixture
+def hn3_COM_inertia_dict(hn3_iso_name, hn3_COM_inertia):
+    return {hn3_iso_name: hn3_COM_inertia}
+
+
+@module_fixture
+def hn3_evecs_dict(hn3_iso_name, hn3_evecs):
+    return {hn3_iso_name: hn3_evecs}
+
+
+@module_fixture
+def hn3_pa_inertia_dict(hn3_iso_name, hn3_pa_inertia):
+    return {hn3_iso_name: hn3_pa_inertia}
+
+
+@module_fixture
+def hn3_pa_coords_dict(hn3_iso_name, hn3_pa_coords):
+    return {hn3_iso_name: hn3_pa_coords}
 
 
 # DN3 fixtures
