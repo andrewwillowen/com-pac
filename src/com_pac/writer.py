@@ -28,11 +28,15 @@ def df_text_export(dataframe: pd.DataFrame, n_decimals=6):
     return dataframe.map(do_format).to_string()
 
 
-def _format_isotopologue_entry(iso_name: str, dataframe: pd.DataFrame, decimals: int) -> str:
+def _format_isotopologue_entry(
+    iso_name: str, dataframe: pd.DataFrame, decimals: int
+) -> str:
     return f"{iso_name}\n{df_text_export(dataframe, n_decimals=decimals)}"
 
 
-def _insert_separator_before_marker(text: str, marker: str, separator_char: str = "-") -> str:
+def _insert_separator_before_marker(
+    text: str, marker: str, separator_char: str = "-"
+) -> str:
     width = max(len(line) for line in text.split("\n"))
     return text.replace(marker, f"\n{separator_char * width}\n{marker}")
 
@@ -72,20 +76,26 @@ def _build_atomic_masses_section(atom_masses_df, num_of_decimals):
 
 
 def _build_rotational_constants_section(rotational_constants_df, num_of_decimals):
-    return "\n".join([
-        header_creator("Rotational Constants"),
-        df_text_export(rotational_constants_df, n_decimals=num_of_decimals),
-    ])
+    return "\n".join(
+        [
+            header_creator("Rotational Constants"),
+            df_text_export(rotational_constants_df, n_decimals=num_of_decimals),
+        ]
+    )
 
 
 def _build_dipole_components_section(dipole_components_df, num_of_decimals):
-    return "\n".join([
-        header_creator("Dipole Components"),
-        df_text_export(dipole_components_df, n_decimals=num_of_decimals),
-    ])
+    return "\n".join(
+        [
+            header_creator("Dipole Components"),
+            df_text_export(dipole_components_df, n_decimals=num_of_decimals),
+        ]
+    )
 
 
-def _build_com_coordinates_section(isotopologue_names, com_coordinates_df_dict, atom_symbols, num_of_decimals):
+def _build_com_coordinates_section(
+    isotopologue_names, com_coordinates_df_dict, atom_symbols, num_of_decimals
+):
     iso_com_coordinates_entries = []
     for iso in isotopologue_names:
         iso_com_df = _reindex_df_with_atoms(com_coordinates_df_dict[iso], atom_symbols)
@@ -94,13 +104,17 @@ def _build_com_coordinates_section(isotopologue_names, com_coordinates_df_dict, 
         )
     iso_name_max_width = max([len(i) for i in isotopologue_names])
     iso_delimiter = "\n\n{}\n".format("=" * min([iso_name_max_width, 10]))
-    return "\n".join([
-        header_creator("COM Coordinates"),
-        iso_delimiter.join(iso_com_coordinates_entries),
-    ])
+    return "\n".join(
+        [
+            header_creator("COM Coordinates"),
+            iso_delimiter.join(iso_com_coordinates_entries),
+        ]
+    )
 
 
-def _build_com_inertias_section(isotopologue_names, com_inertias_df_dict, num_of_decimals):
+def _build_com_inertias_section(
+    isotopologue_names, com_inertias_df_dict, num_of_decimals
+):
     iso_com_inertias_entries = []
     for iso in isotopologue_names:
         iso_com_inertias_entries.append(
@@ -108,13 +122,17 @@ def _build_com_inertias_section(isotopologue_names, com_inertias_df_dict, num_of
         )
     iso_name_max_width = max([len(i) for i in isotopologue_names])
     iso_delimiter = "\n\n{}\n".format("=" * min([iso_name_max_width, 10]))
-    return "\n".join([
-        header_creator("COM Inertia Matrix"),
-        iso_delimiter.join(iso_com_inertias_entries),
-    ])
+    return "\n".join(
+        [
+            header_creator("COM Inertia Matrix"),
+            iso_delimiter.join(iso_com_inertias_entries),
+        ]
+    )
 
 
-def _build_eigens_section(isotopologue_names, eigenvectors_df_dict, eigenvalues, num_of_decimals):
+def _build_eigens_section(
+    isotopologue_names, eigenvectors_df_dict, eigenvalues, num_of_decimals
+):
     iso_eigens_entries = []
     for iso in isotopologue_names:
         iso_eigen_vec = df_text_export(
@@ -127,13 +145,17 @@ def _build_eigens_section(isotopologue_names, eigenvectors_df_dict, eigenvalues,
         iso_eigens_entries.append(iso_eigen)
     iso_name_max_width = max([len(i) for i in isotopologue_names])
     iso_delimiter = "\n\n{}\n".format("=" * min([iso_name_max_width, 10]))
-    return "\n".join([
-        header_creator("Eigenvectors & Eigenvalues"),
-        iso_delimiter.join(iso_eigens_entries),
-    ])
+    return "\n".join(
+        [
+            header_creator("Eigenvectors & Eigenvalues"),
+            iso_delimiter.join(iso_eigens_entries),
+        ]
+    )
 
 
-def _build_pa_inertias_section(isotopologue_names, pa_inertias_df_dict, num_of_decimals):
+def _build_pa_inertias_section(
+    isotopologue_names, pa_inertias_df_dict, num_of_decimals
+):
     iso_pa_inertias_entries = []
     for iso in isotopologue_names:
         iso_pa_inertias_entries.append(
@@ -141,14 +163,23 @@ def _build_pa_inertias_section(isotopologue_names, pa_inertias_df_dict, num_of_d
         )
     iso_name_max_width = max([len(i) for i in isotopologue_names])
     iso_delimiter = "\n\n{}\n".format("=" * min([iso_name_max_width, 10]))
-    return "\n".join([
-        header_creator("Principal Axes Inertia Matrix"),
-        "(All entries should be diagonal)\n",
-        iso_delimiter.join(iso_pa_inertias_entries),
-    ])
+    return "\n".join(
+        [
+            header_creator("Principal Axes Inertia Matrix"),
+            "(All entries should be diagonal)\n",
+            iso_delimiter.join(iso_pa_inertias_entries),
+        ]
+    )
 
 
-def _build_results_section(isotopologue_names, pa_coordinates_df_dict, dipole_components_df, rotational_constants_df, atom_symbols, num_of_decimals):
+def _build_results_section(
+    isotopologue_names,
+    pa_coordinates_df_dict,
+    dipole_components_df,
+    rotational_constants_df,
+    atom_symbols,
+    num_of_decimals,
+):
     iso_results_entries = []
     for iso in isotopologue_names:
         iso_pa_df = _reindex_df_with_atoms(pa_coordinates_df_dict[iso], atom_symbols)
@@ -159,11 +190,13 @@ def _build_results_section(isotopologue_names, pa_coordinates_df_dict, dipole_co
         iso_results_entries.append(iso_result)
     iso_name_max_width = max([len(i) for i in isotopologue_names])
     iso_delimiter = "\n\n{}\n".format("=" * min([iso_name_max_width, 10]))
-    return "\n".join([
-        header_creator("Principal Axes Coordinates"),
-        "(Includes dipole moments and rotational constants, for easy reference.)\n",
-        iso_delimiter.join(iso_results_entries),
-    ])
+    return "\n".join(
+        [
+            header_creator("Principal Axes Coordinates"),
+            "(Includes dipole moments and rotational constants, for easy reference.)\n",
+            iso_delimiter.join(iso_results_entries),
+        ]
+    )
 
 
 def generate_output_file(
@@ -192,13 +225,28 @@ def generate_output_file(
         _build_preamble_section(num_of_decimals, csv_output_name),
         _build_input_section(input_file),
         _build_atomic_masses_section(atom_masses_df, num_of_decimals),
-        _build_com_coordinates_section(isotopologue_names, com_coordinates_df_dict, atom_symbols, num_of_decimals),
-        _build_com_inertias_section(isotopologue_names, com_inertias_df_dict, num_of_decimals),
-        _build_eigens_section(isotopologue_names, eigenvectors_df_dict, eigenvalues, num_of_decimals),
-        _build_pa_inertias_section(isotopologue_names, pa_inertias_df_dict, num_of_decimals),
+        _build_com_coordinates_section(
+            isotopologue_names, com_coordinates_df_dict, atom_symbols, num_of_decimals
+        ),
+        _build_com_inertias_section(
+            isotopologue_names, com_inertias_df_dict, num_of_decimals
+        ),
+        _build_eigens_section(
+            isotopologue_names, eigenvectors_df_dict, eigenvalues, num_of_decimals
+        ),
+        _build_pa_inertias_section(
+            isotopologue_names, pa_inertias_df_dict, num_of_decimals
+        ),
         _build_rotational_constants_section(rotational_constants_df, num_of_decimals),
         _build_dipole_components_section(dipole_components_df, num_of_decimals),
-        _build_results_section(isotopologue_names, pa_coordinates_df_dict, dipole_components_df, rotational_constants_df, atom_symbols, num_of_decimals),
+        _build_results_section(
+            isotopologue_names,
+            pa_coordinates_df_dict,
+            dipole_components_df,
+            rotational_constants_df,
+            atom_symbols,
+            num_of_decimals,
+        ),
     ]
 
     sections_delimiter = "\n\n"
