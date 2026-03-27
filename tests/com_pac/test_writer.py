@@ -15,6 +15,7 @@ from com_pac.writer import (
     _build_atomic_masses_section,
     _build_rotational_constants_section,
     _build_dipole_components_section,
+    _build_com_values_section,
     _build_com_coordinates_section,
     _build_com_inertias_section,
     _build_eigens_section,
@@ -115,6 +116,28 @@ class Test_build_atomic_masses_section:
 
         numbers = _parse_float_values(result)
         expected = atom_masses_df.to_numpy().flatten()
+        assert np.allclose(numbers, expected, rtol=1e-6, atol=1e-8)
+
+
+class Test_build_com_values_section:
+    @pytest.mark.parametrize(
+        "f_com_values_df",
+        [
+            "hn3_dn3_com_values_df",
+            "pyridazine_pheavy_com_values_df",
+        ],
+        ids=["hn3_dn3", "pyridazine_pheavy"],
+    )
+    def test_section_output(self, f_com_values_df, request):
+        """Validate COM values section labels and values together."""
+        com_values_df = request.getfixturevalue(f_com_values_df)
+        result = _build_com_values_section(com_values_df, 6)
+
+        assert "COM Values" in result
+        assert "x" in result and "y" in result and "z" in result
+
+        numbers = _parse_float_values(result)
+        expected = com_values_df.to_numpy().flatten()
         assert np.allclose(numbers, expected, rtol=1e-6, atol=1e-8)
 
 
@@ -502,6 +525,7 @@ class Test_generate_output_file:
         pa_coordinates_df_dict = request.getfixturevalue(
             f"{pair_name}_pa_coordinates_df_dict"
         )
+        com_values_df = request.getfixturevalue(f"{pair_name}_com_values_df")
 
         # Get atom symbols based on pair name
         if pair_name == "hn3_dn3":
@@ -536,6 +560,7 @@ class Test_generate_output_file:
                 eigenvalues=eigenvalues,
                 pa_inertias_df_dict=pa_inertias_df_dict,
                 pa_coordinates_df_dict=pa_coordinates_df_dict,
+                com_values_df=com_values_df,
                 text_output_path=tmp_path,
             )
 
@@ -598,6 +623,7 @@ class Test_writer_section_golden_outputs:
         pa_coordinates_df_dict = request.getfixturevalue(
             f"{pair_name}_pa_coordinates_df_dict"
         )
+        com_values_df = request.getfixturevalue(f"{pair_name}_com_values_df")
 
         if pair_name == "hn3_dn3":
             atom_symbols = ["H", "N", "N", "N"]
@@ -617,6 +643,10 @@ class Test_writer_section_golden_outputs:
         assert (
             _build_atomic_masses_section(atom_masses_df, 6)
             == expected_sections["atomic_masses"]
+        )
+        assert (
+            _build_com_values_section(com_values_df, 6)
+            == expected_sections["com_values"]
         )
         assert (
             _build_com_coordinates_section(

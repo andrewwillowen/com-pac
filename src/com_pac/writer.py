@@ -93,6 +93,15 @@ def _build_dipole_components_section(dipole_components_df, num_of_decimals):
     )
 
 
+def _build_com_values_section(com_values_df, num_of_decimals):
+    return "\n".join(
+        [
+            header_creator("COM Values"),
+            df_text_export(com_values_df, n_decimals=num_of_decimals),
+        ]
+    )
+
+
 def _build_com_coordinates_section(
     isotopologue_names, com_coordinates_df_dict, atom_symbols, num_of_decimals
 ):
@@ -214,6 +223,7 @@ def generate_output_file(
     eigenvalues,
     pa_inertias_df_dict,
     pa_coordinates_df_dict,
+    com_values_df,
     text_output_path,
 ):
     # TEXT OUTPUT
@@ -225,6 +235,7 @@ def generate_output_file(
         _build_preamble_section(num_of_decimals, csv_output_name),
         _build_input_section(input_file),
         _build_atomic_masses_section(atom_masses_df, num_of_decimals),
+        _build_com_values_section(com_values_df, num_of_decimals),
         _build_com_coordinates_section(
             isotopologue_names, com_coordinates_df_dict, atom_symbols, num_of_decimals
         ),

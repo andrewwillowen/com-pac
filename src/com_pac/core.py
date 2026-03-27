@@ -134,6 +134,7 @@ def main():
         eigenvectors_df_dict,
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
+        com_values_df,
     ) = get_dataframes(
         atom_masses,
         atom_symbols,
@@ -146,6 +147,7 @@ def main():
         eigenvectors,
         pa_inertias,
         pa_coordinates,
+        COM_values,
     )
 
     # ==================== #
@@ -178,6 +180,7 @@ def main():
         eigenvalues,
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
+        com_values_df,
         text_output_path,
     )
 

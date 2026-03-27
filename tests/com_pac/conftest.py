@@ -259,6 +259,20 @@ def hn3_pa_inertias_df(hn3_iso_name, hn3_pa_inertia, pa_axis_labels, pa_column_l
 
 
 @module_fixture
+def hn3_COM_values_dict(hn3_iso_name, hn3_COM_value):
+    return {hn3_iso_name: hn3_COM_value}
+
+
+@module_fixture
+def hn3_com_values_df(hn3_iso_name, hn3_COM_value):
+    return pd.DataFrame(
+        hn3_COM_value.reshape(3, 1),
+        index=pd.Index(["x", "y", "z"], dtype="object"),
+        columns=pd.Index([hn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
 def hn3_isotopologue_names(hn3_iso_name):
     return [hn3_iso_name]
 
@@ -536,6 +550,20 @@ def dn3_pa_inertias_df(dn3_iso_name, dn3_pa_inertia, pa_axis_labels, pa_column_l
 
 
 @module_fixture
+def dn3_COM_values_dict(dn3_iso_name, dn3_COM_value):
+    return {dn3_iso_name: dn3_COM_value}
+
+
+@module_fixture
+def dn3_com_values_df(dn3_iso_name, dn3_COM_value):
+    return pd.DataFrame(
+        dn3_COM_value.reshape(3, 1),
+        index=pd.Index(["x", "y", "z"], dtype="object"),
+        columns=pd.Index([dn3_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
 def dn3_isotopologue_names(dn3_iso_name):
     return [dn3_iso_name]
 
@@ -695,6 +723,16 @@ def hn3_dn3_pa_coordinates_df_dict(
     hn3_pa_coordinates_df_dict, dn3_pa_coordinates_df_dict
 ):
     return {**hn3_pa_coordinates_df_dict, **dn3_pa_coordinates_df_dict}
+
+
+@module_fixture
+def hn3_dn3_COM_values_dict(hn3_COM_values_dict, dn3_COM_values_dict):
+    return {**hn3_COM_values_dict, **dn3_COM_values_dict}
+
+
+@module_fixture
+def hn3_dn3_com_values_df(hn3_com_values_df, dn3_com_values_df):
+    return pd.concat([hn3_com_values_df, dn3_com_values_df], axis=1)
 
 
 # Pyridazine fixtures
@@ -963,6 +1001,20 @@ def pyridazine_pa_inertias_df(
         pyridazine_pa_inertia,
         index=pd.Index(pa_column_labels, dtype="object", name="Axis"),
         columns=pd.Index(pa_column_labels, dtype="object"),
+    )
+
+
+@module_fixture
+def pyridazine_COM_values_dict(pyridazine_iso_name, pyridazine_COM_value):
+    return {pyridazine_iso_name: pyridazine_COM_value}
+
+
+@module_fixture
+def pyridazine_com_values_df(pyridazine_iso_name, pyridazine_COM_value):
+    return pd.DataFrame(
+        pyridazine_COM_value.reshape(3, 1),
+        index=pd.Index(["x", "y", "z"], dtype="object"),
+        columns=pd.Index([pyridazine_iso_name], dtype="object"),
     )
 
 
@@ -1299,6 +1351,20 @@ def pheavy_pa_inertias_df(
 
 
 @module_fixture
+def pheavy_COM_values_dict(pheavy_iso_name, pheavy_COM_value):
+    return {pheavy_iso_name: pheavy_COM_value}
+
+
+@module_fixture
+def pheavy_com_values_df(pheavy_iso_name, pheavy_COM_value):
+    return pd.DataFrame(
+        pheavy_COM_value.reshape(3, 1),
+        index=pd.Index(["x", "y", "z"], dtype="object"),
+        columns=pd.Index([pheavy_iso_name], dtype="object"),
+    )
+
+
+@module_fixture
 def pheavy_isotopologue_names(pheavy_iso_name):
     return [pheavy_iso_name]
 
@@ -1482,6 +1548,18 @@ def pyridazine_pheavy_pa_coordinates_df_dict(
     return {**pyridazine_pa_coordinates_df_dict, **pheavy_pa_coordinates_df_dict}
 
 
+@module_fixture
+def pyridazine_pheavy_COM_values_dict(
+    pyridazine_COM_values_dict, pheavy_COM_values_dict
+):
+    return {**pyridazine_COM_values_dict, **pheavy_COM_values_dict}
+
+
+@module_fixture
+def pyridazine_pheavy_com_values_df(pyridazine_com_values_df, pheavy_com_values_df):
+    return pd.concat([pyridazine_com_values_df, pheavy_com_values_df], axis=1)
+
+
 # Expected output fixtures for writer tests
 @module_fixture
 def expected_text_output():
@@ -1516,6 +1594,7 @@ def _writer_sections_from_full_output(full_output):
     title_to_key = {
         "Raw Input": "input",
         "Atomic Masses": "atomic_masses",
+        "COM Values": "com_values",
         "COM Coordinates": "com_coordinates",
         "COM Inertia Matrix": "com_inertias",
         "Eigenvectors & Eigenvalues": "eigens",
