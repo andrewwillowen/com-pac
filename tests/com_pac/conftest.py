@@ -446,8 +446,8 @@ def dn3_iso_name():
 
 
 @module_fixture
-def dn3_atom_numbering(dn3_symbols, dn3_mass_numbers):
-    return [f"{sym}{num}" for sym, num in zip(dn3_symbols, dn3_mass_numbers)]
+def dn3_atom_numbering(hn3_atom_numbering):
+    return hn3_atom_numbering
 
 
 @module_fixture
@@ -601,6 +601,98 @@ def dn3_pa_inertia_dict(dn3_iso_name, dn3_pa_inertia):
 @module_fixture
 def dn3_pa_coords_dict(dn3_iso_name, dn3_pa_coords):
     return {dn3_iso_name: dn3_pa_coords}
+
+
+# Consolidated HN3 and DN3 fixtures
+@module_fixture
+def hn3_dn3_isotopologue_names(hn3_isotopologue_names, dn3_isotopologue_names):
+    return hn3_isotopologue_names + dn3_isotopologue_names
+
+
+@module_fixture
+def hn3_dn3_atom_masses(hn3_atom_masses, dn3_atom_masses):
+    return {**hn3_atom_masses, **dn3_atom_masses}
+
+
+@module_fixture
+def hn3_dn3_rot_consts_dict(hn3_rot_consts_dict, dn3_rot_consts_dict):
+    return {**hn3_rot_consts_dict, **dn3_rot_consts_dict}
+
+
+@module_fixture
+def hn3_dn3_pa_dipole_dict(hn3_pa_dipole_dict, dn3_pa_dipole_dict):
+    return {**hn3_pa_dipole_dict, **dn3_pa_dipole_dict}
+
+
+@module_fixture
+def hn3_dn3_COM_coords_dict(hn3_COM_coords_dict, dn3_COM_coords_dict):
+    return {**hn3_COM_coords_dict, **dn3_COM_coords_dict}
+
+
+@module_fixture
+def hn3_dn3_COM_inertia_dict(hn3_COM_inertia_dict, dn3_COM_inertia_dict):
+    return {**hn3_COM_inertia_dict, **dn3_COM_inertia_dict}
+
+
+@module_fixture
+def hn3_dn3_evecs_dict(hn3_evecs_dict, dn3_evecs_dict):
+    return {**hn3_evecs_dict, **dn3_evecs_dict}
+
+
+@module_fixture
+def hn3_dn3_pa_inertia_dict(hn3_pa_inertia_dict, dn3_pa_inertia_dict):
+    return {**hn3_pa_inertia_dict, **dn3_pa_inertia_dict}
+
+
+@module_fixture
+def hn3_dn3_pa_coords_dict(hn3_pa_coords_dict, dn3_pa_coords_dict):
+    return {**hn3_pa_coords_dict, **dn3_pa_coords_dict}
+
+
+@module_fixture
+def hn3_dn3_atom_masses_df(hn3_atom_masses_df, dn3_atom_masses_df):
+    return pd.concat([hn3_atom_masses_df, dn3_atom_masses_df], axis=1)
+
+
+@module_fixture
+def hn3_dn3_rotational_constants_df(
+    hn3_rotational_constants_df, dn3_rotational_constants_df
+):
+    return pd.concat([hn3_rotational_constants_df, dn3_rotational_constants_df], axis=1)
+
+
+@module_fixture
+def hn3_dn3_dipole_components_df(hn3_dipole_components_df, dn3_dipole_components_df):
+    return pd.concat([hn3_dipole_components_df, dn3_dipole_components_df], axis=1)
+
+
+@module_fixture
+def hn3_dn3_com_coordinates_df_dict(
+    hn3_com_coordinates_df_dict, dn3_com_coordinates_df_dict
+):
+    return {**hn3_com_coordinates_df_dict, **dn3_com_coordinates_df_dict}
+
+
+@module_fixture
+def hn3_dn3_com_inertias_df_dict(hn3_com_inertias_df_dict, dn3_com_inertias_df_dict):
+    return {**hn3_com_inertias_df_dict, **dn3_com_inertias_df_dict}
+
+
+@module_fixture
+def hn3_dn3_eigenvectors_df_dict(hn3_eigenvectors_df_dict, dn3_eigenvectors_df_dict):
+    return {**hn3_eigenvectors_df_dict, **dn3_eigenvectors_df_dict}
+
+
+@module_fixture
+def hn3_dn3_pa_inertias_df_dict(hn3_pa_inertias_df_dict, dn3_pa_inertias_df_dict):
+    return {**hn3_pa_inertias_df_dict, **dn3_pa_inertias_df_dict}
+
+
+@module_fixture
+def hn3_dn3_pa_coordinates_df_dict(
+    hn3_pa_coordinates_df_dict, dn3_pa_coordinates_df_dict
+):
+    return {**hn3_pa_coordinates_df_dict, **dn3_pa_coordinates_df_dict}
 
 
 # Pyridazine fixtures
