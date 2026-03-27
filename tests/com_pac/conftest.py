@@ -5,6 +5,8 @@ Sharing fixtures across module tests.
 import pytest
 import numpy as np
 import pandas as pd
+from pathlib import Path
+import re
 
 module_fixture = pytest.fixture(scope="module")
 
@@ -1478,3 +1480,90 @@ def pyridazine_pheavy_pa_coordinates_df_dict(
     pyridazine_pa_coordinates_df_dict, pheavy_pa_coordinates_df_dict
 ):
     return {**pyridazine_pa_coordinates_df_dict, **pheavy_pa_coordinates_df_dict}
+
+
+# Expected output fixtures for writer tests
+@module_fixture
+def expected_text_output():
+    """Expected text output from generate_output_file"""
+    with open("docs/example/com-pac/test_pac.out", "r") as f:
+        return f.read()
+
+
+@module_fixture
+def expected_csv_output():
+    """Expected CSV output from generate_csv_output"""
+    with open("docs/example/com-pac/test_pac.csv", "r") as f:
+        return f.read()
+
+
+@module_fixture
+def test_input_file():
+    """Test input file content"""
+    with open("docs/example/com-pac/test.txt", "r") as f:
+        return f.read()
+
+
+def _read_writer_golden_text(pair_name, filename):
+    golden_root = Path(__file__).resolve().parent.parent / "golden" / "writer"
+    return (golden_root / pair_name / filename).read_text(encoding="utf-8")
+
+
+def _writer_sections_from_full_output(full_output):
+    # Section fixtures are parsed from the canonical full output to keep one
+    # golden source of truth per pair and avoid per-section fixture drift.
+    header_pattern = re.compile(r"(?m)^# [=]+ #\n#  (?P<title>.+?)  #\n# [=]+ #\n")
+    title_to_key = {
+        "Raw Input": "input",
+        "Atomic Masses": "atomic_masses",
+        "COM Coordinates": "com_coordinates",
+        "COM Inertia Matrix": "com_inertias",
+        "Eigenvectors & Eigenvalues": "eigens",
+        "Principal Axes Inertia Matrix": "pa_inertias",
+        "Rotational Constants": "rotational_constants",
+        "Dipole Components": "dipole_components",
+        "Principal Axes Coordinates": "results",
+    }
+
+    matches = list(header_pattern.finditer(full_output))
+    if not matches:
+        raise ValueError("No writer section headers found in golden output")
+
+    parsed = {"preamble": full_output[: matches[0].start()].rstrip("\n")}
+    for idx, match in enumerate(matches):
+        section_title = match.group("title")
+        section_key = title_to_key.get(section_title)
+        if section_key is None:
+            raise KeyError(
+                f"Unexpected writer section title in golden output: {section_title}"
+            )
+
+        start = match.start()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(full_output)
+        parsed[section_key] = full_output[start:end].rstrip("\n")
+
+    return parsed
+
+
+@module_fixture
+def hn3_dn3_writer_sections_expected():
+    return _writer_sections_from_full_output(
+        _read_writer_golden_text("hn3_dn3", "full_output.out")
+    )
+
+
+@module_fixture
+def pyridazine_pheavy_writer_sections_expected():
+    return _writer_sections_from_full_output(
+        _read_writer_golden_text("pyridazine_pheavy", "full_output.out")
+    )
+
+
+@module_fixture
+def hn3_dn3_generate_output_expected():
+    return _read_writer_golden_text("hn3_dn3", "full_output.out")
+
+
+@module_fixture
+def pyridazine_pheavy_generate_output_expected():
+    return _read_writer_golden_text("pyridazine_pheavy", "full_output.out")
