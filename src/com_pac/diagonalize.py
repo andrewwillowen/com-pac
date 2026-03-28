@@ -9,36 +9,62 @@ from mendeleev import element
 import numpy as np
 
 
-# TODO: rename function "inertia_matrix" to "get_inertia_matrix"
-def inertia_matrix(coordinates_array, masses_array):
-    # TODO: properly vectorize this function; add checks for bad scenarios.
-    matrix = np.zeros((3, 3))
-    for axis1 in [0, 1, 2]:
-        [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
-        diagonal = sum(
-            [
-                (
-                    masses_array[i]
-                    * (
-                        (coordinates_array[i][axis2]) ** 2
-                        + (coordinates_array[i][axis3]) ** 2
-                    )
-                )
-                for i in range(len(masses_array))
-            ]
-        )
-        off_diagonal = (-1) * sum(
-            [
-                masses_array[i]
-                * coordinates_array[i][axis2]
-                * coordinates_array[i][axis3]
-                for i in range(len(masses_array))
-            ]
-        )
-        matrix[axis1, axis1] = diagonal
-        matrix[axis2, axis3] = off_diagonal
-        matrix[axis3, axis2] = off_diagonal
-    return matrix
+def get_inertia_matrix(coordinates_array, masses_array):
+    """Calculate the inertia matrix
+
+    Parameters
+    ----------
+    coordinates_array : array-like
+        Array of shape (n_atoms, 3) containing the Cartesian coordinates of the atoms.
+    masses_array : array-like
+        Array of shape (n_atoms,) containing the masses of the atoms.
+
+    Returns
+    -------
+    np.ndarray
+        Inertia matrix of shape (3, 3).
+
+    Notes
+    -----
+     This implementation uses the identity
+
+     ``I = (sum_i m_i r_i^2) * 1 - sum_i m_i r_i r_i^T``
+
+     where ``r_i = [x_i, y_i, z_i]`` is the Cartesian coordinate vector for atom ``i``.
+
+     The calculation proceeds in vectorized form:
+
+     1. Square each coordinate component element-wise:
+         ``coordinates_squared = coordinates**2``
+
+     2. Compute ``r_i^2 = x_i^2 + y_i^2 + z_i^2`` for each atom:
+         ``r2 = np.sum(coordinates_squared, axis=1)``
+
+     3. Mass-weight these values:
+         ``mr2 = masses * r2``
+
+     4. Sum over atoms to obtain the common diagonal trace term:
+         ``mr2_sum = np.sum(mr2)``
+
+     5. Build ``(sum_i m_i r_i^2) * 1``:
+         ``mr2_trace = np.eye(3) * mr2_sum``
+
+     6. Compute ``sum_i m_i r_i r_i^T`` using broadcasting and matrix multiplication:
+         ``weighted_transpose_broadcast = (coordinates * masses[:, np.newaxis]).T @ coordinates``
+
+     The final inertia matrix is then
+
+     ``inertia_matrix = mr2_trace - weighted_transpose_broadcast``
+
+     which yields the correct diagonal and off-diagonal terms in one expression.
+    """
+    coordinates = np.asarray(coordinates_array)
+    masses = np.asarray(masses_array)
+
+    # The math in the docstring can be condensed into these lines:
+    mr2_trace = np.eye(3) * np.sum(masses * np.sum(coordinates**2, axis=1))
+    weighted_transpose_broadcast = (coordinates * masses[:, np.newaxis]).T @ coordinates
+    return mr2_trace - weighted_transpose_broadcast
 
 
 def inertia_to_rot_const(inertia):
@@ -113,7 +139,11 @@ def get_eigens(matrix):
     """
     This implementation was "state of the art" at the time of initial writing, ca. 2022.
     """
-    # TODO: Update to latest (?) implementation for numpy >=2.2
+    # TODO: Update with more robust implementation to ensure axis orientation consistency.
+    #       That is, the right hand vector of any 3 non-colinear points  should be
+    #       the same before **and** after the rotation.
+    #       (Current hypothesis is that arbitrary sorting of evecs with the same
+    #        eval is responsible for mirror inversion.)
     evals, evecs = np.linalg.eig(matrix)
     sort_key = evals.argsort()[::1]
     evals = evals[sort_key]
@@ -122,11 +152,6 @@ def get_eigens(matrix):
 
 
 def rotate_coordinates(coordinates, rotation):
-    # TODO: Make sure "rotation" does not do a mirror inversion!
-    #       That is, the right hand vector of any 3 non-colinear points  should be
-    #       the same before **and** after the rotation.
-    #       (Current hypothesis is that arbitrary sorting of evecs with the same
-    #        eval is responsible for mirror inversion.)
     rotated_coordinates = np.dot(coordinates, rotation)
     return rotated_coordinates
 
@@ -139,13 +164,13 @@ def get_isotopologue_principal_axes(
     # Shift into Center of Mass coordinate system
     com_coordinate, COM = get_COM_coordinates(mol_masses, mol_coordinates)
     # Calculate inertia matrix in COM system
-    com_inertia = inertia_matrix(com_coordinate, mol_masses)
+    com_inertia = get_inertia_matrix(com_coordinate, mol_masses)
     # Diagonalize said matrix
     evals, evecs = get_eigens(com_inertia)
     # Use resulting eigenvectors to rotate COM system into Principal Axes system
     pa_coordinate = rotate_coordinates(com_coordinate, evecs)
     # Calculate inertia matrix in PA system, to later check if actually diagonalized
-    pa_inertia = inertia_matrix(pa_coordinate, mol_masses)
+    pa_inertia = get_inertia_matrix(pa_coordinate, mol_masses)
 
     return (
         mol_masses,
