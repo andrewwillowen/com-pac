@@ -61,6 +61,27 @@ def get_rotational_constants_df(rotational_constants):
     return rotational_constants_df
 
 
+def get_COM_values_df(COM_values):
+    """Convert COM values dictionary to DataFrame
+
+    Parameters
+    ----------
+    COM_values: dict
+        key = isotopologue_name: str
+        value = com_value: np.array[float] of length 3 in order of "x", "y", "z" axes
+
+    Returns
+    -------
+    com_values_df: pd.DataFrame
+        RowLabel = Axis
+        ColumnLabel = IsotopologueName
+        Values = COMValue
+    """
+    com_values_df = pd.DataFrame.from_dict(COM_values)
+    com_values_df.index = ["x", "y", "z"]
+    return com_values_df
+
+
 def get_dipole_components_df(dipoles):
     """Convert dipole dictionary to DataFrame
 
@@ -144,6 +165,7 @@ def get_dataframes(
     eigenvectors,
     pa_inertias,
     pa_coordinates,
+    COM_values,
 ):
     """Composite function to obtain dataframes for computed data
 
@@ -184,6 +206,10 @@ def get_dataframes(
         key = isotopologue_name: str
         value = np.array[float]
             Principal Axes coordinates with n_atoms rows for atoms, 3 columns for axes
+    COM_values: dict
+        key = isotopologue_name: str
+        value = np.array[float] of length 3
+            Center-of-Mass position in the original coordinate system
 
     Returns
     -------
@@ -230,6 +256,10 @@ def get_dataframes(
             RowLabel = Atom
             ColumnLabel = PrincipalAxis
             Values = PrincipalAxesCoordinateValue
+    com_values_df: pd.DataFrame
+        RowLabel = Axis
+        ColumnLabel = IsotopologueName
+        Values = COMValue
     """
     # Atomic masses
     atom_masses_df = get_atom_masses_df(atom_masses, atom_symbols)
@@ -239,6 +269,9 @@ def get_dataframes(
 
     # Dipole moments
     dipole_components_df = get_dipole_components_df(pa_dipoles)
+
+    # COM values
+    com_values_df = get_COM_values_df(COM_values)
 
     com_coordinates_df_dict = {}
     com_inertias_df_dict = {}
@@ -287,4 +320,5 @@ def get_dataframes(
         eigenvectors_df_dict,
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
+        com_values_df,
     )

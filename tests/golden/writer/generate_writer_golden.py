@@ -174,6 +174,16 @@ def build_hn3_dn3_data():
         {fx.dn3_iso_name.__wrapped__(): dn3_pa_df},
     )
 
+    hn3_com_values_df = fx.hn3_com_values_df.__wrapped__(
+        fx.hn3_iso_name.__wrapped__(), fx.hn3_COM_value.__wrapped__()
+    )
+    dn3_com_values_df = fx.dn3_com_values_df.__wrapped__(
+        fx.dn3_iso_name.__wrapped__(), fx.dn3_COM_value.__wrapped__()
+    )
+    data["com_values_df"] = fx.hn3_dn3_com_values_df.__wrapped__(
+        hn3_com_values_df, dn3_com_values_df
+    )
+
     return data
 
 
@@ -332,6 +342,15 @@ def build_pyridazine_pheavy_data():
             {fx.pyridazine_iso_name.__wrapped__(): pyr_pa_df},
             {fx.pheavy_iso_name.__wrapped__(): pheavy_pa_df},
         ),
+        "com_values_df": fx.pyridazine_pheavy_com_values_df.__wrapped__(
+            fx.pyridazine_com_values_df.__wrapped__(
+                fx.pyridazine_iso_name.__wrapped__(),
+                fx.pyridazine_COM_value.__wrapped__(),
+            ),
+            fx.pheavy_com_values_df.__wrapped__(
+                fx.pheavy_iso_name.__wrapped__(), fx.pheavy_COM_value.__wrapped__()
+            ),
+        ),
     }
 
 
@@ -373,6 +392,7 @@ def emit_pair(pair_name: str, data: dict) -> None:
         eigenvalues=data["eigenvalues"],
         pa_inertias_df_dict=data["pa_inertias_df_dict"],
         pa_coordinates_df_dict=data["pa_coordinates_df_dict"],
+        com_values_df=data["com_values_df"],
         text_output_path=str(output_path),
     )
 
