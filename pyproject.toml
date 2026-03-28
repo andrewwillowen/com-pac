@@ -57,6 +57,12 @@ Homepage = "https://andrewwillowen.github.io/com-pac/"
 Issues = "https://github.com/andrewwillowen/com-pac/issues"
 Source = "https://github.com/andrewwillowen/com-pac"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: end-to-end CLI regression tests",
+]
+
 [tool.hatch.version]
 path = "src/com_pac/__about__.py"
 
@@ -105,7 +111,7 @@ omit = [
 
 [tool.coverage.paths]
 com_pac = ["src/com_pac", "*/com-pac/src/com_pac"]
-tests = ["tests", "tests/com_pac"]
+tests = ["tests", "tests/com_pac", "tests/e2e"]
 
 [tool.coverage.report]
 exclude_lines = [
