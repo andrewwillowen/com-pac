@@ -123,6 +123,29 @@ def _extract_csv_numeric_values(section_lines):
     return np.array(values, dtype=np.float64)
 
 
+class Test_header_creator:
+    def test_expected_output(self):
+        """Test header_creator produces expected header format"""
+        result = header_creator("Test Section")
+        expected = """# ============== #
+#  Test Section  #
+# ============== #"""
+        assert result == expected
+
+    def test_bad_input(self):
+        """Test header_creator raises TypeError on bad input"""
+
+        class NoStrMethod:
+            def __str__(self):
+                raise Exception("Cannot convert to string")
+
+        with pytest.raises(TypeError) as exc:
+            header_creator(NoStrMethod())
+        assert exc.type is TypeError and "Bad input passed to header_creator" in str(
+            exc.value
+        )
+
+
 class Test_build_preamble_section:
     def test_expected_output(self, expected_text_output):
         """Test preamble section matches expected"""
