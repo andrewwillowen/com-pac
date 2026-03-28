@@ -139,7 +139,11 @@ def get_eigens(matrix):
     """
     This implementation was "state of the art" at the time of initial writing, ca. 2022.
     """
-    # TODO: Update to latest (?) implementation for numpy >=2.2
+    # TODO: Update with more robust implementation to ensure axis orientation consistency.
+    #       That is, the right hand vector of any 3 non-colinear points  should be
+    #       the same before **and** after the rotation.
+    #       (Current hypothesis is that arbitrary sorting of evecs with the same
+    #        eval is responsible for mirror inversion.)
     evals, evecs = np.linalg.eig(matrix)
     sort_key = evals.argsort()[::1]
     evals = evals[sort_key]
@@ -148,11 +152,6 @@ def get_eigens(matrix):
 
 
 def rotate_coordinates(coordinates, rotation):
-    # TODO: Make sure "rotation" does not do a mirror inversion!
-    #       That is, the right hand vector of any 3 non-colinear points  should be
-    #       the same before **and** after the rotation.
-    #       (Current hypothesis is that arbitrary sorting of evecs with the same
-    #        eval is responsible for mirror inversion.)
     rotated_coordinates = np.dot(coordinates, rotation)
     return rotated_coordinates
 
