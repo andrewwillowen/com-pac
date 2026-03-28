@@ -10,7 +10,7 @@ from mendeleev.mendeleev import element
 import pytest
 import numpy as np
 from com_pac.diagonalize import (
-    inertia_matrix,
+    get_inertia_matrix,
     inertia_to_rot_const,
     get_mol_masses,
     get_isotopes_dict,
@@ -1009,7 +1009,7 @@ class Test_inertia_matrix:
         coordinates = request.getfixturevalue(f_coordinates)
         masses = request.getfixturevalue(f_masses)
         inertias = request.getfixturevalue(f_inertias)
-        value = inertia_matrix(coordinates, masses)
+        value = get_inertia_matrix(coordinates, masses)
         np.testing.assert_allclose(value, inertias)
 
     # TODO: add test for diagonal symmetry

@@ -9,8 +9,7 @@ from mendeleev import element
 import numpy as np
 
 
-# TODO: rename function "inertia_matrix" to "get_inertia_matrix"
-def inertia_matrix(coordinates_array, masses_array):
+def get_inertia_matrix(coordinates_array, masses_array):
     # TODO: properly vectorize this function; add checks for bad scenarios.
     matrix = np.zeros((3, 3))
     for axis1 in [0, 1, 2]:
@@ -139,13 +138,13 @@ def get_isotopologue_principal_axes(
     # Shift into Center of Mass coordinate system
     com_coordinate, COM = get_COM_coordinates(mol_masses, mol_coordinates)
     # Calculate inertia matrix in COM system
-    com_inertia = inertia_matrix(com_coordinate, mol_masses)
+    com_inertia = get_inertia_matrix(com_coordinate, mol_masses)
     # Diagonalize said matrix
     evals, evecs = get_eigens(com_inertia)
     # Use resulting eigenvectors to rotate COM system into Principal Axes system
     pa_coordinate = rotate_coordinates(com_coordinate, evecs)
     # Calculate inertia matrix in PA system, to later check if actually diagonalized
-    pa_inertia = inertia_matrix(pa_coordinate, mol_masses)
+    pa_inertia = get_inertia_matrix(pa_coordinate, mol_masses)
 
     return (
         mol_masses,
