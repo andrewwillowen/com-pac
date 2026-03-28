@@ -10,34 +10,61 @@ import numpy as np
 
 
 def get_inertia_matrix(coordinates_array, masses_array):
-    # TODO: properly vectorize this function; add checks for bad scenarios.
-    matrix = np.zeros((3, 3))
-    for axis1 in [0, 1, 2]:
-        [axis2, axis3] = [x for x in [0, 1, 2] if x != axis1]
-        diagonal = sum(
-            [
-                (
-                    masses_array[i]
-                    * (
-                        (coordinates_array[i][axis2]) ** 2
-                        + (coordinates_array[i][axis3]) ** 2
-                    )
-                )
-                for i in range(len(masses_array))
-            ]
-        )
-        off_diagonal = (-1) * sum(
-            [
-                masses_array[i]
-                * coordinates_array[i][axis2]
-                * coordinates_array[i][axis3]
-                for i in range(len(masses_array))
-            ]
-        )
-        matrix[axis1, axis1] = diagonal
-        matrix[axis2, axis3] = off_diagonal
-        matrix[axis3, axis2] = off_diagonal
-    return matrix
+    """Calculate the inertia matrix
+
+    Parameters
+    ----------
+    coordinates_array : array-like
+        Array of shape (n_atoms, 3) containing the Cartesian coordinates of the atoms.
+    masses_array : array-like
+        Array of shape (n_atoms,) containing the masses of the atoms.
+
+    Returns
+    -------
+    np.ndarray
+        Inertia matrix of shape (3, 3).
+
+    Notes
+    -----
+     This implementation uses the identity
+
+     ``I = (sum_i m_i r_i^2) * 1 - sum_i m_i r_i r_i^T``
+
+     where ``r_i = [x_i, y_i, z_i]`` is the Cartesian coordinate vector for atom ``i``.
+
+     The calculation proceeds in vectorized form:
+
+     1. Square each coordinate component element-wise:
+         ``coordinates_squared = coordinates**2``
+
+     2. Compute ``r_i^2 = x_i^2 + y_i^2 + z_i^2`` for each atom:
+         ``r2 = np.sum(coordinates_squared, axis=1)``
+
+     3. Mass-weight these values:
+         ``mr2 = masses * r2``
+
+     4. Sum over atoms to obtain the common diagonal trace term:
+         ``mr2_sum = np.sum(mr2)``
+
+     5. Build ``(sum_i m_i r_i^2) * 1``:
+         ``mr2_trace = np.eye(3) * mr2_sum``
+
+     6. Compute ``sum_i m_i r_i r_i^T`` using broadcasting and matrix multiplication:
+         ``weighted_transpose_broadcast = (coordinates * masses[:, np.newaxis]).T @ coordinates``
+
+     The final inertia matrix is then
+
+     ``inertia_matrix = mr2_trace - weighted_transpose_broadcast``
+
+     which yields the correct diagonal and off-diagonal terms in one expression.
+    """
+    coordinates = np.asarray(coordinates_array)
+    masses = np.asarray(masses_array)
+
+    # The math in the docstring can be condensed into these lines:
+    mr2_trace = np.eye(3) * np.sum(masses * np.sum(coordinates**2, axis=1))
+    weighted_transpose_broadcast = (coordinates * masses[:, np.newaxis]).T @ coordinates
+    return mr2_trace - weighted_transpose_broadcast
 
 
 def inertia_to_rot_const(inertia):
