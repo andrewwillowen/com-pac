@@ -1646,3 +1646,71 @@ def hn3_dn3_generate_output_expected():
 @module_fixture
 def pyridazine_pheavy_generate_output_expected():
     return _read_writer_golden_text("pyridazine_pheavy", "full_output.out")
+
+
+@module_fixture
+def hn3_dn3_generate_csv_expected(
+    hn3_dn3_pa_coordinates_df_dict,
+    hn3_dn3_rotational_constants_df,
+    hn3_dn3_dipole_components_df,
+    hn3_dn3_atom_masses_df,
+):
+    """Generate expected CSV output for hn3_dn3 pair"""
+    import tempfile
+    from com_pac.writer import generate_csv_output
+
+    with tempfile.NamedTemporaryFile(
+        mode="w+", delete=False, suffix=".csv"
+    ) as tmp_file:
+        tmp_path = tmp_file.name
+
+    try:
+        generate_csv_output(
+            pa_coordinates_df_dict=hn3_dn3_pa_coordinates_df_dict,
+            rotational_constants_df=hn3_dn3_rotational_constants_df,
+            dipole_components_df=hn3_dn3_dipole_components_df,
+            atom_masses_df=hn3_dn3_atom_masses_df,
+            csv_output_path=tmp_path,
+        )
+
+        with open(tmp_path, "r") as f:
+            return f.read()
+    finally:
+        import os
+
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+
+@module_fixture
+def pyridazine_pheavy_generate_csv_expected(
+    pyridazine_pheavy_pa_coordinates_df_dict,
+    pyridazine_pheavy_rotational_constants_df,
+    pyridazine_pheavy_dipole_components_df,
+    pyridazine_pheavy_atom_masses_df,
+):
+    """Generate expected CSV output for pyridazine_pheavy pair"""
+    import tempfile
+    from com_pac.writer import generate_csv_output
+
+    with tempfile.NamedTemporaryFile(
+        mode="w+", delete=False, suffix=".csv"
+    ) as tmp_file:
+        tmp_path = tmp_file.name
+
+    try:
+        generate_csv_output(
+            pa_coordinates_df_dict=pyridazine_pheavy_pa_coordinates_df_dict,
+            rotational_constants_df=pyridazine_pheavy_rotational_constants_df,
+            dipole_components_df=pyridazine_pheavy_dipole_components_df,
+            atom_masses_df=pyridazine_pheavy_atom_masses_df,
+            csv_output_path=tmp_path,
+        )
+
+        with open(tmp_path, "r") as f:
+            return f.read()
+    finally:
+        import os
+
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)

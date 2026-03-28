@@ -80,6 +80,49 @@ def _parse_eigenvalues_per_iso(section_text, isotopologue_names):
     return parsed
 
 
+def _parse_csv_section(csv_text, section_name):
+    """Extract a section from CSV output and return as lines."""
+    lines = csv_text.strip().split("\n")
+    section_lines = []
+    in_section = False
+
+    for i, line in enumerate(lines):
+        if line.strip() == section_name:
+            in_section = True
+            continue
+        elif in_section:
+            # Empty line signals end of section
+            if line.strip() == "":
+                break
+            section_lines.append(line)
+
+    return section_lines
+
+
+def _extract_csv_numeric_values(section_lines):
+    """Extract numeric values from CSV section lines (excluding headers)."""
+    import csv
+    import io
+
+    if len(section_lines) < 2:
+        return np.array([], dtype=np.float64)
+
+    # Parse CSV
+    csv_reader = csv.reader(io.StringIO("\n".join(section_lines)))
+    rows = list(csv_reader)
+
+    # Extract numeric values, skipping header row and first column (row labels)
+    values = []
+    for row in rows[1:]:  # Skip header
+        for cell in row[1:]:  # Skip first column (labels)
+            try:
+                values.append(float(cell))
+            except ValueError:
+                pass
+
+    return np.array(values, dtype=np.float64)
+
+
 class Test_build_preamble_section:
     def test_expected_output(self, expected_text_output):
         """Test preamble section matches expected"""
@@ -690,15 +733,32 @@ class Test_writer_section_golden_outputs:
 
 
 class Test_generate_csv_output:
+    @pytest.mark.parametrize(
+        "pair_name,expected_csv_fixture",
+        [
+            ("hn3_dn3", "hn3_dn3_generate_csv_expected"),
+            ("pyridazine_pheavy", "pyridazine_pheavy_generate_csv_expected"),
+        ],
+    )
     def test_csv_output_matches_expected(
         self,
-        expected_csv_output,
-        hn3_dn3_pa_coordinates_df_dict,
-        hn3_dn3_rotational_constants_df,
-        hn3_dn3_dipole_components_df,
-        hn3_dn3_atom_masses_df,
+        pair_name,
+        expected_csv_fixture,
+        request,
     ):
-        """Test generate_csv_output produces expected CSV"""
+        """Test generate_csv_output produces expected CSV for both pairs"""
+        # Get fixtures based on pair name
+        pa_coordinates_df_dict = request.getfixturevalue(
+            f"{pair_name}_pa_coordinates_df_dict"
+        )
+        rotational_constants_df = request.getfixturevalue(
+            f"{pair_name}_rotational_constants_df"
+        )
+        dipole_components_df = request.getfixturevalue(
+            f"{pair_name}_dipole_components_df"
+        )
+        atom_masses_df = request.getfixturevalue(f"{pair_name}_atom_masses_df")
+
         with tempfile.NamedTemporaryFile(
             mode="w+", delete=False, suffix=".csv"
         ) as tmp_file:
@@ -706,21 +766,143 @@ class Test_generate_csv_output:
 
         try:
             generate_csv_output(
-                pa_coordinates_df_dict=hn3_dn3_pa_coordinates_df_dict,
-                rotational_constants_df=hn3_dn3_rotational_constants_df,
-                dipole_components_df=hn3_dn3_dipole_components_df,
-                atom_masses_df=hn3_dn3_atom_masses_df,
+                pa_coordinates_df_dict=pa_coordinates_df_dict,
+                rotational_constants_df=rotational_constants_df,
+                dipole_components_df=dipole_components_df,
+                atom_masses_df=atom_masses_df,
                 csv_output_path=tmp_path,
             )
 
             with open(tmp_path, "r") as f:
                 generated_csv = f.read()
 
-            # Check that key sections are present
+            expected_csv = request.getfixturevalue(expected_csv_fixture)
+
+            assert generated_csv == expected_csv
+
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+
+    @pytest.mark.parametrize(
+        "pair_name",
+        [
+            "hn3_dn3",
+            "pyridazine_pheavy",
+        ],
+    )
+    def test_csv_structure_and_sections(
+        self,
+        pair_name,
+        request,
+    ):
+        """Validate CSV structure contains all expected sections and labels"""
+        # Get fixtures
+        pa_coordinates_df_dict = request.getfixturevalue(
+            f"{pair_name}_pa_coordinates_df_dict"
+        )
+        rotational_constants_df = request.getfixturevalue(
+            f"{pair_name}_rotational_constants_df"
+        )
+        dipole_components_df = request.getfixturevalue(
+            f"{pair_name}_dipole_components_df"
+        )
+        atom_masses_df = request.getfixturevalue(f"{pair_name}_atom_masses_df")
+
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".csv"
+        ) as tmp_file:
+            tmp_path = tmp_file.name
+
+        try:
+            generate_csv_output(
+                pa_coordinates_df_dict=pa_coordinates_df_dict,
+                rotational_constants_df=rotational_constants_df,
+                dipole_components_df=dipole_components_df,
+                atom_masses_df=atom_masses_df,
+                csv_output_path=tmp_path,
+            )
+
+            with open(tmp_path, "r") as f:
+                generated_csv = f.read()
+
+            # Check that all key sections are present
             assert "Rotational Constants" in generated_csv
             assert "Dipole Components" in generated_csv
             assert "Principal Axes Coordinates" in generated_csv
             assert "Atomic Masses" in generated_csv
+
+            # Verify sections appear in expected order
+            rot_idx = generated_csv.find("Rotational Constants")
+            dip_idx = generated_csv.find("Dipole Components")
+            coord_idx = generated_csv.find("Principal Axes Coordinates")
+            mass_idx = generated_csv.find("Atomic Masses")
+
+            assert rot_idx < dip_idx < coord_idx < mass_idx
+
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+
+    @pytest.mark.parametrize(
+        "pair_name",
+        [
+            "hn3_dn3",
+            "pyridazine_pheavy",
+        ],
+    )
+    def test_csv_numeric_values(
+        self,
+        pair_name,
+        request,
+    ):
+        """Validate numeric values in CSV output match source data"""
+        # Get fixtures
+        pa_coordinates_df_dict = request.getfixturevalue(
+            f"{pair_name}_pa_coordinates_df_dict"
+        )
+        rotational_constants_df = request.getfixturevalue(
+            f"{pair_name}_rotational_constants_df"
+        )
+        dipole_components_df = request.getfixturevalue(
+            f"{pair_name}_dipole_components_df"
+        )
+        atom_masses_df = request.getfixturevalue(f"{pair_name}_atom_masses_df")
+
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".csv"
+        ) as tmp_file:
+            tmp_path = tmp_file.name
+
+        try:
+            generate_csv_output(
+                pa_coordinates_df_dict=pa_coordinates_df_dict,
+                rotational_constants_df=rotational_constants_df,
+                dipole_components_df=dipole_components_df,
+                atom_masses_df=atom_masses_df,
+                csv_output_path=tmp_path,
+            )
+
+            with open(tmp_path, "r") as f:
+                generated_csv = f.read()
+
+            # Extract and validate rotational constants
+            rot_lines = _parse_csv_section(generated_csv, "Rotational Constants")
+            rot_values = _extract_csv_numeric_values(rot_lines)
+            expected_rot_values = rotational_constants_df.to_numpy().flatten()
+            assert np.allclose(rot_values, expected_rot_values, rtol=1e-6, atol=1e-8)
+
+            # Extract and validate dipole components
+            dip_lines = _parse_csv_section(generated_csv, "Dipole Components")
+            dip_values = _extract_csv_numeric_values(dip_lines)
+            expected_dip_values = dipole_components_df.to_numpy().flatten()
+            assert np.allclose(dip_values, expected_dip_values, rtol=1e-6, atol=1e-8)
+
+            # Extract and validate atomic masses
+            mass_lines = _parse_csv_section(generated_csv, "Atomic Masses")
+            mass_values = _extract_csv_numeric_values(mass_lines)
+            expected_mass_values = atom_masses_df.to_numpy().flatten()
+            assert np.allclose(mass_values, expected_mass_values, rtol=1e-6, atol=1e-8)
 
         finally:
             if os.path.exists(tmp_path):
