@@ -9,6 +9,7 @@ from mendeleev.mendeleev import element
 
 import pytest
 import numpy as np
+import com_pac.diagonalize as diagonalize
 from com_pac.diagonalize import (
     get_inertia_matrix,
     inertia_to_rot_const,
@@ -1188,6 +1189,58 @@ class Test_get_isotopes_mass:
         assert exc.type is ValueError and (
             "Isotopic mass not found for AF with mass number 123." in str(exc.value)
         )
+
+
+class Test_get_isotopes_mass_cache:
+    @pytest.fixture(autouse=True)
+    def clear_cache(self):
+        diagonalize.clear_isotope_mass_cache()
+        yield
+        diagonalize.clear_isotope_mass_cache()
+
+    def test_repeated_lookup_hits_cache(self, monkeypatch):
+        calls = []
+
+        class _MockIsotope:
+            def __init__(self, mass):
+                self.mass = mass
+
+        def mock_isotope(symbol, mass_number):
+            calls.append((symbol, mass_number))
+            return _MockIsotope(1.2345)
+
+        monkeypatch.setattr(diagonalize, "isotope", mock_isotope)
+
+        result1 = get_isotopes_mass("H", 1)
+        result2 = get_isotopes_mass("H", 1)
+
+        assert np.allclose(result1, 1.2345)
+        assert np.allclose(result2, 1.2345)
+        assert calls == [("H", 1)]
+
+    def test_distinct_keys_each_lookup_once(self, monkeypatch):
+        calls = []
+        mass_map = {
+            ("H", 1): 1.0,
+            ("H", 2): 2.0,
+        }
+
+        class _MockIsotope:
+            def __init__(self, mass):
+                self.mass = mass
+
+        def mock_isotope(symbol, mass_number):
+            calls.append((symbol, mass_number))
+            return _MockIsotope(mass_map[(symbol, mass_number)])
+
+        monkeypatch.setattr(diagonalize, "isotope", mock_isotope)
+
+        assert np.allclose(get_isotopes_mass("H", 1), 1.0)
+        assert np.allclose(get_isotopes_mass("H", 2), 2.0)
+        assert np.allclose(get_isotopes_mass("H", 1), 1.0)
+
+        assert calls.count(("H", 1)) == 1
+        assert calls.count(("H", 2)) == 1
 
 
 @pytest.fixture
