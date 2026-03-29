@@ -28,6 +28,27 @@
 7. A release is created with a new tag set to the version commit.
 8. The release is published on GitHub.
 
+## Updating the release notes
+
+After publishing a release on GitHub, update the docs release notes page:
+
+1. Copy the appropriate template from `docs/releases/` to a new file named `docs/releases/vX.Y.Z.md`:
+    - `patch-template.md` for a patch release (e.g. `v0.0.8`)
+    - `minor-template.md` for a minor release (e.g. `v0.1.0`)
+    - `major-template.md` for a major release (e.g. `v1.0.0`)
+
+2. Fill in the new file: replace the placeholder date, populate the change sections, and update the **Full Changelog** compare URL.
+
+3. Open `docs/releases/index.md` and add a new section for the release immediately after the page introduction:
+
+    ```markdown
+    ## vX.Y.Z
+
+    --8<-- "docs/releases/vX.Y.Z.md:3"
+
+    ---
+    ```
+
 ## Publishing a release
 
 !!! warning
