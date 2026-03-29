@@ -23,6 +23,7 @@ from com_pac.parser import (
     get_isotopologue_section,
     get_isotopologue_info,
     parse_input_isotopologue_section,
+    check_for_duplicate_sections,
     parse_input_file,
 )
 
@@ -176,9 +177,12 @@ class Test_get_coordinate_matches:
         result = get_coordinate_matches(multiple_atoms_input)
         assert result == multiple_atoms_matched
 
-    def test_multiple_coords(self, multiple_coords, multiple_coords_matched):
-        result = get_coordinate_matches(multiple_coords)
-        assert result == multiple_coords_matched
+    def test_multiple_coords(self, multiple_coords):
+        with pytest.raises(ValueError) as exc:
+            get_coordinate_matches(multiple_coords)
+        assert (exc.type is ValueError) and (
+            "Input file contains multiple coordinates sections." in str(exc.value)
+        )
 
     def test_no_coordinates(self):
         atom1 = atom_line("H", 0.0, 0.0, 0.0)
@@ -377,14 +381,10 @@ class Test_parse_input_coordinate_section:
         )
 
     def test_multiple_coords_input(self, multiple_coords):
-        result = parse_input_coordinate_section(multiple_coords)
-        assert all(
-            (
-                result[0] == 2,
-                result[1] == ["H", "H"],
-                np.allclose(result[2], np.array([[0.0, 0.0, 0.0], [1.0, -1.0, 0.0]])),
-                result[3] == ["H1", "H2"],
-            )
+        with pytest.raises(ValueError) as exc:
+            parse_input_coordinate_section(multiple_coords)
+        assert (exc.type is ValueError) and (
+            "Input file contains multiple coordinates sections." in str(exc.value)
         )
 
     def test_example_A(self, example_A_input_coordinates, example_A_parsed_coordinates):
@@ -477,9 +477,12 @@ def multiple_dipoles_matched():
 
 @pytest.mark.dependency(name="dipole_matches", depends=["simple_dipole_match"])
 class Test_get_dipole_matches:
-    def test_mutiple_dipoles(self, multiple_dipoles, multiple_dipoles_matched):
-        result = get_dipole_matches(multiple_dipoles)
-        assert result == multiple_dipoles_matched
+    def test_mutiple_dipoles(self, multiple_dipoles):
+        with pytest.raises(ValueError) as exc:
+            get_dipole_matches(multiple_dipoles)
+        assert (exc.type is ValueError) and (
+            "Input file contains multiple dipole sections." in str(exc.value)
+        )
 
     def test_no_dipole(self):
         input_text = f"BadDipole\n0.1 0.2 0.3\n\nOther stuff"
@@ -618,8 +621,11 @@ class Test_parse_input_dipole_section:
         assert np.allclose(result, np.array([0.1, 0.2, 0.3]))
 
     def test_multiple_dipoles_input(self, multiple_dipoles):
-        result = parse_input_dipole_section(multiple_dipoles)
-        assert np.allclose(result, np.array([0.1, 0.2, 0.3]))
+        with pytest.raises(ValueError) as exc:
+            parse_input_dipole_section(multiple_dipoles)
+        assert (exc.type is ValueError) and (
+            "Input file contains multiple dipole sections." in str(exc.value)
+        )
 
     def test_example_A(self, example_A_input_dipole, example_A_parsed_dipole):
         input_text = f"A comment\n{example_A_input_dipole}\n\nOther stuff"
@@ -749,9 +755,12 @@ class Test_get_isotopologue_matches:
         result = get_isotopologue_matches(multiple_isos_input)
         assert result == multiple_isos_matched
 
-    def test_duplicate_input(self, duplicate_isos_input, duplicate_isos_matched):
-        result = get_isotopologue_matches(duplicate_isos_input)
-        assert result == duplicate_isos_matched
+    def test_duplicate_input(self, duplicate_isos_input):
+        with pytest.raises(ValueError) as exc:
+            get_isotopologue_matches(duplicate_isos_input)
+        assert (exc.type is ValueError) and (
+            "Input file contains multiple isotopologues sections." in str(exc.value)
+        )
 
     def test_no_header(self):
         input_text = """
@@ -914,9 +923,12 @@ class Test_parse_input_isotopologue_section:
         result = parse_input_isotopologue_section(multiple_isos_input, 3)
         assert result == multiple_isos_info
 
-    def test_duplicate_isos_input(self, duplicate_isos_input, multiple_isos_info):
-        result = parse_input_isotopologue_section(duplicate_isos_input, 3)
-        assert result == multiple_isos_info
+    def test_duplicate_isos_input(self, duplicate_isos_input):
+        with pytest.raises(ValueError) as exc:
+            parse_input_isotopologue_section(duplicate_isos_input, 3)
+        assert (exc.type is ValueError) and (
+            "Input file contains multiple isotopologues sections." in str(exc.value)
+        )
 
     def test_example_A(
         self, example_A_input_isotopologues, example_A_parsed_isotopologues
@@ -1238,3 +1250,104 @@ class Test_parse_input_file:
         assert (exc.type is ValueError) and (
             "There was an error reading in the atomic coordinates" in str(exc.value)
         )
+
+    def test_duplicate_coordinates(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Duplicate coord file\n\n{coord}\n\n{dip}\n\n{iso}\n\n{coord}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "duplicate sections" in str(exc.value)
+        ) and ("coordinates" in str(exc.value))
+
+    def test_duplicate_dipole(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Duplicate dipole file\n\n{coord}\n\n{dip}\n\n{iso}\n\n{dip}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "duplicate sections" in str(exc.value)
+        ) and ("dipole" in str(exc.value))
+
+    def test_duplicate_isotopologues(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Duplicate iso file\n\n{coord}\n\n{dip}\n\n{iso}\n\n{iso}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            parse_input_file(input_text)
+        assert (exc.type is ValueError) and (
+            "duplicate sections" in str(exc.value)
+        ) and ("isotopologues" in str(exc.value))
+
+    def test_all_sections_duplicated(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = (
+            f"All duplicated\n\n{coord}\n\n{dip}\n\n{iso}\n\n"
+            f"{coord}\n\n{dip}\n\n{iso}\n\nOther stuff"
+        )
+        with pytest.raises(ValueError) as exc:
+            parse_input_file(input_text)
+        error_msg = str(exc.value)
+        assert (exc.type is ValueError) and (
+            "duplicate sections" in error_msg
+        ) and all(s in error_msg for s in ["coordinates", "dipole", "isotopologues"])
+
+
+class Test_check_for_duplicate_sections:
+    def test_no_duplicates(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Valid input\n\n{coord}\n\n{dip}\n\n{iso}\n\nOther stuff"
+        # Should not raise
+        check_for_duplicate_sections(input_text)
+
+    def test_duplicate_coordinates(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Dup coord\n\n{coord}\n\n{dip}\n\n{iso}\n\n{coord}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            check_for_duplicate_sections(input_text)
+        assert (exc.type is ValueError) and (
+            "coordinates" in str(exc.value)
+        ) and ("duplicate sections" in str(exc.value))
+
+    def test_duplicate_dipole(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Dup dipole\n\n{coord}\n\n{dip}\n\n{iso}\n\n{dip}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            check_for_duplicate_sections(input_text)
+        assert (exc.type is ValueError) and (
+            "dipole" in str(exc.value)
+        ) and ("duplicate sections" in str(exc.value))
+
+    def test_duplicate_isotopologues(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = f"Dup iso\n\n{coord}\n\n{dip}\n\n{iso}\n\n{iso}\n\nOther stuff"
+        with pytest.raises(ValueError) as exc:
+            check_for_duplicate_sections(input_text)
+        assert (exc.type is ValueError) and (
+            "isotopologues" in str(exc.value)
+        ) and ("duplicate sections" in str(exc.value))
+
+    def test_all_sections_duplicated(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = (
+            f"All dup\n\n{coord}\n\n{dip}\n\n{iso}\n\n"
+            f"{coord}\n\n{dip}\n\n{iso}\n\nOther stuff"
+        )
+        with pytest.raises(ValueError) as exc:
+            check_for_duplicate_sections(input_text)
+        error_msg = str(exc.value)
+        assert (exc.type is ValueError) and all(
+            s in error_msg for s in ["coordinates", "dipole", "isotopologues"]
+        )
+
+    def test_reports_all_duplicates_not_just_first(self, example_A_inputs):
+        coord, dip, iso = example_A_inputs
+        input_text = (
+            f"Two dups\n\n{coord}\n\n{dip}\n\n{iso}\n\n"
+            f"{coord}\n\n{dip}\n\nOther stuff"
+        )
+        with pytest.raises(ValueError) as exc:
+            check_for_duplicate_sections(input_text)
+        error_msg = str(exc.value)
+        assert (exc.type is ValueError) and (
+            "coordinates" in error_msg
+        ) and ("dipole" in error_msg)

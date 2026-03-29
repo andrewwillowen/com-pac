@@ -70,12 +70,17 @@ def isotopologue_error_message(*args):
 
 
 def get_coordinate_matches(input_file):
-    # TODO: Check to make sure there aren't multiple coordinate sections
-    #       in the input file.
+    coordinate_splits = re.split(
+        "(?m)^coordinates", input_file, flags=re.IGNORECASE
+    )
+    if len(coordinate_splits) > 2:
+        raise ValueError(
+            coordinates_error_message(
+                "Input file contains multiple coordinates sections."
+            )
+        )
     try:
-        coordinate_matches = re.split(
-            "(?m)^coordinates", input_file, flags=re.IGNORECASE
-        )[1]
+        coordinate_matches = coordinate_splits[1]
     except (Exception,):
         raise ValueError(
             coordinates_error_message(
@@ -131,10 +136,15 @@ def parse_input_coordinate_section(input_file):
 
 
 def get_dipole_matches(input_file):
-    # TODO: Check to make sure there aren't multiple dipole sections
-    #       in the input file.
+    dipole_splits = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)
+    if len(dipole_splits) > 2:
+        raise ValueError(
+            dipole_error_message(
+                "Input file contains multiple dipole sections."
+            )
+        )
     try:
-        dipole_matches = re.split("(?m)^dipole", input_file, flags=re.IGNORECASE)[1]
+        dipole_matches = dipole_splits[1]
     except (Exception,):
         raise ValueError(
             dipole_error_message(
@@ -180,10 +190,17 @@ def parse_input_dipole_section(input_file):
 
 
 def get_isotopologue_matches(input_file):
+    isotopologue_splits = re.split(
+        "(?m)^isotopologues", input_file, flags=re.IGNORECASE
+    )
+    if len(isotopologue_splits) > 2:
+        raise ValueError(
+            isotopologue_error_message(
+                "Input file contains multiple isotopologues sections."
+            )
+        )
     try:
-        isotopologue_matches = re.split(
-            "isotopologues", input_file, flags=re.IGNORECASE
-        )[1]
+        isotopologue_matches = isotopologue_splits[1]
     except (Exception,):
         raise ValueError(
             isotopologue_error_message(
@@ -243,6 +260,26 @@ def parse_input_isotopologue_section(input_file, n_atoms):
     return get_isotopologue_info(isotopologue_section, n_atoms)
 
 
+def check_for_duplicate_sections(input_file):
+    """Check all section headers for duplicates and raise a ValueError listing all duplicates."""
+    section_patterns = [
+        ("coordinates", "(?m)^coordinates"),
+        ("dipole", "(?m)^dipole"),
+        ("isotopologues", "(?m)^isotopologues"),
+    ]
+
+    duplicate_sections = []
+    for section_name, pattern in section_patterns:
+        if len(re.split(pattern, input_file, flags=re.IGNORECASE)) > 2:
+            duplicate_sections.append(section_name)
+
+    if duplicate_sections:
+        raise ValueError(
+            f"Input file contains duplicate sections: {duplicate_sections}. "
+            "Each section type (coordinates, dipole, isotopologues) must appear exactly once."
+        )
+
+
 def check_mass_numbers_are_valid(isotopologue_dict, atom_symbols):
     # TODO: Add check that mass number provided in isotopologue section is
     #       indeed a valid mass number for the corresponding atom in the
@@ -252,6 +289,8 @@ def check_mass_numbers_are_valid(isotopologue_dict, atom_symbols):
 
 
 def parse_input_file(input_file):
+    check_for_duplicate_sections(input_file)
+
     n_atoms, atom_symbols, mol_coordinates, atom_numbering = (
         parse_input_coordinate_section(input_file)
     )
