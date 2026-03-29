@@ -8,79 +8,113 @@ from com_pac.dataframes import get_dataframes
 from com_pac.diagonalize import get_principal_axes
 from com_pac.parser import parse_input_file
 
-from sys import argv
+import argparse
 from pathlib import Path
 
+from com_pac.__about__ import __version__
 
-def read_args(num_of_decimals):
+
+def _non_negative_int(value: str) -> int:
+    """Validate and convert a string to a non-negative integer for argparse."""
+    try:
+        ivalue = int(value)
+    except (TypeError, ValueError):
+        raise argparse.ArgumentTypeError(f"'{value}' is not a valid integer")
+    if ivalue < 0:
+        raise argparse.ArgumentTypeError(f"'{value}' is not a non-negative integer")
+    return ivalue
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Build and return the argument parser for com-pac."""
+    parser = argparse.ArgumentParser(
+        prog="com-pac",
+        description=(
+            "Uses the information provided in the input file to determine the principal axes "
+            "systems and corresponding rotational constants & dipole moments for each "
+            "isotopologue provided. The output file summarizes the intermediate and final "
+            "results to assist in replication, if necessary, while the .csv file contains "
+            "only the rotational constants, dipole moments, and principal axes coordinates "
+            "of each isotopologue."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""\
+The input file has the following format:
+    Coordinates
+    C 0.0 0.0 0.0
+    O 1.2 0.0 0.0
+    H -0.63 0.63 0
+    H -0.63 -0.63 0
+
+    Dipole
+    1.6 0.0 0.0
+
+    Isotopologues
+    12 16 1 1 name1
+    12 16 2 1 name2
+    12 16 2 2 name3
+
+The headings are required to be at the start of the corresponding section (but
+are case insensitive), but otherwise comments can be placed on any other line,
+or at the end of any line in the file. Names for the isotopologues must be provided,
+and the order of the mass numbers provided must match the order of the atoms
+listed in the Coordinates section.
+
+To use an experimental dipole value, first use this tool to obtain the principal axes
+Cartesian coordinates for the corresponding isotopologue. That guarantees that the
+axes are in A, B, C ordering and you can simply set the dipole values to the
+experimental mu_A, mu_B, mu_C.\
+""",
+    )
+
+    parser.add_argument(
+        "input_file",
+        type=Path,
+        help="Path to the pac input file.",
+    )
+    parser.add_argument(
+        "--decimals",
+        type=_non_negative_int,
+        default=6,
+        metavar="N",
+        dest="num_of_decimals",
+        help="Number of decimal places in the output (default: 6). Must be a non-negative integer.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        dest="output_dir",
+        help="Directory to write output files to (default: same directory as input file).",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+
+    return parser
+
+
+def _set_output_dir(output_dir: Path) -> None:
+    """Set a custom output directory for generated files."""
+    raise NotImplementedError("Custom output directory is not yet supported.")
+
+
+def read_args() -> tuple[Path, int]:
+    """Parse command-line arguments using argparse.
+
+    Returns a tuple of (input_file_path, num_of_decimals).
     """
-    Manually parsing arguments...
-    """
-    # TODO: replace with argparse
-
-    # reading arguments from shell
-    if len(argv) < 2:
-        print(
-            """
-        Usage:
-            principal_axes_calculator pac-input-file.txt num_of_decimals
-
-        Uses the information provided in the input file to determine the principal axes systems
-        and corresponding rotational constants & dipole moments for each isotopologue provided.
-        The output file summarizes the intermediate and final results to assist in replication,
-        if necessary, while the .csv file contains only the rotational constants, dipole moments,
-        and principal axes coordinates of each isotopologue.
-
-        The input file has the following format:
-            Coordinates
-            C 0.0 0.0 0.0
-            O 1.2 0.0 0.0
-            H -0.63 0.63 0
-            H -0.63 -0.63 0
-
-            Dipole
-            1.6 0.0 0.0
-
-            Isotopologues
-            12 16 1 1 name1
-            12 16 2 1 name2
-            12 16 2 2 name3
-
-        The headings are required to be at the start of the corresponding section (but
-        are case insensitive), but otherwise comments can be placed on any other line,
-        or at the end of any line in the file. Names for the isotopologues must be provided,
-        and the order of the mass numbers provided must match the order of the atoms
-        listed in the Coordinates section.
-
-        By default, the numbers in the output _pac.out will be reported to 6 decimal places.
-        This can be changed by providing replacing `num_of_decimals` in the usage line above
-        with a positive integer.
-        
-        To use an experimental dipole value, first use this tool to obtain the principal axes 
-        Cartesian coordinates for the corresponding isotopologue. That guarantees that the
-        axes are in A, B, C ordering and you can simply set the dipole values to the 
-        experimental mu_A, mu_B, mu_C.  
-        """
-        )
-        quit()
-    else:
-        input_file_path = Path(argv[1])
-        if len(argv) >= 3:
-            raw_num_of_decimals = argv[2]
-            try:
-                num_of_decimals = int(raw_num_of_decimals)
-                if not (num_of_decimals >= 0):
-                    raise ValueError
-            except (Exception,):
-                print("Make sure that num_of_decimals is a positive integer.")
-            if len(argv) > 3:
-                print("The following arguments will be ignored: {}".format(argv[3:]))
-
-        return input_file_path, num_of_decimals
+    parser = build_parser()
+    args = parser.parse_args()
+    if args.output_dir is not None:
+        _set_output_dir(args.output_dir)
+    return args.input_file, args.num_of_decimals
 
 
 def main():
-    input_file_path, num_of_decimals = read_args(6)
+    input_file_path, num_of_decimals = read_args()
 
     # ================================ #
     #  reading contents of input file  #
