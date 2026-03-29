@@ -65,6 +65,7 @@ nav = [
      "develop/index.md",
      {"Development Cycle" = "develop/cycle.md"},
     ]},
+  { "Releases" = "releases/index.md"},
 ]
 
 # With the "extra_css" option you can add your own CSS styling to customize
@@ -343,6 +344,7 @@ generic = true
 anchor_linenums = true
 line_spans = "__span"
 pygments_lang_class = true
+[project.markdown_extensions.pymdownx.snippets]
 [project.markdown_extensions.pymdownx.superfences]
 [project.markdown_extensions.pymdownx.tabbed]
 
