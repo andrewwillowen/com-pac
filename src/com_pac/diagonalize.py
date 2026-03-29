@@ -5,8 +5,14 @@
 # ========= #
 from mendeleev.mendeleev import isotope
 
-from mendeleev import element
 import numpy as np
+
+
+ISOTOPE_MASS_CACHE = {}
+
+
+def clear_isotope_mass_cache():
+    ISOTOPE_MASS_CACHE.clear()
 
 
 def get_inertia_matrix(coordinates_array, masses_array):
@@ -88,12 +94,18 @@ def get_unique_isotopes(isotopes_dict):
 
 
 def get_isotopes_mass(symbol, mass_number):
+    cache_key = (symbol, mass_number)
+    if cache_key in ISOTOPE_MASS_CACHE:
+        return ISOTOPE_MASS_CACHE[cache_key]
+
     try:
         mass = isotope(symbol, mass_number).mass
     except Exception as exc:
         raise ValueError(
             f"Isotopic mass not found for {symbol} with mass number {mass_number}."
-        )
+        ) from exc
+
+    ISOTOPE_MASS_CACHE[cache_key] = mass
 
     return mass
 
