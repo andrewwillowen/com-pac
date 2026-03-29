@@ -65,6 +65,15 @@ nav = [
      "develop/index.md",
      {"Development Cycle" = "develop/cycle.md"},
     ]},
+  { "Releases" = [
+     {"index" = "releases/index.md"},
+     {"v0.0.7" = "releases/v0.0.7.md"},
+     {"v0.0.6" = "releases/v0.0.6.md"},
+     {"v0.0.5" = "releases/v0.0.5.md"},
+     {"v0.0.4" = "releases/v0.0.4.md"},
+     {"v0.0.3" = "releases/v0.0.3.md"},
+     {"v0.0.2" = "releases/v0.0.2.md"},
+    ]},
 ]
 
 # With the "extra_css" option you can add your own CSS styling to customize
