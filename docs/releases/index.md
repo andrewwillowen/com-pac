@@ -5,7 +5,7 @@ Jump to the version your interested in using the navigation pane.
 
 ## v0.1.0
 
---8<-- "docs/releases/v0.1.0.md:3">
+--8<-- "docs/releases/v0.1.0.md:3"
 
 ## v0.0.7
 
