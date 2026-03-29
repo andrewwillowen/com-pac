@@ -71,7 +71,7 @@ All commit messages must follow the [Conventional Commits](https://www.conventio
 | `feat`     | A new feature                                       |
 | `fix`      | A bug fix                                           |
 | `docs`     | Documentation changes only                          |
-| `style`    | Formatting, missing semicolons, etc. (no logic change) |
+| `style`    | Formatting, whitespace, import ordering, etc. (no logic change) |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
 | `test`     | Adding or updating tests                            |
 | `chore`    | Maintenance tasks (build, CI, dependencies, etc.)   |
