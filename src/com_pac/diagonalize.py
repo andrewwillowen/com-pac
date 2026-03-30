@@ -148,18 +148,58 @@ def get_COM_coordinates(masses, coordinates):
 
 
 def get_eigens(matrix):
+    """Diagonalize a real symmetric matrix and return eigenvalues and eigenvectors
+    with a deterministic orientation.
+
+    Parameters
+    ----------
+    matrix : array-like
+        A real symmetric 3×3 matrix (e.g. an inertia tensor).
+
+    Returns
+    -------
+    evals : np.ndarray, shape (3,)
+        Eigenvalues sorted in ascending order (Ia ≤ Ib ≤ Ic).
+    evecs : np.ndarray, shape (3, 3)
+        Corresponding eigenvectors as columns, guaranteed to form a
+        right-handed orthonormal basis (det = +1) with a deterministic
+        sign convention: the element of largest absolute value in each
+        column is non-negative.
+
+    Notes
+    -----
+    ``np.linalg.eigh`` is used instead of ``np.linalg.eig`` because the
+    inertia matrix is always real and symmetric.  ``eigh`` guarantees real
+    eigenvalues, an orthonormal eigenvector basis, and ascending sort order
+    — making an explicit ``argsort`` unnecessary.
+
+    After solving, two normalisation steps are applied:
+
+    1. **Sign convention** — for each eigenvector column the element with
+       the largest absolute value is made non-negative by negating the
+       whole column if needed.  This removes the arbitrary ±1 sign that
+       ``eigh`` may assign and ensures that equivalent molecules always
+       produce the same eigenvector orientation.
+
+    2. **Right-handedness** — if the determinant of the eigenvector matrix
+       is −1 (i.e. a reflection rather than a proper rotation), the last
+       column is negated to promote the result to a proper rotation
+       (det = +1).  Physically, this ensures that the principal axis frame
+       is consistently right-handed across all isotopologues so that
+       relative atomic positions are not mirror-inverted.
     """
-    This implementation was "state of the art" at the time of initial writing, ca. 2022.
-    """
-    # TODO: Update with more robust implementation to ensure axis orientation consistency.
-    #       That is, the right hand vector of any 3 non-colinear points  should be
-    #       the same before **and** after the rotation.
-    #       (Current hypothesis is that arbitrary sorting of evecs with the same
-    #        eval is responsible for mirror inversion.)
-    evals, evecs = np.linalg.eig(matrix)
-    sort_key = evals.argsort()[::1]
-    evals = evals[sort_key]
-    evecs = evecs[:, sort_key]
+    evals, evecs = np.linalg.eigh(matrix)
+
+    # Step 1: deterministic sign convention per eigenvector column.
+    for i in range(evecs.shape[1]):
+        col = evecs[:, i]
+        if col[np.argmax(np.abs(col))] < 0:
+            evecs[:, i] = -col
+
+    # Step 2: enforce right-handed coordinate system.
+    if np.linalg.det(evecs) < 0:
+        evecs[:, -1] *= -1
+
     return evals, evecs
 
 
