@@ -3,9 +3,11 @@
 This page contains the release notes for each version of the project.
 Jump to the version your interested in using the navigation pane.
 
-## v0.1.0
+## v0.1.0 - Latest
 
 --8<-- "docs/releases/v0.1.0.md:3"
+
+---
 
 ## v0.0.7
 
