@@ -188,6 +188,7 @@ def _build_results_section(
     rotational_constants_df,
     atom_symbols,
     num_of_decimals,
+    pa_rotation_df_dict=None,
 ):
     iso_results_entries = []
     for iso in isotopologue_names:
@@ -196,6 +197,11 @@ def _build_results_section(
         iso_pa_df.loc["Rot. Con."] = list(rotational_constants_df[iso])
         iso_result = _format_isotopologue_entry(iso, iso_pa_df, num_of_decimals)
         iso_result = _insert_separator_before_marker(iso_result, "\nDip")
+        if pa_rotation_df_dict is not None:
+            rotation_angle = pa_rotation_df_dict[iso].iloc[0]["RotationAngle"]
+            iso_result += (
+                f"\n\nRotation Angle: {rotation_angle:.{num_of_decimals}f} degrees"
+            )
         iso_results_entries.append(iso_result)
     iso_name_max_width = max([len(i) for i in isotopologue_names])
     iso_delimiter = "\n\n{}\n".format("=" * min([iso_name_max_width, 10]))
@@ -224,6 +230,7 @@ def generate_output_file(
     pa_inertias_df_dict,
     pa_coordinates_df_dict,
     com_values_df,
+    pa_rotation_df_dict,
     text_output_path,
 ):
     # TEXT OUTPUT
@@ -257,6 +264,7 @@ def generate_output_file(
             rotational_constants_df,
             atom_symbols,
             num_of_decimals,
+            pa_rotation_df_dict,
         ),
     ]
 

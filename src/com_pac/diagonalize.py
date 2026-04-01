@@ -236,6 +236,34 @@ def get_isotopologue_principal_axes(
     )
 
 
+def get_pa_rotation(pa_coordinates, iso=None):
+    """
+    Compares how the each of the principal axes are rotated with respect to the specified isotopologue.
+
+    Parameters
+    ----------
+    pa_coordinates : dict
+        key = isotopologue name: str
+        value = np.ndarray, shape (3, 3)
+            Principal axes coordinates for the isotopologue.
+    iso : str, optional
+        The isotopologue name to compare against. If None, the first isotopologue in the dictionary is used.
+    """
+    if iso is None:
+        iso = list(pa_coordinates.keys())[0]
+
+    #
+
+    # com_x_axis = np.array([1.0, 0.0, 0.0])
+    # com_y_axis = np.array([0.0, 1.0, 0.0])
+    # pa_x_axis = eigenvectors[:, 0]
+    # pa_y_axis = eigenvectors[:, 1]
+    # angle_x = get_signed_angle_degrees(com_x_axis, pa_x_axis)
+    # angle_y = get_signed_angle_degrees(com_y_axis, pa_y_axis)
+
+    return angle
+
+
 def check_for_length_mismatch(listlike, expected_length: int, message: str):
     if not isinstance(expected_length, int):
         raise TypeError("'expected_length' must be of type 'int'")
@@ -261,6 +289,7 @@ def get_principal_axes(
     atom_symbols,
     mol_coordinates,
     mol_dipole,
+    report_rotation=False,
 ):
     # initialize empty data structures
     atom_masses = {}
@@ -318,6 +347,18 @@ def get_principal_axes(
             f"WARNING! The inertia matrix calculated using the principal axes system is not diagonal for {iso}",
         )
 
+    if report_rotation:
+        is_planar = np.isclose(eigenvalues[2], 0.0, atol=1e-6)
+        if not is_planar:
+            print(
+                "WARNING! Rotation reporting is only valid for planar molecules. Skipping rotation reporting for this molecule."
+            )
+            pa_rotation = None
+        else:
+            pa_rotation = {
+                iso: get_pa_rotation(pa_coordinates) for iso in isotopologue_names
+            }
+
     return (
         atom_masses,
         rotational_constants,
@@ -329,4 +370,5 @@ def get_principal_axes(
         eigenvectors,
         eigenvalues,
         COM_values,
+        pa_rotation,
     )

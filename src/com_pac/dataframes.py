@@ -166,6 +166,7 @@ def get_dataframes(
     pa_inertias,
     pa_coordinates,
     COM_values,
+    pa_rotation=None,
 ):
     """Composite function to obtain dataframes for computed data
 
@@ -210,6 +211,9 @@ def get_dataframes(
         key = isotopologue_name: str
         value = np.array[float] of length 3
             Center-of-Mass position in the original coordinate system
+    pa_rotation: dict
+        key = isotopologue_name: str
+        value = float
 
     Returns
     -------
@@ -260,6 +264,10 @@ def get_dataframes(
         RowLabel = Axis
         ColumnLabel = IsotopologueName
         Values = COMValue
+    pa_rotation_df: pd.DataFrame | None
+        RowLabel = IsotopologueName
+        ColumnLabel = "RotationAngle"
+        Values = RotationAngle in degrees
     """
     # Atomic masses
     atom_masses_df = get_atom_masses_df(atom_masses, atom_symbols)
@@ -278,6 +286,7 @@ def get_dataframes(
     eigenvectors_df_dict = {}
     pa_inertias_df_dict = {}
     pa_coordinates_df_dict = {}
+    pa_rotation_df_dict = {}
     for iso in isotopologue_names:
         # Atom indexed
         com_coordinates_df_dict[iso] = get_atom_indexed_df(
@@ -311,6 +320,11 @@ def get_dataframes(
             axis_labels=["a", "b", "c"],
         )
 
+        if pa_rotation is not None:
+            pa_rotation_df_dict[iso] = pd.DataFrame(
+                data=[pa_rotation[iso]], columns=["RotationAngle"], index=[iso]
+            )
+
     return (
         atom_masses_df,
         rotational_constants_df,
@@ -321,4 +335,5 @@ def get_dataframes(
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
         com_values_df,
+        pa_rotation_df_dict if pa_rotation is not None else None,
     )
