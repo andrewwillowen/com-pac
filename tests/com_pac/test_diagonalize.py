@@ -107,9 +107,9 @@ def random_evals1():
 def random_evecs1():
     return np.array(
         [
-            [0.81278719, 0.5085473, 0.28417712],
-            [0.56719216, -0.57949809, -0.58521365],
-            [-0.13292872, 0.63683719, -0.75945266],
+            [0.81278719, -0.5085473, -0.28417712],
+            [0.56719216, 0.57949809, 0.58521365],
+            [-0.13292872, -0.63683719, 0.75945266],
         ]
     )
 
@@ -118,12 +118,12 @@ def random_evecs1():
 def random_pa_coords1():
     return np.array(
         [
-            [-5.23823485, 0.15813875, 1.12023472],
-            [4.7771423, -0.07198818, 0.39867891],
-            [-2.20734025, -2.47207272, -3.36776561],
-            [0.32103888, 5.57689522, -2.38716729],
-            [3.18537976, -0.78827623, 0.74943663],
-            [-3.02767703, 0.56907656, 3.20668013],
+            [-5.23823485, -0.15813875, -1.12023472],
+            [4.7771423, 0.07198818, -0.39867891],
+            [-2.20734025, 2.47207272, 3.36776561],
+            [0.32103888, -5.57689522, 2.38716729],
+            [3.18537976, 0.78827623, -0.74943663],
+            [-3.02767703, -0.56907656, -3.20668013],
         ]
     )
 
@@ -247,9 +247,9 @@ def random_evals2():
 def random_evecs2():
     return np.array(
         [
-            [-0.6640655, 0.12063266, -0.73787857],
-            [-0.27427654, 0.87879164, 0.39050945],
-            [0.69554971, 0.46170663, -0.5504885],
+            [0.6640655, 0.12063266, 0.73787857],
+            [0.27427654, 0.87879164, -0.39050945],
+            [-0.69554971, 0.46170663, 0.5504885],
         ]
     )
 
@@ -258,19 +258,19 @@ def random_evecs2():
 def random_pa_coords2():
     return np.array(
         [
-            [-4.85713137, -3.18133931, -1.31548175],
-            [4.92245143, 2.43269967, 0.58469493],
-            [4.18641703, 3.41311458, 2.93222413],
-            [6.59268451, -0.24110845, -0.6751809],
-            [-1.40642866, 3.8910539, -1.91331067],
-            [-3.58348389, 2.63770161, 1.39199456],
-            [2.02876969, -3.64312321, 3.86484559],
-            [5.50749895, 2.29937636, 1.27523833],
-            [-1.57790934, -3.2524087, -1.26577812],
-            [1.58701189, -3.73659354, -2.13717046],
-            [-2.74655355, 2.12741099, 3.63901794],
-            [0.95699694, 4.22433169, -2.93682309],
-            [2.14879577, -4.33299461, 2.36046031],
+            [4.85713137, -3.18133931, 1.31548175],
+            [-4.92245143, 2.43269967, -0.58469493],
+            [-4.18641703, 3.41311458, -2.93222413],
+            [-6.59268451, -0.24110845, 0.6751809],
+            [1.40642866, 3.8910539, 1.91331067],
+            [3.58348389, 2.63770161, -1.39199456],
+            [-2.02876969, -3.64312321, -3.86484559],
+            [-5.50749895, 2.29937636, -1.27523833],
+            [1.57790934, -3.2524087, 1.26577812],
+            [-1.58701189, -3.73659354, 2.13717046],
+            [2.74655355, 2.12741099, -3.63901794],
+            [-0.95699694, 4.22433169, 2.93682309],
+            [-2.14879577, -4.33299461, -2.36046031],
         ]
     )
 
@@ -911,9 +911,9 @@ def random_evals6():
 def random_evecs6():
     return np.array(
         [
-            [-0.67699564, -0.09870115, -0.72933873],
-            [0.04407816, 0.98375064, -0.17404538],
-            [0.73466592, -0.14997587, -0.66164433],
+            [0.67699564, -0.09870115, 0.72933873],
+            [-0.04407816, 0.98375064, 0.17404538],
+            [-0.73466592, -0.14997587, 0.66164433],
         ]
     )
 
@@ -922,31 +922,31 @@ def random_evecs6():
 def random_pa_coords6():
     return np.array(
         [
-            [4.43995219, -2.44680398, -1.04295166],
-            [-0.85177857, -4.41584117, -1.98344145],
-            [-2.76531567, 0.56007284, 1.73450589],
-            [-3.69104612, 0.49218706, -2.9276413],
-            [-4.72676377, 0.82252767, 1.78746071],
-            [4.58653127, -3.13364607, -1.2090248],
-            [-0.95584511, 1.85226273, -3.09145094],
-            [-1.63996456, 4.87166597, 4.60369729],
-            [-4.81030746, 0.10215495, 2.37282665],
-            [-1.03918097, -2.34779576, 0.25520294],
-            [-0.28002899, -2.73157042, 1.07011399],
-            [3.80040599, 1.70225271, 1.63432758],
-            [-0.99592775, -3.15486236, -2.3947271],
-            [2.92208339, 0.94227132, 0.33532808],
-            [5.28111739, 4.51592014, 0.53192463],
-            [0.80097431, 1.96476658, -2.30667914],
-            [4.22858883, -3.18128432, 3.28382201],
-            [0.33084856, 4.3452146, -1.11965866],
-            [4.56084692, 1.81008253, 2.25378607],
-            [-4.4117627, 3.30556069, 0.87007617],
-            [-5.42276308, -2.37298461, 1.03559102],
-            [4.60308907, -3.98490971, -0.55061531],
-            [-5.6970619, -1.79777652, -1.1354404],
-            [-5.58576093, -3.00858549, 1.21537377],
-            [5.17691718, 4.39847708, -1.34955168],
+            [-4.43995219, -2.44680398, 1.04295166],
+            [0.85177857, -4.41584117, 1.98344145],
+            [2.76531567, 0.56007284, -1.73450589],
+            [3.69104612, 0.49218706, 2.9276413],
+            [4.72676377, 0.82252767, -1.78746071],
+            [-4.58653127, -3.13364607, 1.2090248],
+            [0.95584511, 1.85226273, 3.09145094],
+            [1.63996456, 4.87166597, -4.60369729],
+            [4.81030746, 0.10215495, -2.37282665],
+            [1.03918097, -2.34779576, -0.25520294],
+            [0.28002899, -2.73157042, -1.07011399],
+            [-3.80040599, 1.70225271, -1.63432758],
+            [0.99592775, -3.15486236, 2.3947271],
+            [-2.92208339, 0.94227132, -0.33532808],
+            [-5.28111739, 4.51592014, -0.53192463],
+            [-0.80097431, 1.96476658, 2.30667914],
+            [-4.22858883, -3.18128432, -3.28382201],
+            [-0.33084856, 4.3452146, 1.11965866],
+            [-4.56084692, 1.81008253, -2.25378607],
+            [4.4117627, 3.30556069, -0.87007617],
+            [5.42276308, -2.37298461, -1.03559102],
+            [-4.60308907, -3.98490971, 0.55061531],
+            [5.6970619, -1.79777652, 1.1354404],
+            [5.58576093, -3.00858549, -1.21537377],
+            [-5.17691718, 4.39847708, 1.34955168],
         ]
     )
 
@@ -1510,13 +1510,73 @@ class Test_get_eigens:
     )
     def test_sign_convention(self, f_COM_inertia, request):
         """For columns 0 and 1, the element with the largest absolute value must be
-        non-negative (the sign convention applied before right-hand correction)."""
+        non-negative when sign_convention=True is passed."""
         COM_inertia = request.getfixturevalue(f_COM_inertia)
-        _, evecs = get_eigens(COM_inertia)
+        _, evecs = get_eigens(COM_inertia, sign_convention=True)
         for i in range(2):
             col = evecs[:, i]
             leading_element = col[np.argmax(np.abs(col))]
             assert leading_element >= 0.0
+
+    @pytest.mark.parametrize(
+        "f_COM_inertia",
+        [
+            "random_COM_inertias1",
+            "random_COM_inertias2",
+            "random_COM_inertias3",
+            "random_COM_inertias4",
+            "random_COM_inertias5",
+            "random_COM_inertias6",
+        ],
+    )
+    def test_sign_convention_not_applied_by_default(self, f_COM_inertia, request):
+        """The sign convention must NOT be enforced when sign_convention=False (the
+        default), meaning some columns may have a negative leading element."""
+        matrices_where_sign_flipped = [
+            "random_COM_inertias1",
+            "random_COM_inertias2",
+            "random_COM_inertias6",
+        ]
+        if f_COM_inertia not in matrices_where_sign_flipped:
+            pytest.skip(
+                "This matrix already has non-negative leading elements without sign correction."
+            )
+        COM_inertia = request.getfixturevalue(f_COM_inertia)
+        _, evecs = get_eigens(COM_inertia)
+        has_negative_leading = any(
+            evecs[:, i][np.argmax(np.abs(evecs[:, i]))] < 0
+            for i in range(evecs.shape[1])
+        )
+        assert has_negative_leading, (
+            "Expected at least one column to have a negative leading element when "
+            "sign_convention=False, but all leading elements were non-negative."
+        )
+
+    @pytest.mark.parametrize(
+        "f_COM_inertia",
+        [
+            "random_COM_inertias1",
+            "random_COM_inertias2",
+            "random_COM_inertias3",
+            "random_COM_inertias4",
+            "random_COM_inertias5",
+            "random_COM_inertias6",
+        ],
+    )
+    def test_right_handed_not_enforced_when_disabled(self, f_COM_inertia, request):
+        """When right_handed=False, the determinant is not corrected and may be -1."""
+        matrices_needing_correction = [
+            "random_COM_inertias2",
+            "random_COM_inertias3",
+            "random_COM_inertias5",
+        ]
+        if f_COM_inertia not in matrices_needing_correction:
+            pytest.skip(
+                "eigh already returns det=+1 for this matrix; right_handed=False has no effect."
+            )
+        COM_inertia = request.getfixturevalue(f_COM_inertia)
+        _, evecs = get_eigens(COM_inertia, right_handed=False)
+        assert np.isclose(np.linalg.det(evecs), -1.0)
 
     # TODO: Test negative conditions
 

@@ -147,24 +147,30 @@ def get_COM_coordinates(masses, coordinates):
     return np.subtract(coordinates, COM), COM
 
 
-def get_eigens(matrix):
+def get_eigens(matrix, sign_convention=False, right_handed=True):
     """Diagonalize a real symmetric matrix and return eigenvalues and eigenvectors
-    with a deterministic orientation.
+    with an optionally standardized orientation.
 
     Parameters
     ----------
     matrix : array-like
         A real symmetric 3×3 matrix (e.g. an inertia tensor).
+    sign_convention : bool, optional
+        When ``True``, each eigenvector column is negated if the element
+        with the largest absolute value is negative.  This removes the
+        arbitrary ±1 sign that ``eigh`` may assign.  Defaults to ``False``.
+    right_handed : bool, optional
+        When ``True`` (the default), the eigenvector matrix is guaranteed to
+        form a right-handed coordinate system (det = +1).  If the determinant
+        is −1 the last column is negated to correct the orientation.
+        Defaults to ``True``.
 
     Returns
     -------
     evals : np.ndarray, shape (3,)
         Eigenvalues sorted in ascending order (Ia ≤ Ib ≤ Ic).
     evecs : np.ndarray, shape (3, 3)
-        Corresponding eigenvectors as columns, guaranteed to form a
-        right-handed orthonormal basis (det = +1) with a deterministic
-        sign convention: the element of largest absolute value in each
-        column is non-negative.
+        Corresponding eigenvectors as columns.
 
     Notes
     -----
@@ -173,31 +179,30 @@ def get_eigens(matrix):
     eigenvalues, an orthonormal eigenvector basis, and ascending sort order
     — making an explicit ``argsort`` unnecessary.
 
-    After solving, two normalisation steps are applied:
+    Two optional normalisation steps can be applied after solving:
 
-    1. **Sign convention** — for each eigenvector column the element with
-       the largest absolute value is made non-negative by negating the
-       whole column if needed.  This removes the arbitrary ±1 sign that
-       ``eigh`` may assign and ensures that equivalent molecules always
-       produce the same eigenvector orientation.
+    1. **Sign convention** (controlled by ``sign_convention``) — for each
+       eigenvector column the element with the largest absolute value is made
+       non-negative by negating the whole column if needed.
 
-    2. **Right-handedness** — if the determinant of the eigenvector matrix
-       is −1 (i.e. a reflection rather than a proper rotation), the last
-       column is negated to promote the result to a proper rotation
-       (det = +1).  Physically, this ensures that the principal axis frame
-       is consistently right-handed across all isotopologues so that
-       relative atomic positions are not mirror-inverted.
+    2. **Right-handedness** (controlled by ``right_handed``) — if the
+       determinant of the eigenvector matrix is −1 (i.e. a reflection rather
+       than a proper rotation), the last column is negated to promote the
+       result to a proper rotation (det = +1).  Physically, this ensures that
+       the principal axis frame is consistently right-handed across all
+       isotopologues so that relative atomic positions are not mirror-inverted.
     """
     evals, evecs = np.linalg.eigh(matrix)
 
     # Step 1: deterministic sign convention per eigenvector column.
-    for i in range(evecs.shape[1]):
-        col = evecs[:, i]
-        if col[np.argmax(np.abs(col))] < 0:
-            evecs[:, i] = -col
+    if sign_convention:
+        for i in range(evecs.shape[1]):
+            col = evecs[:, i]
+            if col[np.argmax(np.abs(col))] < 0:
+                evecs[:, i] = -col
 
     # Step 2: enforce right-handed coordinate system.
-    if np.linalg.det(evecs) < 0:
+    if right_handed and np.linalg.det(evecs) < 0:
         evecs[:, -1] *= -1
 
     return evals, evecs
