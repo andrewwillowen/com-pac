@@ -26,6 +26,7 @@ from com_pac.diagonalize import (
     check_for_length_mismatch,
     check_for_bad_diagonal,
     transform_dipole,
+    get_theta_values,
 )
 
 
@@ -2096,3 +2097,30 @@ class Test_get_principal_axes:
                 )
             ]
         )
+
+
+class Test_get_theta_values:
+    def test_raises_not_implemented(self):
+        """get_theta_values is a stub and not yet implemented."""
+        with pytest.raises(NotImplementedError):
+            get_theta_values(
+                isotopologue_names=["iso1"],
+                com_coordinates={"iso1": None},
+                com_values={"iso1": None},
+                pa_coordinates={"iso1": None},
+                evals={"iso1": None},
+                evecs={"iso1": None},
+            )
+
+    @pytest.mark.skip(reason="get_theta_values is not yet implemented")
+    def test_expected_output(self):
+        pass
+
+    @pytest.mark.skip(reason="get_theta_values is not yet implemented")
+    def test_uses_correct_inputs(self):
+        pass
+
+    @pytest.mark.skip(reason="get_theta_values is not yet implemented")
+    def test_output_keys_match_isotopologue_names(self):
+        pass
+

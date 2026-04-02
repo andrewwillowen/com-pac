@@ -208,6 +208,36 @@ def _build_results_section(
     )
 
 
+def _build_theta_results_section(
+    isotopologue_names,
+    theta_df_dict,
+    num_of_decimals,
+):
+    """Build the Theta section of the output file.
+
+    Parameters
+    ----------
+    isotopologue_names : list[str]
+        List of isotopologue names.
+    theta_df_dict : dict
+        key = isotopologue_name: str
+        value = pd.DataFrame (structure TBD)
+    num_of_decimals : int
+        Number of decimal places for formatting.
+
+    Returns
+    -------
+    str
+        Formatted theta results section.
+
+    Raises
+    ------
+    NotImplementedError
+        This function is not yet implemented.
+    """
+    raise NotImplementedError("_build_theta_results_section is not yet implemented.")
+
+
 def generate_output_file(
     num_of_decimals,
     csv_output_name,
@@ -225,6 +255,7 @@ def generate_output_file(
     pa_coordinates_df_dict,
     com_values_df,
     text_output_path,
+    theta_df_dict=None,
 ):
     # TEXT OUTPUT
     #
@@ -259,6 +290,15 @@ def generate_output_file(
             num_of_decimals,
         ),
     ]
+
+    if theta_df_dict is not None:
+        sections_list.append(
+            _build_theta_results_section(
+                isotopologue_names,
+                theta_df_dict,
+                num_of_decimals,
+            )
+        )
 
     sections_delimiter = "\n\n"
     file_string = "{}\n\n".format(sections_delimiter.join(sections_list))

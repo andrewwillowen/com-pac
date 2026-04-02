@@ -21,6 +21,7 @@ from com_pac.writer import (
     _build_eigens_section,
     _build_pa_inertias_section,
     _build_results_section,
+    _build_theta_results_section,
     header_creator,
     df_text_export,
 )
@@ -947,3 +948,22 @@ class Test_helper_functions:
         result = df_text_export(df, n_decimals=2)
         assert "1.12" in result
         assert "3.14" in result
+
+
+class Test_build_theta_results_section:
+    def test_raises_not_implemented(self):
+        """_build_theta_results_section is a stub and not yet implemented."""
+        with pytest.raises(NotImplementedError):
+            _build_theta_results_section(["iso1"], {"iso1": None}, 6)
+
+    @pytest.mark.skip(reason="_build_theta_results_section is not yet implemented")
+    def test_theta_results_section_contains_header(self):
+        pass
+
+    @pytest.mark.skip(reason="_build_theta_results_section is not yet implemented")
+    def test_theta_results_section_contains_iso_names(self):
+        pass
+
+    @pytest.mark.skip(reason="_build_theta_results_section is not yet implemented")
+    def test_theta_results_section_numeric_values(self):
+        pass

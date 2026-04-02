@@ -10,6 +10,7 @@ from com_pac.dataframes import (
     get_atom_indexed_df,
     get_axis_indexed_df,
     get_dataframes,
+    get_theta_df_dict,
 )
 
 import pytest
@@ -501,6 +502,7 @@ class Test_get_dataframes:
             result_pa_inertias_df_dict,
             result_pa_coordinates_df_dict,
             result_com_values_df,
+            result_theta_df_dict,
         ) = get_dataframes(
             atom_masses=atom_masses,
             atom_symbols=atom_symbols,
@@ -524,6 +526,8 @@ class Test_get_dataframes:
         assert_equal_df_float(result_dipole_components_df, dipole_components_df)
         # compare result_com_values_df to com_values_df
         assert_equal_df_float(result_com_values_df, com_values_df)
+        # theta_df_dict should be None when theta_data is not provided
+        assert result_theta_df_dict is None
 
         for iso in isotopologue_names:
             # compare result_com_coordinates_df_dict to com_coordinates_df_dict
@@ -551,3 +555,14 @@ class Test_get_dataframes:
                 result_pa_coordinates_df_dict[iso],
                 pa_coordinates_df_dict[iso],
             )
+
+
+class Test_get_theta_df_dict:
+    def test_raises_not_implemented(self):
+        """get_theta_df_dict is a stub and not yet implemented."""
+        with pytest.raises(NotImplementedError):
+            get_theta_df_dict(isotopologue_names=["iso1"], theta_data={"iso1": None})
+
+    @pytest.mark.skip(reason="get_theta_df_dict is not yet implemented")
+    def test_expected_results(self):
+        pass

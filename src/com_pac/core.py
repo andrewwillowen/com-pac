@@ -5,7 +5,7 @@
 # ========= #
 from com_pac.writer import generate_output_file, generate_csv_output
 from com_pac.dataframes import get_dataframes
-from com_pac.diagonalize import get_principal_axes
+from com_pac.diagonalize import get_principal_axes, get_theta_values
 from com_pac.parser import parse_input_file
 
 import argparse
@@ -92,6 +92,13 @@ experimental mu_A, mu_B, mu_C.\
         action="version",
         version=f"%(prog)s {__version__}",
     )
+    parser.add_argument(
+        "--theta",
+        action="store_true",
+        default=False,
+        dest="theta",
+        help="Calculate and include theta values in the output.",
+    )
 
     return parser
 
@@ -101,20 +108,20 @@ def _set_output_dir(output_dir: Path) -> None:
     raise NotImplementedError("Custom output directory is not yet supported.")
 
 
-def read_args() -> tuple[Path, int]:
+def read_args() -> tuple[Path, int, bool]:
     """Parse command-line arguments using argparse.
 
-    Returns a tuple of (input_file_path, num_of_decimals).
+    Returns a tuple of (input_file_path, num_of_decimals, theta).
     """
     parser = build_parser()
     args = parser.parse_args()
     if args.output_dir is not None:
         _set_output_dir(args.output_dir)
-    return args.input_file, args.num_of_decimals
+    return args.input_file, args.num_of_decimals, args.theta
 
 
 def main():
-    input_file_path, num_of_decimals = read_args()
+    input_file_path, num_of_decimals, theta = read_args()
 
     # ================================ #
     #  reading contents of input file  #
@@ -159,6 +166,18 @@ def main():
         mol_dipole,
     )
 
+    if theta:
+        theta_data = get_theta_values(
+            isotopologue_names,
+            com_coordinates,
+            COM_values,
+            pa_coordinates,
+            eigenvalues,
+            eigenvectors,
+        )
+    else:
+        theta_data = None
+
     (
         atom_masses_df,
         rotational_constants_df,
@@ -169,6 +188,7 @@ def main():
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
         com_values_df,
+        theta_df_dict,
     ) = get_dataframes(
         atom_masses,
         atom_symbols,
@@ -182,6 +202,7 @@ def main():
         pa_inertias,
         pa_coordinates,
         COM_values,
+        theta_data=theta_data,
     )
 
     # ==================== #
@@ -216,6 +237,7 @@ def main():
         pa_coordinates_df_dict,
         com_values_df,
         text_output_path,
+        theta_df_dict=theta_df_dict,
     )
 
     generate_csv_output(
