@@ -1602,6 +1602,7 @@ def _writer_sections_from_full_output(full_output):
         "Rotational Constants": "rotational_constants",
         "Dipole Components": "dipole_components",
         "Principal Axes Coordinates": "results",
+        "Theta": "theta",
     }
 
     matches = list(header_pattern.finditer(full_output))

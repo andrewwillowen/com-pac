@@ -241,6 +241,50 @@ def get_isotopologue_principal_axes(
     )
 
 
+def get_theta_values(
+    isotopologue_names,
+    com_coordinates,
+    com_values,
+    pa_coordinates,
+    evals,
+    evecs,
+):
+    """Calculate theta values for each isotopologue.
+
+    Parameters
+    ----------
+    isotopologue_names : list[str]
+        List of isotopologue names.
+    com_coordinates : dict
+        key = isotopologue_name: str
+        value = np.array[float] of COM coordinates
+    com_values : dict
+        key = isotopologue_name: str
+        value = np.array[float] of length 3
+    pa_coordinates : dict
+        key = isotopologue_name: str
+        value = np.array[float] of PA coordinates
+    evals : dict
+        key = isotopologue_name: str
+        value = np.array[float] of eigenvalues
+    evecs : dict
+        key = isotopologue_name: str
+        value = np.array[float] of eigenvectors
+
+    Returns
+    -------
+    theta_data : dict
+        key = isotopologue_name: str
+        value = theta results (TBD)
+
+    Raises
+    ------
+    NotImplementedError
+        This function is not yet implemented.
+    """
+    raise NotImplementedError("get_theta_values is not yet implemented.")
+
+
 def check_for_length_mismatch(listlike, expected_length: int, message: str):
     if not isinstance(expected_length, int):
         raise TypeError("'expected_length' must be of type 'int'")

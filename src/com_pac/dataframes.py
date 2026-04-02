@@ -153,6 +153,31 @@ def get_axis_indexed_df(data, column_labels, axis_labels):
     return data_df
 
 
+def get_theta_df_dict(isotopologue_names, theta_data):
+    """Convert theta data dictionary to per-isotopologue DataFrames.
+
+    Parameters
+    ----------
+    isotopologue_names : list[str]
+        List of isotopologue names.
+    theta_data : dict
+        key = isotopologue_name: str
+        value = theta results (structure TBD)
+
+    Returns
+    -------
+    theta_df_dict : dict
+        key = isotopologue_name: str
+        value = pd.DataFrame (structure TBD)
+
+    Raises
+    ------
+    NotImplementedError
+        This function is not yet implemented.
+    """
+    raise NotImplementedError("get_theta_df_dict is not yet implemented.")
+
+
 def get_dataframes(
     atom_masses,
     atom_symbols,
@@ -166,6 +191,7 @@ def get_dataframes(
     pa_inertias,
     pa_coordinates,
     COM_values,
+    theta_data=None,
 ):
     """Composite function to obtain dataframes for computed data
 
@@ -210,6 +236,10 @@ def get_dataframes(
         key = isotopologue_name: str
         value = np.array[float] of length 3
             Center-of-Mass position in the original coordinate system
+    theta_data: dict or None, optional
+        key = isotopologue_name: str
+        value = theta results (structure TBD)
+        If None, theta dataframes are not computed.
 
     Returns
     -------
@@ -260,6 +290,10 @@ def get_dataframes(
         RowLabel = Axis
         ColumnLabel = IsotopologueName
         Values = COMValue
+    theta_df_dict: dict or None
+        key = isotopologue_name: str
+        value = dataframe: pd.DataFrame (structure TBD)
+        None if theta_data was not provided.
     """
     # Atomic masses
     atom_masses_df = get_atom_masses_df(atom_masses, atom_symbols)
@@ -311,6 +345,13 @@ def get_dataframes(
             axis_labels=["a", "b", "c"],
         )
 
+    # Theta data
+    theta_df_dict = (
+        get_theta_df_dict(isotopologue_names, theta_data)
+        if theta_data is not None
+        else None
+    )
+
     return (
         atom_masses_df,
         rotational_constants_df,
@@ -321,4 +362,5 @@ def get_dataframes(
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
         com_values_df,
+        theta_df_dict,
     )

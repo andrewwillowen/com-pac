@@ -101,6 +101,16 @@ class Test_build_parser:
             parser.parse_args(["--version"])
         assert exc_info.value.code == 0
 
+    def test_theta_flag_defaults_to_false(self):
+        parser = build_parser()
+        args = parser.parse_args(["some_file.txt"])
+        assert args.theta is False
+
+    def test_theta_flag_sets_true(self):
+        parser = build_parser()
+        args = parser.parse_args(["some_file.txt", "--theta"])
+        assert args.theta is True
+
 
 class Test_read_args:
     """Test read_args() using monkeypatched sys.argv."""
@@ -109,16 +119,24 @@ class Test_read_args:
         from pathlib import Path
 
         monkeypatch.setattr("sys.argv", ["com-pac", str(tmp_path / "input.txt")])
-        path, decimals = read_args()
+        path, decimals, theta = read_args()
         assert path == Path(str(tmp_path / "input.txt"))
         assert decimals == 6
+        assert theta is False
 
     def test_decimals_argument_is_respected(self, monkeypatch, tmp_path):
         monkeypatch.setattr(
             "sys.argv", ["com-pac", str(tmp_path / "input.txt"), "--decimals", "3"]
         )
-        _, decimals = read_args()
+        _, decimals, _ = read_args()
         assert decimals == 3
+
+    def test_theta_flag_is_returned(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(
+            "sys.argv", ["com-pac", str(tmp_path / "input.txt"), "--theta"]
+        )
+        _, _, theta = read_args()
+        assert theta is True
 
     def test_output_dir_raises_not_implemented(self, monkeypatch, tmp_path):
         monkeypatch.setattr(
