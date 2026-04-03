@@ -3,7 +3,6 @@ Running the theta calculations by hand
 to explore what the data looks like.
 """
 
-import numpy as np
 from com_pac.parser import parse_input_file
 from com_pac.diagonalize import get_theta_values, get_principal_axes
 from com_pac.dataframes import get_theta_df
@@ -33,7 +32,7 @@ iso_names, iso_dict, n_atoms, atom_symbols, mol_coords, mol_dipoles, atom_numbs 
 )
 
 theta_data = get_theta_values(
-    iso_names, atom_masses, com_coords, com_vals, pa_coords, evals, evecs
+    iso_names, atom_masses, pa_coords
 )
 
 theta_df = get_theta_df(iso_names, theta_data)

@@ -2117,11 +2117,7 @@ class Test_get_theta_values:
         result = get_theta_values(
             isotopologue_names=["parent"],
             atom_masses={"parent": np.array([1.0, 1.0, 1.0])},
-            com_coordinates={"parent": None},
-            com_values={"parent": None},
             pa_coordinates={"parent": non_planar_coords},
-            evals={"parent": None},
-            evecs={"parent": None},
         )
         assert result is None
 
@@ -2137,16 +2133,8 @@ class Test_get_theta_values:
         result = get_theta_values(
             isotopologue_names=isotopologue_names,
             atom_masses=atom_masses,
-            com_coordinates={"parent": None, "iso": None},
-            com_values={"parent": None, "iso": None},
             pa_coordinates=pa_coordinates,
-            evals={"parent": None, "iso": None},
-            evecs={"parent": None, "iso": None},
         )
-
-        assert result is not None
-
-        # Parent: I_ab=0 in parent PA frame → all thetas are 0
         assert result["parent"]["theta_7"] == pytest.approx(0.0)
         assert result["parent"]["theta_8"] == pytest.approx(0.0)
         assert result["parent"]["theta_9_par"] == pytest.approx(0.0)
@@ -2174,23 +2162,15 @@ class Test_get_theta_values:
         result_orig = get_theta_values(
             isotopologue_names=isotopologue_names,
             atom_masses=atom_masses,
-            com_coordinates={"parent": None, "iso": None},
-            com_values={"parent": None, "iso": None},
             pa_coordinates={"parent": self._parent_pa_coords, "iso": self._iso_pa_coords},
-            evals={"parent": None, "iso": None},
-            evecs={"parent": None, "iso": None},
         )
         result_alt = get_theta_values(
             isotopologue_names=isotopologue_names,
             atom_masses=atom_masses,
-            com_coordinates={"parent": None, "iso": None},
-            com_values={"parent": None, "iso": None},
             pa_coordinates={
                 "parent": self._parent_pa_coords,
                 "iso": alt_iso_pa_coords,
             },
-            evals={"parent": None, "iso": None},
-            evecs={"parent": None, "iso": None},
         )
 
         # theta_7 and theta_9_par use parent PA coords with iso masses → unchanged
@@ -2213,11 +2193,7 @@ class Test_get_theta_values:
         result = get_theta_values(
             isotopologue_names=isotopologue_names,
             atom_masses=atom_masses,
-            com_coordinates={"iso_a": None, "iso_b": None},
-            com_values={"iso_a": None, "iso_b": None},
             pa_coordinates=pa_coordinates,
-            evals={"iso_a": None, "iso_b": None},
-            evecs={"iso_a": None, "iso_b": None},
         )
 
         assert result is not None

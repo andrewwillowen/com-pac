@@ -170,11 +170,7 @@ def main():
         theta_data = get_theta_values(
             isotopologue_names,
             atom_masses,
-            com_coordinates,
-            COM_values,
             pa_coordinates,
-            eigenvalues,
-            eigenvectors,
         )
     else:
         theta_data = None
