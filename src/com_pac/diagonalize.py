@@ -245,11 +245,7 @@ def get_isotopologue_principal_axes(
 def get_theta_values(
     isotopologue_names,
     atom_masses,
-    com_coordinates,
-    com_values,
     pa_coordinates,
-    evals,
-    evecs,
 ):
     """Calculate theta values for each isotopologue.
 
@@ -260,21 +256,9 @@ def get_theta_values(
     atom_masses : dict
         key = isotopologue_name: str
         value = np.array[float] of atom masses
-    com_coordinates : dict
-        key = isotopologue_name: str
-        value = np.array[float] of COM coordinates
-    com_values : dict
-        key = isotopologue_name: str
-        value = np.array[float] of length 3
     pa_coordinates : dict
         key = isotopologue_name: str
         value = np.array[float] of PA coordinates
-    evals : dict
-        key = isotopologue_name: str
-        value = np.array[float] of eigenvalues
-    evecs : dict
-        key = isotopologue_name: str
-        value = np.array[float] of eigenvectors
 
     Returns
     -------
