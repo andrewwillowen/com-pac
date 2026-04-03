@@ -2105,6 +2105,7 @@ class Test_get_theta_values:
         with pytest.raises(NotImplementedError):
             get_theta_values(
                 isotopologue_names=["iso1"],
+                atom_masses=[None],
                 com_coordinates={"iso1": None},
                 com_values={"iso1": None},
                 pa_coordinates={"iso1": None},
@@ -2123,4 +2124,3 @@ class Test_get_theta_values:
     @pytest.mark.skip(reason="get_theta_values is not yet implemented")
     def test_output_keys_match_isotopologue_names(self):
         pass
-
