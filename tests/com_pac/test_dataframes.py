@@ -561,12 +561,39 @@ class Test_get_theta_df:
     def test_expected_results(self):
         """get_theta_df creates a DataFrame indexed by isotopologue name from theta data."""
         theta_data = {
-            "iso1": {"theta_7": 1.0, "theta_8": 2.0, "theta_9_par": 3.0},
-            "iso2": {"theta_7": 4.0, "theta_8": 5.0, "theta_9_par": 6.0},
+            "iso1": {
+                "theta_7": 1.0,
+                "theta_8": 2.0,
+                "theta_9_par": 3.0,
+                "iaa": 4.0,
+                "ibb": 5.0,
+                "iab": 6.0,
+                "ia": 7.0,
+                "ib": 8.0,
+            },
+            "iso2": {
+                "theta_7": 9.0,
+                "theta_8": 10.0,
+                "theta_9_par": 11.0,
+                "iaa": 12.0,
+                "ibb": 13.0,
+                "iab": 14.0,
+                "ia": 15.0,
+                "ib": 16.0,
+            },
         }
         result = get_theta_df(isotopologue_names=["iso1", "iso2"], theta_data=theta_data)
         expected = pd.DataFrame(
-            {"theta_7": [1.0, 4.0], "theta_8": [2.0, 5.0], "theta_9_par": [3.0, 6.0]},
+            {
+                "theta_7": [1.0, 9.0],
+                "theta_8": [2.0, 10.0],
+                "theta_9_par": [3.0, 11.0],
+                "iaa": [4.0, 12.0],
+                "ibb": [5.0, 13.0],
+                "iab": [6.0, 14.0],
+                "ia": [7.0, 15.0],
+                "ib": [8.0, 16.0],
+            },
             index=pd.Index(["iso1", "iso2"]),
         )
         pd.testing.assert_frame_equal(result, expected)
