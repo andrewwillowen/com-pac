@@ -7,6 +7,7 @@ from mendeleev.mendeleev import isotope
 
 import numpy as np
 
+import warnings
 
 ISOTOPE_MASS_CACHE = {}
 
@@ -243,6 +244,7 @@ def get_isotopologue_principal_axes(
 
 def get_theta_values(
     isotopologue_names,
+    atom_masses,
     com_coordinates,
     com_values,
     pa_coordinates,
@@ -255,6 +257,9 @@ def get_theta_values(
     ----------
     isotopologue_names : list[str]
         List of isotopologue names.
+    atom_masses : dict
+        key = isotopologue_name: str
+        value = np.array[float] of atom masses
     com_coordinates : dict
         key = isotopologue_name: str
         value = np.array[float] of COM coordinates
@@ -273,16 +278,138 @@ def get_theta_values(
 
     Returns
     -------
-    theta_data : dict
+    theta_data : dict or None
         key = isotopologue_name: str
         value = theta results (TBD)
+        None if parent isotopologue is not planar in it's principal axes frame.
 
-    Raises
-    ------
-    NotImplementedError
-        This function is not yet implemented.
     """
-    raise NotImplementedError("get_theta_values is not yet implemented.")
+    # The paper says that the all the coordinates need to be in the
+    # principal axes frame of the parent species, i.e., the first isotopologue
+    parent_iso = isotopologue_names[0]
+    parent_coordinates = pa_coordinates[parent_iso]
+    parent_masses = atom_masses[parent_iso]
+    # Need to check if planar - paper does not describe how to handle non-planar...
+    parent_inertia_matrix = get_inertia_matrix(parent_coordinates, parent_masses)
+    piac = parent_inertia_matrix[0, 2]
+    pica = parent_inertia_matrix[2, 0]
+    pibc = parent_inertia_matrix[1, 2]
+    picb = parent_inertia_matrix[2, 1]
+    if not np.allclose([0, 0, 0, 0], [piac, pica, pibc, picb]):
+        print(
+            "WARNING: Parent isotopologue is non-planar - skipping Theta calculation!"
+        )
+        return None
+
+    # To get the isos in the parent coordinates, just need to pair with the
+    # correct masses.
+    #
+    theta_results_dict = {}
+    iso_inertia_in_parent_dict: dict = {}
+    theta_7_dict: dict = {}
+    theta_8_dict: dict = {}
+    theta_9_parent_dict: dict = {}
+    theta_9_iso_dict: dict = {}
+    for iso in isotopologue_names:
+        # Next, need to calculate the inertia tensor for each iso
+        inertia_matrix = get_inertia_matrix(parent_coordinates, atom_masses[iso])
+        # theta_equilibrium in equation 7 is given by
+        #   tan(2*theta_7) = (2 * I{e}_ab) / (I{e}_aa - I{e}bb)
+        # or
+        #   theta_7 = (1/2) * arctan((2 * I{e}_ab) / (I{e}_aa - I{e}bb))
+        iab = inertia_matrix[0, 1]
+        iaa = inertia_matrix[0, 0]
+        ibb = inertia_matrix[1, 1]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            try:
+                theta_7 = (1 / 2) * np.arctan((2 * iab) / (iaa - ibb))
+                theta_7 = np.degrees(theta_7)
+            except Exception as e:
+                print(f"""{iso} encountered error while calculating theta_7
+    {iab=}
+    {iaa=}
+    {ibb=}
+    (2 * iab) / (iaa - ibb) = {(2*iab) / (iaa - ibb)}
+Exception: {e}""")
+                theta_7 = None
+
+        # theta_equilibrium in equation 8 is given by
+        #   I{e}_aa - I{e}_bb = (I{e}_a - I{e}_b)*cos(2*theta_8)
+        # or
+        #   theta_8 = (1/2)*arccos( (I{e}_aa - I{e}_bb) / (I{e}_a - I{e}_b) )
+        # The implication here is that I{e}_a and I{e}_b are the moments of inertia
+        # in the *isotopologue's principal axes frame*
+        iso_pa_inertia = get_inertia_matrix(pa_coordinates[iso], atom_masses[iso])
+        ia = iso_pa_inertia[0, 0]
+        ib = iso_pa_inertia[1, 1]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            try:
+                theta_8 = (1 / 2) * np.arccos((iaa - ibb) / (ia - ib))
+                theta_8 = np.degrees(theta_8)
+            except Exception as e:
+                print(f"""{iso} encountered error while calculating theta_8
+    {iaa=}
+    {ibb=}
+    {ia=}
+    {ib=}
+    (iaa - ibb) / (ia - ib) = {(iaa - ibb) / (ia - ib)}
+Exception: {e}""")
+                theta_8 = None
+
+        # theta_equilibrium in equation 9 is given by
+        #   I{e}_ab = (1/2)*(I{e}_a - I{e}_b)*sin(2*theta_9)
+        # or
+        #   theta_9 = (1/2)*arcsin((2*I{e}_ab) / (I{e}_a - I{e}_b))
+        # The problem, however, is that it is not clear from context whether I{e}_ab
+        # is the off-diagonal element in the parent PA frame, or in the iso PA frame!
+        # So I guess we'll calculate it twice
+        #
+        # Edit: nvm, the values of theta_9_iso are all within floating point precision of zero!
+        #
+        #   theta_9_parent_frame = (1/2)*arcsin((2*I{e, parent}_ab) / (I{e}_a - I{e}_b))
+        iab_parent = iab
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            try:
+                theta_9_parent_frame = (1 / 2) * np.arcsin((2 * iab_parent) / (ia - ib))
+                theta_9_parent_frame = np.degrees(theta_9_parent_frame)
+            except Exception as e:
+                print(f"""{iso} encountered error while calculating theta_9_parent
+    {iab_parent=}
+    {ia=}
+    {ib=}
+    (2 * iab_parent) / (ia - ib) = {(2*iab_parent) / (ia - ib)}
+Exception: {e}""")
+                theta_9_parent_frame = None
+
+        #         #   theta_9_iso_frame = (1/2)*arcsin((2*I{e, iso}_ab) / (I{e}_a - I{e}_b))
+        #         iab_iso = iso_pa_inertia[0, 1]
+        #         with warnings.catch_warnings():
+        #             warnings.simplefilter("error", RuntimeWarning)
+        #             try:
+        #                 theta_9_iso_frame = (1 / 2) * np.arcsin((2 * iab_iso) / (ia - ib))
+        #             except Exception as e:
+        #                 print(f"""{iso} encountered error while calculating theta_9_iso
+        #     {iab_iso=}
+        #     {ia=}
+        #     {ib=}
+        #     (2 * iab_iso) / (ia - ib) = {(2*iab_iso) / (ia - ib)}
+        # Exception: {e}""")
+        #                 theta_9_iso_frame = None
+
+        # TODO: Andrew's naive vector approach
+
+        # Update dictionaries
+        theta_results_dict[iso] = {
+            "theta_7": theta_7,
+            "theta_8": theta_8,
+            "theta_9_par": theta_9_parent_frame,
+            # "theta_9_iso": theta_9_iso_frame,
+        }
+
+    return theta_results_dict
 
 
 def check_for_length_mismatch(listlike, expected_length: int, message: str):

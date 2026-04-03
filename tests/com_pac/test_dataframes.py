@@ -10,7 +10,7 @@ from com_pac.dataframes import (
     get_atom_indexed_df,
     get_axis_indexed_df,
     get_dataframes,
-    get_theta_df_dict,
+    get_theta_df,
 )
 
 import pytest
@@ -502,7 +502,7 @@ class Test_get_dataframes:
             result_pa_inertias_df_dict,
             result_pa_coordinates_df_dict,
             result_com_values_df,
-            result_theta_df_dict,
+            result_theta_df,
         ) = get_dataframes(
             atom_masses=atom_masses,
             atom_symbols=atom_symbols,
@@ -526,8 +526,8 @@ class Test_get_dataframes:
         assert_equal_df_float(result_dipole_components_df, dipole_components_df)
         # compare result_com_values_df to com_values_df
         assert_equal_df_float(result_com_values_df, com_values_df)
-        # theta_df_dict should be None when theta_data is not provided
-        assert result_theta_df_dict is None
+        # theta_df should be None when theta_data is not provided
+        assert result_theta_df is None
 
         for iso in isotopologue_names:
             # compare result_com_coordinates_df_dict to com_coordinates_df_dict
@@ -557,12 +557,16 @@ class Test_get_dataframes:
             )
 
 
-class Test_get_theta_df_dict:
-    def test_raises_not_implemented(self):
-        """get_theta_df_dict is a stub and not yet implemented."""
-        with pytest.raises(NotImplementedError):
-            get_theta_df_dict(isotopologue_names=["iso1"], theta_data={"iso1": None})
-
-    @pytest.mark.skip(reason="get_theta_df_dict is not yet implemented")
+class Test_get_theta_df:
     def test_expected_results(self):
-        pass
+        """get_theta_df creates a DataFrame indexed by isotopologue name from theta data."""
+        theta_data = {
+            "iso1": {"theta_7": 1.0, "theta_8": 2.0, "theta_9_par": 3.0},
+            "iso2": {"theta_7": 4.0, "theta_8": 5.0, "theta_9_par": 6.0},
+        }
+        result = get_theta_df(isotopologue_names=["iso1", "iso2"], theta_data=theta_data)
+        expected = pd.DataFrame(
+            {"theta_7": [1.0, 4.0], "theta_8": [2.0, 5.0], "theta_9_par": [3.0, 6.0]},
+            index=pd.Index(["iso1", "iso2"]),
+        )
+        pd.testing.assert_frame_equal(result, expected)

@@ -153,8 +153,8 @@ def get_axis_indexed_df(data, column_labels, axis_labels):
     return data_df
 
 
-def get_theta_df_dict(isotopologue_names, theta_data):
-    """Convert theta data dictionary to per-isotopologue DataFrames.
+def get_theta_df(isotopologue_names, theta_data):
+    """Convert theta data dictionary to DataFrame.
 
     Parameters
     ----------
@@ -166,16 +166,11 @@ def get_theta_df_dict(isotopologue_names, theta_data):
 
     Returns
     -------
-    theta_df_dict : dict
-        key = isotopologue_name: str
-        value = pd.DataFrame (structure TBD)
-
-    Raises
-    ------
-    NotImplementedError
-        This function is not yet implemented.
+    theta_df : pd.DataFrame
+        Row
     """
-    raise NotImplementedError("get_theta_df_dict is not yet implemented.")
+    theta_df = pd.DataFrame().from_dict(theta_data, orient="index")
+    return theta_df
 
 
 def get_dataframes(
@@ -238,7 +233,7 @@ def get_dataframes(
             Center-of-Mass position in the original coordinate system
     theta_data: dict or None, optional
         key = isotopologue_name: str
-        value = theta results (structure TBD)
+        value = dict: [str, float] theta values
         If None, theta dataframes are not computed.
 
     Returns
@@ -290,9 +285,10 @@ def get_dataframes(
         RowLabel = Axis
         ColumnLabel = IsotopologueName
         Values = COMValue
-    theta_df_dict: dict or None
-        key = isotopologue_name: str
-        value = dataframe: pd.DataFrame (structure TBD)
+    theta_df: pd.DataFrame or None
+        RowLabel = isotopologue_name: str
+        ColumnLabel = theta_label: str
+        Values = theta_value: float
         None if theta_data was not provided.
     """
     # Atomic masses
@@ -346,10 +342,8 @@ def get_dataframes(
         )
 
     # Theta data
-    theta_df_dict = (
-        get_theta_df_dict(isotopologue_names, theta_data)
-        if theta_data is not None
-        else None
+    theta_df = (
+        get_theta_df(isotopologue_names, theta_data) if theta_data is not None else None
     )
 
     return (
@@ -362,5 +356,5 @@ def get_dataframes(
         pa_inertias_df_dict,
         pa_coordinates_df_dict,
         com_values_df,
-        theta_df_dict,
+        theta_df,
     )

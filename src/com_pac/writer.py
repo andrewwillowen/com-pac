@@ -210,7 +210,7 @@ def _build_results_section(
 
 def _build_theta_results_section(
     isotopologue_names,
-    theta_df_dict,
+    theta_df,
     num_of_decimals,
 ):
     """Build the Theta section of the output file.
@@ -219,9 +219,10 @@ def _build_theta_results_section(
     ----------
     isotopologue_names : list[str]
         List of isotopologue names.
-    theta_df_dict : dict
-        key = isotopologue_name: str
-        value = pd.DataFrame (structure TBD)
+    theta_df : pd.DataFrame
+        RowLabel = isotopologue_name: str
+        ColumnLabel = theta_type: str
+        Value = degrees: float
     num_of_decimals : int
         Number of decimal places for formatting.
 
@@ -229,13 +230,13 @@ def _build_theta_results_section(
     -------
     str
         Formatted theta results section.
-
-    Raises
-    ------
-    NotImplementedError
-        This function is not yet implemented.
     """
-    raise NotImplementedError("_build_theta_results_section is not yet implemented.")
+    return "\n".join(
+        [
+            header_creator("Theta calculations"),
+            df_text_export(theta_df, n_decimals=num_of_decimals),
+        ]
+    )
 
 
 def generate_output_file(
