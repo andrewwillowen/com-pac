@@ -558,11 +558,15 @@ class Test_get_dataframes:
 
 
 class Test_get_theta_df:
-    def test_raises_not_implemented(self):
-        """get_theta_df is a stub and not yet implemented."""
-        with pytest.raises(NotImplementedError):
-            get_theta_df(isotopologue_names=["iso1"], theta_data={"iso1": None})
-
-    @pytest.mark.skip(reason="get_theta_df is not yet implemented")
     def test_expected_results(self):
-        pass
+        """get_theta_df creates a DataFrame indexed by isotopologue name from theta data."""
+        theta_data = {
+            "iso1": {"theta_7": 1.0, "theta_8": 2.0, "theta_9_par": 3.0},
+            "iso2": {"theta_7": 4.0, "theta_8": 5.0, "theta_9_par": 6.0},
+        }
+        result = get_theta_df(isotopologue_names=["iso1", "iso2"], theta_data=theta_data)
+        expected = pd.DataFrame(
+            {"theta_7": [1.0, 4.0], "theta_8": [2.0, 5.0], "theta_9_par": [3.0, 6.0]},
+            index=pd.Index(["iso1", "iso2"]),
+        )
+        pd.testing.assert_frame_equal(result, expected)

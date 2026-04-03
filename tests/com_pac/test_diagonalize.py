@@ -2100,27 +2100,125 @@ class Test_get_principal_axes:
 
 
 class Test_get_theta_values:
-    def test_raises_not_implemented(self):
-        """get_theta_values is a stub and not yet implemented."""
-        with pytest.raises(NotImplementedError):
-            get_theta_values(
-                isotopologue_names=["iso1"],
-                atom_masses=[None],
-                com_coordinates={"iso1": None},
-                com_values={"iso1": None},
-                pa_coordinates={"iso1": None},
-                evals={"iso1": None},
-                evecs={"iso1": None},
-            )
+    # Simple planar 3-atom molecule fixtures (all z=0, COM at origin, in PA frame).
+    # Parent: masses [1, 1, 2], atoms at [(1,-0.5,0), (-1,-0.5,0), (0,0.5,0)].
+    # Isotopologue: masses [1, 1, 3], COM-shifted to [(1,-0.6,0), (-1,-0.6,0), (0,0.4,0)].
+    _parent_pa_coords = np.array([[1.0, -0.5, 0.0], [-1.0, -0.5, 0.0], [0.0, 0.5, 0.0]])
+    _parent_masses = np.array([1.0, 1.0, 2.0])
+    _iso_masses = np.array([1.0, 1.0, 3.0])
+    _iso_pa_coords = np.array([[1.0, -0.6, 0.0], [-1.0, -0.6, 0.0], [0.0, 0.4, 0.0]])
 
-    @pytest.mark.skip(reason="get_theta_values is not yet implemented")
+    def test_returns_none_for_nonplanar_parent(self):
+        """get_theta_values returns None when parent has large I_ac off-diagonal term."""
+        # Coordinates where I_ac = -(1*1*1 + 1*(-1)*(-1)) = -2 (not near zero)
+        non_planar_coords = np.array(
+            [[1.0, -1 / 3, 1.0], [-1.0, -1 / 3, -1.0], [0.0, 2 / 3, 0.0]]
+        )
+        result = get_theta_values(
+            isotopologue_names=["parent"],
+            atom_masses={"parent": np.array([1.0, 1.0, 1.0])},
+            com_coordinates={"parent": None},
+            com_values={"parent": None},
+            pa_coordinates={"parent": non_planar_coords},
+            evals={"parent": None},
+            evecs={"parent": None},
+        )
+        assert result is None
+
     def test_expected_output(self):
-        pass
+        """get_theta_values returns correct theta values for a simple planar molecule."""
+        isotopologue_names = ["parent", "iso"]
+        atom_masses = {"parent": self._parent_masses, "iso": self._iso_masses}
+        pa_coordinates = {
+            "parent": self._parent_pa_coords,
+            "iso": self._iso_pa_coords,
+        }
 
-    @pytest.mark.skip(reason="get_theta_values is not yet implemented")
+        result = get_theta_values(
+            isotopologue_names=isotopologue_names,
+            atom_masses=atom_masses,
+            com_coordinates={"parent": None, "iso": None},
+            com_values={"parent": None, "iso": None},
+            pa_coordinates=pa_coordinates,
+            evals={"parent": None, "iso": None},
+            evecs={"parent": None, "iso": None},
+        )
+
+        assert result is not None
+
+        # Parent: I_ab=0 in parent PA frame → all thetas are 0
+        assert result["parent"]["theta_7"] == pytest.approx(0.0)
+        assert result["parent"]["theta_8"] == pytest.approx(0.0)
+        assert result["parent"]["theta_9_par"] == pytest.approx(0.0)
+
+        # Isotopologue: I_ab=0 (symmetric), so theta_7 and theta_9_par are 0.
+        # theta_8 = arccos((iaa-ibb)/(ia-ib))/2 = arccos(0.9375)/2
+        #   iaa, ibb = diagonal moments of inertia in parent PA frame (with iso masses): 1.25, 2.0
+        #   ia, ib   = principal moments of inertia in isotopologue PA frame: 1.2, 2.0
+        expected_theta_8 = np.degrees(np.arccos(0.9375)) / 2
+        assert result["iso"]["theta_7"] == pytest.approx(0.0)
+        assert result["iso"]["theta_8"] == pytest.approx(expected_theta_8)
+        assert result["iso"]["theta_9_par"] == pytest.approx(0.0)
+
     def test_uses_correct_inputs(self):
-        pass
+        """theta_7 and theta_9_par use parent PA coords; theta_8 uses isotopologue PA coords."""
+        isotopologue_names = ["parent", "iso"]
+        atom_masses = {"parent": self._parent_masses, "iso": self._iso_masses}
 
-    @pytest.mark.skip(reason="get_theta_values is not yet implemented")
+        # Alternative iso PA coords: different ia (COM still at origin for iso masses)
+        # For masses [1,1,3] with y-coords [b,-b,0]: COM_y=(b+b-3*(2b/3))/5? Let's pick b=0.3, y3=0.2
+        alt_iso_pa_coords = np.array(
+            [[1.0, -0.3, 0.0], [-1.0, -0.3, 0.0], [0.0, 0.2, 0.0]]
+        )
+
+        result_orig = get_theta_values(
+            isotopologue_names=isotopologue_names,
+            atom_masses=atom_masses,
+            com_coordinates={"parent": None, "iso": None},
+            com_values={"parent": None, "iso": None},
+            pa_coordinates={"parent": self._parent_pa_coords, "iso": self._iso_pa_coords},
+            evals={"parent": None, "iso": None},
+            evecs={"parent": None, "iso": None},
+        )
+        result_alt = get_theta_values(
+            isotopologue_names=isotopologue_names,
+            atom_masses=atom_masses,
+            com_coordinates={"parent": None, "iso": None},
+            com_values={"parent": None, "iso": None},
+            pa_coordinates={
+                "parent": self._parent_pa_coords,
+                "iso": alt_iso_pa_coords,
+            },
+            evals={"parent": None, "iso": None},
+            evecs={"parent": None, "iso": None},
+        )
+
+        # theta_7 and theta_9_par use parent PA coords with iso masses → unchanged
+        assert result_orig["iso"]["theta_7"] == pytest.approx(result_alt["iso"]["theta_7"])
+        assert result_orig["iso"]["theta_9_par"] == pytest.approx(
+            result_alt["iso"]["theta_9_par"]
+        )
+        # theta_8 uses the isotopologue's own PA coords → differs between the two calls
+        assert result_orig["iso"]["theta_8"] != pytest.approx(result_alt["iso"]["theta_8"])
+
     def test_output_keys_match_isotopologue_names(self):
-        pass
+        """Output dictionary keys match the provided isotopologue names."""
+        isotopologue_names = ["iso_a", "iso_b"]
+        atom_masses = {"iso_a": self._parent_masses, "iso_b": self._iso_masses}
+        pa_coordinates = {
+            "iso_a": self._parent_pa_coords,
+            "iso_b": self._iso_pa_coords,
+        }
+
+        result = get_theta_values(
+            isotopologue_names=isotopologue_names,
+            atom_masses=atom_masses,
+            com_coordinates={"iso_a": None, "iso_b": None},
+            com_values={"iso_a": None, "iso_b": None},
+            pa_coordinates=pa_coordinates,
+            evals={"iso_a": None, "iso_b": None},
+            evecs={"iso_a": None, "iso_b": None},
+        )
+
+        assert result is not None
+        assert set(result.keys()) == set(isotopologue_names)
