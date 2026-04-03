@@ -391,6 +391,11 @@ Exception: {e}""")
             "theta_8": theta_8,
             "theta_9_par": theta_9_parent_frame,
             # "theta_9_iso": theta_9_iso_frame,
+            "iaa": iaa,
+            "ibb": ibb,
+            "iab": iab,
+            "ia": ia,
+            "ib": ib,
         }
 
     return theta_results_dict
