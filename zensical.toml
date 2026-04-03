@@ -58,7 +58,8 @@ nav = [
   { "Usage" = "usage/index.md" },
   { "Theory" = [
      {"index" = "theory/index.md"},
-     {"Intro" = "theory/intro.md"}
+     {"Intro" = "theory/intro.md"},
+     {"Theta Calculations" = "theory/theta.md"}
     ]},
   { "Reference" = "reference/index.md"},
   { "Develop" = [
