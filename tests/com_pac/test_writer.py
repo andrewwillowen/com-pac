@@ -951,19 +951,33 @@ class Test_helper_functions:
 
 
 class Test_build_theta_results_section:
-    def test_raises_not_implemented(self):
-        """_build_theta_results_section is a stub and not yet implemented."""
-        with pytest.raises(NotImplementedError):
-            _build_theta_results_section(["iso1"], {"iso1": None}, 6)
+    @pytest.fixture
+    def theta_df(self):
+        import pandas as pd
 
-    @pytest.mark.skip(reason="_build_theta_results_section is not yet implemented")
-    def test_theta_results_section_contains_header(self):
-        pass
+        return pd.DataFrame(
+            {
+                "theta_7": [1.234567, 2.345678],
+                "theta_8": [3.456789, 4.567890],
+                "theta_9_par": [5.678901, 6.789012],
+            },
+            index=pd.Index(["iso1", "iso2"]),
+        )
 
-    @pytest.mark.skip(reason="_build_theta_results_section is not yet implemented")
-    def test_theta_results_section_contains_iso_names(self):
-        pass
+    def test_theta_results_section_contains_header(self, theta_df):
+        """Section output contains the 'Theta calculations' header."""
+        result = _build_theta_results_section(["iso1", "iso2"], theta_df, 6)
+        assert "Theta calculations" in result
 
-    @pytest.mark.skip(reason="_build_theta_results_section is not yet implemented")
-    def test_theta_results_section_numeric_values(self):
-        pass
+    def test_theta_results_section_contains_iso_names(self, theta_df):
+        """Section output contains the isotopologue names."""
+        result = _build_theta_results_section(["iso1", "iso2"], theta_df, 6)
+        assert "iso1" in result
+        assert "iso2" in result
+
+    def test_theta_results_section_numeric_values(self, theta_df):
+        """Section output contains the expected numeric theta values."""
+        result = _build_theta_results_section(["iso1", "iso2"], theta_df, 6)
+        numbers = _parse_float_values(result)
+        expected = theta_df.to_numpy().flatten()
+        assert np.allclose(numbers, expected, rtol=1e-6, atol=1e-8)
